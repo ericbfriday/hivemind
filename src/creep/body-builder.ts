@@ -4,19 +4,19 @@ const MOVEMENT_MODE_SWAMP = 2;
 const MOVEMENT_MODE_SLOW = 3;
 const MOVEMENT_MODE_MINIMAL = 4;
 const MOVEMENT_MODE_NONE = 5;
-
-type MovementMode = typeof MOVEMENT_MODE_ROAD
+import _ from 'lodash';
+export interface MovementMode = typeof MOVEMENT_MODE_ROAD
 	| typeof MOVEMENT_MODE_PLAINS
 	| typeof MOVEMENT_MODE_SWAMP
 	| typeof MOVEMENT_MODE_SLOW
 	| typeof MOVEMENT_MODE_MINIMAL
 	| typeof MOVEMENT_MODE_NONE;
-type BodyWeights = Partial<Record<BodyPartConstant, number>>;
-type PartCounts = Partial<Record<BodyPartConstant, number>>;
+export interface BodyWeights = Partial<Record<BodyPartConstant, number>>;
+export interface PartCounts = Partial<Record<BodyPartConstant, number>>;
 
 declare global {
 	namespace NodeJS {
-		interface Global {
+		export interface Global {
 			BodyBuilder: typeof BodyBuilder;
 		}
 	}
@@ -31,7 +31,8 @@ export {
 	MOVEMENT_MODE_NONE,
 };
 
-export default class BodyBuilder {
+export default BodyBuilder;
+export class BodyBuilder {
 	moveMode: MovementMode;
 	maxSize: number;
 	energyLimit?: number;
@@ -87,7 +88,7 @@ export default class BodyBuilder {
 	}
 
 	private normalizeWeights(weights: BodyWeights): BodyWeights {
-		const total = _.sum(_.filter(weights, (weight, partType) => weight > 0 && partType !== MOVE));
+		const total = _.sumBy(_.filter(weights, (weight, partType) => weight > 0 && partType !== MOVE));
 
 		if (total <= 0) return {};
 
@@ -110,7 +111,7 @@ export default class BodyBuilder {
 	}
 
 	private calculatePartCounts(): PartCounts {
-		const partCounts: PartCounts = {[MOVE]: 0};
+		const partCounts: PartCounts = { [MOVE]: 0 };
 		let currentSize = 0;
 		let currentCost = 0;
 
@@ -250,7 +251,7 @@ export default class BodyBuilder {
 
 	private interweaveMoveParts(body: BodyPartConstant[], moveParts: number): BodyPartConstant[] {
 		const moveStrength = this.getMovePartStrength();
-		let totalFatigue = _.sum(body, part => this.getGeneratedFatigue(part));
+		let totalFatigue = _.sumBy(body, part => this.getGeneratedFatigue(part));
 		let totalMovePower = moveParts * moveStrength;
 
 		const newBody: BodyPartConstant[] = [];
@@ -286,4 +287,4 @@ export default class BodyBuilder {
 	}
 }
 
-global.BodyBuilder = BodyBuilder;
+globalThis.BodyBuilder = BodyBuilder;

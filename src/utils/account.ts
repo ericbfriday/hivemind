@@ -1,3 +1,4 @@
+import _ from 'lodash';
 
 let ownUserName: string;
 
@@ -8,24 +9,28 @@ let ownUserName: string;
  *   The determined user name.
  */
 function getUsername(): string {
-	if (ownUserName) return ownUserName;
+  if (ownUserName) {
+    return ownUserName;
+  }
 
-	if (_.size(Game.spawns) === 0) {
-		if (_.size(Game.creeps) === 0) {
-			if (_.size(Game.myRooms) === 0) return '@undefined';
+  if (_.size(Game.spawns) === 0) {
+    if (_.size(Game.creeps) === 0) {
+      if (_.size(Game.myRooms) === 0) {
+        return '@undefined';
+      }
 
-			ownUserName = _.sample(Game.myRooms).controller.owner.username;
-			return ownUserName;
-		}
+      ownUserName = _.sample(Game.myRooms).controller.owner.username;
+      return ownUserName;
+    }
 
-		ownUserName = _.sample(Game.creeps).owner.username;
-		return ownUserName;
-	}
+    ownUserName = _.sample(Game.creeps).owner.username;
+    return ownUserName;
+  }
 
-	ownUserName = _.sample(Game.spawns).owner.username;
-	return ownUserName;
+  ownUserName = _.sample(Game.spawns).owner.username;
+  return ownUserName;
 }
 
 export {
-	getUsername,
+  getUsername,
 };

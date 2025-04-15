@@ -1,60 +1,73 @@
-import StructureSource from 'dispatcher/resource-source/structure';
+import StructureSource from '@/dispatcher/resource-source/structure';
 
-interface LinkSourceTask extends StructureSourceTask {
-	type: 'link';
-	target: Id<StructureLink>;
+export interface LinkSourceTask extends StructureSourceTask {
+  type: 'link'
+  target: Id<StructureLink>
 }
 
-export default class LinkSource extends StructureSource<LinkSourceTask> {
-	constructor(readonly room: Room) {
-		super(room);
-	}
+export default LinkSource;
+export class LinkSource extends StructureSource<LinkSourceTask> {
+  constructor(readonly room: Room) {
+    super(room);
+  }
 
-	getType(): 'link' {
-		return 'link';
-	}
+  getType(): 'link' {
+    return 'link';
+  }
 
-	getHighestPriority() {
-		return 5;
-	}
+  getHighestPriority() {
+    return 5;
+  }
 
-	getTasks(context: ResourceSourceContext) {
-		if (!this.room.linkNetwork) return [];
-		if (context.resourceType && context.resourceType !== RESOURCE_ENERGY) return [];
+  getTasks(context: ResourceSourceContext) {
+    if (!this.room.linkNetwork) {
+      return [];
+    }
+    if (context.resourceType && context.resourceType !== RESOURCE_ENERGY) {
+      return [];
+    }
 
-		return this.cacheEmptyTaskListFor('', 25, () => {
-			const options: LinkSourceTask[] = [];
+    return this.cacheEmptyTaskListFor('', 25, () => {
+      const options: LinkSourceTask[] = [];
 
-			for (const link of this.room.linkNetwork.neutralLinks) {
-				if (link.store[RESOURCE_ENERGY] === 0) continue;
+      for (const link of this.room.linkNetwork.neutralLinks) {
+        if (link.store[RESOURCE_ENERGY] === 0) {
+          continue;
+        }
 
-				const option: LinkSourceTask = {
-					priority: 5,
-					weight: link.store[RESOURCE_ENERGY] / 100,
-					type: this.getType(),
-					target: link.id,
-					resourceType: RESOURCE_ENERGY,
-				};
+        const option: LinkSourceTask = {
+          priority: 5,
+          weight: link.store[RESOURCE_ENERGY] / 100,
+          type: this.getType(),
+          target: link.id,
+          resourceType: RESOURCE_ENERGY,
+        };
 
-				if (context.creep.pos.getRangeTo(link) > 10) {
-					// Don't go out of your way to empty the link, do it when nearby, e.g. at storage.
-					option.priority--;
-				}
+        if (context.creep.pos.getRangeTo(link) > 10) {
+          // Don't go out of your way to empty the link, do it when nearby, e.g. at storage.
+          option.priority--;
+        }
 
-				option.priority -= this.room.getCreepsWithOrder(this.getType(), link.id).length * 2;
+        option.priority -= this.room.getCreepsWithOrder(this.getType(), link.id).length * 2;
 
-				options.push(option);
-			}
+        options.push(option);
+      }
 
-			return options;
-		});
-	}
+      return options;
+    });
+  }
 
-	isValid(task: LinkSourceTask, context: ResourceSourceContext) {
-		if (!this.room.linkNetwork) return false;
-		if (this.room.linkNetwork.energy <= this.room.linkNetwork.maxEnergy) return false;
-		if (!super.isValid(task, context)) return false;
+  isValid(task: LinkSourceTask, context: ResourceSourceContext) {
+    if (!this.room.linkNetwork) {
+      return false;
+    }
+    if (this.room.linkNetwork.energy <= this.room.linkNetwork.maxEnergy) {
+      return false;
+    }
+    if (!super.isValid(task, context)) {
+      return false;
+    }
 
-		return true;
-	}
+    return true;
+  }
 }

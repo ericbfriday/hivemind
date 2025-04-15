@@ -5,25 +5,26 @@ STRUCTURE_POWER_SPAWN TERRAIN_MASK_WALL LOOK_STRUCTURES RESOURCE_ENERGY
 LOOK_CONSTRUCTION_SITES OK ORDER_SELL FIND_TOMBSTONES FIND_RUINS */
 
 import Role from 'role/role';
-import utilities from 'utilities';
-import {getResourcesIn} from 'utils/store';
+import utilities from '@/utilities';
+import { getResourcesIn } from '@/utils/store';
+import _ from 'lodash';
 
-type TransporterOrder = ResourceSourceTask | ResourceDestinationTask;
+export interface TransporterOrder = ResourceSourceTask | ResourceDestinationTask;
 
 declare global {
-	interface TransporterCreep extends Creep {
+	export interface TransporterCreep extends Creep {
 		memory: TransporterCreepMemory;
 		heapMemory: TransporterCreepHeapMemory;
 	}
 
-	interface TransporterCreepMemory extends CreepMemory {
+	export interface TransporterCreepMemory extends CreepMemory {
 		role: 'transporter';
 		delivering?: boolean;
 		order?: TransporterOrder;
 		blockedPathCounter?: number;
 	}
 
-	interface TransporterCreepHeapMemory extends CreepHeapMemory {
+	export interface TransporterCreepHeapMemory extends CreepHeapMemory {
 		idlingFor?: number;
 	}
 }
@@ -60,7 +61,8 @@ function isStructureSourceOrder(order: ResourceSourceTask): order is StructureSo
 	return 'target' in order;
 }
 
-export default class TransporterRole extends Role {
+export default TransporterRole;
+export class TransporterRole extends Role {
 	creep: TransporterCreep;
 
 	constructor() {
@@ -91,7 +93,7 @@ export default class TransporterRole extends Role {
 		// Wait if there are no tasks to do.
 		if ((creep.heapMemory.idlingFor || 0) > 0) {
 			creep.heapMemory.idlingFor--;
-			creep.whenInRange(1, creep, () => {});
+			creep.whenInRange(1, creep, () => { });
 			creep.say(`⌛${creep.heapMemory.idlingFor}`);
 			return;
 		}
@@ -182,13 +184,13 @@ export default class TransporterRole extends Role {
 		const creep = this.creep;
 
 		if (!this.ensureDeliveryTaskValidity(creep.memory.order)) {
-			creep.whenInRange(1, creep, () => {});
+			creep.whenInRange(1, creep, () => { });
 			delete creep.memory.order;
 			return;
 		}
 
 		const order = creep.memory.order;
-		creep.room.destinationDispatcher.executeTask(order, {creep});
+		creep.room.destinationDispatcher.executeTask(order, { creep });
 		return;
 	}
 
@@ -209,7 +211,7 @@ export default class TransporterRole extends Role {
 		if (!order) return false;
 
 		if (isResourceDestinationOrder(creep.room, creep.memory.order)) {
-			return creep.room.destinationDispatcher.validateTask(creep.memory.order, {creep});
+			return creep.room.destinationDispatcher.validateTask(creep.memory.order, { creep });
 		}
 
 		return false;
@@ -220,7 +222,7 @@ export default class TransporterRole extends Role {
 	 */
 	calculateDeliveryTarget(): void {
 		const creep = this.creep;
-		creep.memory.order = creep.room.destinationDispatcher.getTask({creep});
+		creep.memory.order = creep.room.destinationDispatcher.getTask({ creep });
 
 		if (!creep.memory.order) {
 			if (creep.store.getFreeCapacity() > 0) this.setDelivering(false);
@@ -246,7 +248,7 @@ export default class TransporterRole extends Role {
 
 		if (!this.ensureSourceTaskValidity(creep.memory.order, sourceCallback)) {
 			delete creep.memory.order;
-			creep.whenInRange(1, creep, () => {});
+			creep.whenInRange(1, creep, () => { });
 
 			if (creep.memory.role === 'transporter') {
 				if (creep.store.getUsedCapacity() > creep.store.getCapacity() * 0.1) {
@@ -261,7 +263,7 @@ export default class TransporterRole extends Role {
 			return;
 		}
 
-		creep.room.sourceDispatcher.executeTask(creep.memory.order, {creep});
+		creep.room.sourceDispatcher.executeTask(creep.memory.order, { creep });
 		return;
 	}
 
@@ -293,7 +295,7 @@ export default class TransporterRole extends Role {
 		}
 
 		if (isResourceSourceOrder(creep.room, order)) {
-			return creep.room.sourceDispatcher.validateTask(order, {creep});
+			return creep.room.sourceDispatcher.validateTask(order, { creep });
 		}
 
 		return false;
@@ -309,7 +311,7 @@ export default class TransporterRole extends Role {
 		if (creep.room.terminal || creep.room.storage) {
 			// It might be more important to pick up a resource needed for a specific task.
 			const bestDestination = creep.room.destinationDispatcher.getTask(
-				{creep, ignoreStoreContent: true},
+				{ creep, ignoreStoreContent: true },
 				(task: ResourceDestinationTask) => {
 					return creep.room.getCurrentResourceAmount(task.resourceType) > 0;
 				},

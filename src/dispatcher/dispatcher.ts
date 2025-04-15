@@ -1,9 +1,9 @@
-import TaskProvider from 'dispatcher/task-provider';
-import utilities from 'utilities';
+import TaskProvider from '@/dispatcher/task-provider';
+import utilities from '@/utilities';
+import _ from 'lodash';
+export type ValidatorCallback<TaskType extends Task, ContextType> = (task: TaskType, context: ContextType) => boolean;
 
-type ValidatorCallback<TaskType extends Task, ContextType> = (task: TaskType, context: ContextType) => boolean;
-
-export default class Dispatcher<TaskType extends Task, ContextType> {
+export class Dispatcher<TaskType extends Task, ContextType> {
 	protected providers: Record<string, TaskProvider<TaskType, ContextType>> = {};
 
 	getTask(context: ContextType, validator?: ValidatorCallback<TaskType, ContextType>): TaskType {
@@ -50,3 +50,5 @@ export default class Dispatcher<TaskType extends Task, ContextType> {
 		this.providers[task.type].execute(task, context);
 	}
 }
+
+export default Dispatcher

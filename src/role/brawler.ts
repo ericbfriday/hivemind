@@ -4,46 +4,47 @@ LOOK_STRUCTURES FIND_STRUCTURES FIND_MY_CREEPS CREEP_LIFE_TIME CLAIM
 FIND_HOSTILE_STRUCTURES OK STRUCTURE_TERMINAL STRUCTURE_INVADER_CORE
 ERR_BUSY ERR_NOT_OWNER ERR_TIRED RANGED_ATTACK FIND_HOSTILE_CREEPS */
 
-import container from 'utils/container';
-import hivemind from 'hivemind';
+import container from '@/utils/container';
+import hivemind from '@/hivemind';
 import PathManager from 'empire/remote-path-manager';
 import Role from 'role/role';
 import TransporterRole from 'role/transporter';
-import utilities from 'utilities';
-import {encodePosition, decodePosition, serializePositionPath, deserializePositionPath} from 'utils/serialization';
-import {getCostMatrix} from 'utils/cost-matrix';
-import {getUsername} from 'utils/account';
-import {getSquad} from 'manager.squad';
+import utilities from '@/utilities';
+import { encodePosition, decodePosition, serializePositionPath, deserializePositionPath } from '@/utils/serialization';
+import { getCostMatrix } from '@/utils/cost-matrix';
+import { getUsername } from '@/utils/account';
+import { getSquad } from '@/manager.squad';
+import _ from 'lodash';
 
-interface ControllerTargetOption extends WeightedOption {
+export interface ControllerTargetOption extends WeightedOption {
 	type: 'controller';
 	object: StructureController;
 }
 
-interface CreepTargetOption extends WeightedOption {
+export interface CreepTargetOption extends WeightedOption {
 	type: 'creep';
 	object: Creep;
 }
 
-interface HostileCreepTargetOption extends WeightedOption {
+export interface HostileCreepTargetOption extends WeightedOption {
 	type: 'hostilecreep';
 	object: Creep;
 }
 
-interface HostileStructureTargetOption extends WeightedOption {
+export interface HostileStructureTargetOption extends WeightedOption {
 	type: 'hostilestructure';
 	object: AnyStructure;
 }
 
-type MilitaryTargetOption = ControllerTargetOption | CreepTargetOption | HostileCreepTargetOption | HostileStructureTargetOption;
+export interface MilitaryTargetOption = ControllerTargetOption | CreepTargetOption | HostileCreepTargetOption | HostileStructureTargetOption;
 
 declare global {
-	interface BrawlerCreep extends Creep {
+	export interface BrawlerCreep extends Creep {
 		memory: BrawlerCreepMemory;
 		heapMemory: BrawlerCreepHeapMemory;
 	}
 
-	interface BrawlerCreepMemory extends CreepMemory {
+	export interface BrawlerCreepMemory extends CreepMemory {
 		role: 'brawler';
 		initialized?: boolean;
 		squadName: string;
@@ -59,11 +60,12 @@ declare global {
 		patrolPoint: Id<StructureKeeperLair>;
 	}
 
-	interface BrawlerCreepHeapMemory extends CreepHeapMemory {
+	export interface BrawlerCreepHeapMemory extends CreepHeapMemory {
 	}
 }
 
-export default class BrawlerRole extends Role {
+export default BrawlerRole;
+export class BrawlerRole extends Role {
 	transporterRole: TransporterRole;
 
 	constructor() {
@@ -348,7 +350,7 @@ export default class BrawlerRole extends Role {
 		if (creep.memory.fillWithEnergy) {
 			if (creep.room.isMine() && creep.store.getFreeCapacity() > 0) {
 				if (creep.room.getEffectiveAvailableEnergy() < 3000) {
-					creep.whenInRange(5, new RoomPosition(25, 25, creep.room.name), () => {});
+					creep.whenInRange(5, new RoomPosition(25, 25, creep.room.name), () => { });
 					return;
 				}
 
@@ -431,10 +433,10 @@ export default class BrawlerRole extends Role {
 			if (hivemind.relations.isAlly(username)) continue;
 
 			const hostiles = creep.room.enemyCreeps[username];
-			creep.whenInRange(1, hostiles[0], () => {}, {allowDanger: true});
+			creep.whenInRange(1, hostiles[0], () => { }, { allowDanger: true });
 		}
 
-		creep.whenInRange(10, new RoomPosition(25, 25, creep.pos.roomName), () => {});
+		creep.whenInRange(10, new RoomPosition(25, 25, creep.pos.roomName), () => { });
 	}
 
 	isPositionBlocked(position: RoomPosition): boolean {
@@ -456,7 +458,7 @@ export default class BrawlerRole extends Role {
 	moveToEngageTarget(creep: BrawlerCreep, target: RoomObject | null) {
 		if (!target) {
 			// @todo Still try to avoid other hostiles.
-			creep.whenInRange(10, new RoomPosition(25, 25, creep.pos.roomName), () => {});
+			creep.whenInRange(10, new RoomPosition(25, 25, creep.pos.roomName), () => { });
 
 			return;
 		}
@@ -490,8 +492,8 @@ export default class BrawlerRole extends Role {
 			// @todo Only flee from melee creeps.
 			// @todo Adjust cost matrix to disincentivize tiles around hostiles.
 			// @todo Include friendly creeps in obstacle list to prevent blocking.
-			const result = PathFinder.search(creep.pos, {pos: target.pos, range: 2}, {
-				roomCallback: roomName => getCostMatrix(roomName, {ignoreMilitary: true}),
+			const result = PathFinder.search(creep.pos, { pos: target.pos, range: 2 }, {
+				roomCallback: roomName => getCostMatrix(roomName, { ignoreMilitary: true }),
 				flee: true,
 				maxRooms: 1,
 			});
@@ -504,7 +506,7 @@ export default class BrawlerRole extends Role {
 		}
 
 		// Non-combat creeps just move toward their target.
-		creep.whenInRange(1, target, () => {});
+		creep.whenInRange(1, target, () => { });
 	}
 
 	performTrainMove(creep: BrawlerCreep) {
@@ -516,7 +518,7 @@ export default class BrawlerRole extends Role {
 			// Stay inside of spawn room.
 			const roomCenter = new RoomPosition(25, 25, creep.pos.roomName);
 			if (creep.pos.getRangeTo(roomCenter) > 20) {
-				creep.whenInRange(20, roomCenter, () => {});
+				creep.whenInRange(20, roomCenter, () => { });
 				return ERR_BUSY;
 			}
 
@@ -597,7 +599,7 @@ export default class BrawlerRole extends Role {
 		}
 
 		// If there's nothing to do, move back to spawn room center.
-		creep.whenInRange(5, new RoomPosition(25, 25, creep.pos.roomName), () => {});
+		creep.whenInRange(5, new RoomPosition(25, 25, creep.pos.roomName), () => { });
 	}
 
 	/**

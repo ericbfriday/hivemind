@@ -2,14 +2,15 @@
 LOOK_STRUCTURES RESOURCE_ENERGY STRUCTURE_TOWER
 STRUCTURE_LINK STRUCTURE_CONTAINER */
 
-import cache from 'utils/cache';
-import {encodePosition} from 'utils/serialization';
-import {handleMapArea} from 'utils/map';
+import _ from 'lodash';
+import cache from '@/utils/cache';
+import { handleMapArea } from '@/utils/map';
+import { encodePosition } from '@/utils/serialization';
 
 declare global {
-	interface Room {
-		bays: Bay[];
-	}
+  export interface Room {
+    bays: Bay[]
+  }
 
 	type BayStructureConstant = typeof bayStructures[number];
 	type AnyBayStructure = ConcreteStructure<BayStructureConstant>;
@@ -18,215 +19,247 @@ declare global {
 const bayStructures = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_LINK, STRUCTURE_CONTAINER];
 const problematicStructures = [STRUCTURE_STORAGE, STRUCTURE_TERMINAL, STRUCTURE_FACTORY, STRUCTURE_LAB, STRUCTURE_NUKER, STRUCTURE_POWER_SPAWN];
 
-export default class Bay {
-	readonly pos: RoomPosition;
-	readonly name: string;
-	_hasHarvester: boolean;
-	readonly extensions: AnyBayStructure[];
-	energy: number;
-	energyCapacity: number;
 
-	/**
-	 * Bays collect extensions into a single entity for more efficient refilling.
-	 * @constructor
-	 *
-	 * @param {RoomPosition} pos
-	 *   Room position around which this bay is placed.
-	 * @param {boolean} hasHarvester
-	 *   Whether a harvester is in this bay to fill it.
-	 */
-	constructor(pos: RoomPosition, hasHarvester: boolean) {
-		this.pos = pos;
-		this.name = encodePosition(pos);
-		this._hasHarvester = hasHarvester;
-		this.extensions = [];
-		this.energy = 0;
-		this.energyCapacity = 0;
+export class Bay {
+  readonly pos: RoomPosition;
+  readonly name: string;
+  _hasHarvester: boolean;
+  readonly extensions: AnyBayStructure[];
+  energy: number;
+  energyCapacity: number;
 
-		const bayExtensions = cache.inHeap(
-			'bay-extensions:' + this.name,
-			250,
-			() => {
-				const room = Game.rooms[this.pos.roomName];
-				const ids: Array<Id<AnyBayStructure>> = [];
-				for (const structureType of bayStructures) {
-					for (const structure of (room.structuresByType[structureType]) || []) {
-						if (structure.pos.getRangeTo(this.pos) > 1) continue;
-						if (!structure.isOperational()) continue;
+  /**
+   * Bays collect extensions into a single entity for more efficient refilling.
+   * @constructor
+   *
+   * @param {RoomPosition} pos
+   *   Room position around which this bay is placed.
+   * @param {boolean} hasHarvester
+   *   Whether a harvester is in this bay to fill it.
+   */
+  constructor(pos: RoomPosition, hasHarvester: boolean) {
+    this.pos = pos;
+    this.name = encodePosition(pos);
+    this._hasHarvester = hasHarvester;
+    this.extensions = [];
+    this.energy = 0;
+    this.energyCapacity = 0;
 
-						ids.push(structure.id);
-					}
-				}
+    const bayExtensions = cache.inHeap(
+      `bay-extensions:${this.name}`,
+      250,
+      () => {
+        const room = Game.rooms[this.pos.roomName];
+        const ids: Array<Id<AnyBayStructure>> = [];
+        for (const structureType of bayStructures) {
+          for (const structure of (room.structuresByType[structureType]) || []) {
+            if (structure.pos.getRangeTo(this.pos) > 1) {
+              continue;
+            }
+            if (!structure.isOperational()) {
+              continue;
+            }
 
-				return ids;
-			},
-		);
+            ids.push(structure.id);
+          }
+        }
 
-		if (this.isBlocked()) return;
+        return ids;
+      },
+    );
 
-		for (const id of bayExtensions) {
-			const extension = Game.getObjectById<AnyBayStructure>(id);
-			if (!extension) continue;
+    if (this.isBlocked()) {
+      return;
+    }
 
-			this.extensions.push(extension);
+    for (const id of bayExtensions) {
+      const extension = Game.getObjectById<AnyBayStructure>(id);
+      if (!extension) {
+        continue;
+      }
 
-			if (extension instanceof StructureExtension || extension instanceof StructureSpawn) {
-				this.energy += Math.min(extension.store.getUsedCapacity(RESOURCE_ENERGY), extension.store.getCapacity(RESOURCE_ENERGY));
-				this.energyCapacity += extension.store.getCapacity(RESOURCE_ENERGY);
-			}
-		}
-	}
+      this.extensions.push(extension);
 
-	isBlocked(): boolean {
-		return cache.inHeap('bay-blocked:' + this.name, 100, () => {
-			// Do not add extensions to bay if center is blocked by a structure.
-			const posStructures = this.pos.lookFor(LOOK_STRUCTURES);
-			for (const structure of posStructures) {
-				if (!structure.isWalkable()) {
-					return true;
-				}
-			}
+      if (extension instanceof StructureExtension || extension instanceof StructureSpawn) {
+        this.energy += Math.min(extension.store.getUsedCapacity(RESOURCE_ENERGY), extension.store.getCapacity(RESOURCE_ENERGY));
+        this.energyCapacity += extension.store.getCapacity(RESOURCE_ENERGY);
+      }
+    }
+  }
 
-			// Bay is also considered blocked if one of it's extensions is overfull.
-			const hasOverfullExtension = cache.inHeap(
-				'has-overfull-extensions:' + this.name,
-				250,
-				() => {
-					const room = Game.rooms[this.pos.roomName];
-					for (const structure of (room.structuresByType[STRUCTURE_EXTENSION]) || []) {
-						if (structure.pos.getRangeTo(this.pos) > 1) continue;
-						if (structure.store.getUsedCapacity(RESOURCE_ENERGY) > structure.store.getCapacity(RESOURCE_ENERGY)) {
-							return true;
-						}
-					}
+  isBlocked(): boolean {
+    return cache.inHeap(`bay-blocked:${this.name}`, 100, () => {
+      // Do not add extensions to bay if center is blocked by a structure.
+      const posStructures = this.pos.lookFor(LOOK_STRUCTURES);
+      for (const structure of posStructures) {
+        if (!structure.isWalkable()) {
+          return true;
+        }
+      }
 
-					return false;
-				},
-			);
-			if (hasOverfullExtension) return true;
+      // Bay is also considered blocked if one of it's extensions is overfull.
+      const hasOverfullExtension = cache.inHeap(
+        `has-overfull-extensions:${this.name}`,
+        250,
+        () => {
+          const room = Game.rooms[this.pos.roomName];
+          for (const structure of (room.structuresByType[STRUCTURE_EXTENSION]) || []) {
+            if (structure.pos.getRangeTo(this.pos) > 1) {
+              continue;
+            }
+            if (structure.store.getUsedCapacity(RESOURCE_ENERGY) > structure.store.getCapacity(RESOURCE_ENERGY)) {
+              return true;
+            }
+          }
 
-			// Do not add extensions to bay if another important structure is in the bay.
-			const importantStructures = this.pos.findInRange(FIND_STRUCTURES, 1, {
-				filter: structure => (problematicStructures as string[]).includes(structure.structureType) && structure.isOperational(),
-			});
-			return importantStructures.length > 0;
-		});
-	}
+          return false;
+        },
+      );
+      if (hasOverfullExtension) {
+        return true;
+      }
 
-	/**
-	 * Checks if an extension is part of this bay.
-	 *
-	 * @param {Structure} extension
-	 *   The structure to check.
-	 *
-	 * @return {boolean}
-	 *   True if this extension is registered with this bay.
-	 */
-	hasExtension(extension: AnyBayStructure): boolean {
-		for (const ourExtension of this.extensions) {
-			if (ourExtension.id === extension.id) return true;
-		}
+      // Do not add extensions to bay if another important structure is in the bay.
+      const importantStructures = this.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: structure => (problematicStructures as string[]).includes(structure.structureType) && structure.isOperational(),
+      });
+      return importantStructures.length > 0;
+    });
+  }
 
-		return false;
-	}
+  /**
+   * Checks if an extension is part of this bay.
+   *
+   * @param {Structure} extension
+   *   The structure to check.
+   *
+   * @return {boolean}
+   *   True if this extension is registered with this bay.
+   */
+  hasExtension(extension: AnyBayStructure): boolean {
+    for (const ourExtension of this.extensions) {
+      if (ourExtension.id === extension.id) {
+        return true;
+      }
+    }
 
-	/**
-	 * Checks if a harvester is in this bay.
-	 *
-	 * @return {boolean}
-	 *   True if a harvester is in this bay.
-	 */
-	hasHarvester(): boolean {
-		return this._hasHarvester;
-	}
+    return false;
+  }
 
-	/**
-	 * Checks if this bay needs to be filled with more energy.
-	 *
-	 * @return {boolean}
-	 *   True if more energy is needed.
-	 */
-	needsRefill(): boolean {
-		return this.energy < this.energyCapacity;
-	}
+  /**
+   * Checks if a harvester is in this bay.
+   *
+   * @return {boolean}
+   *   True if a harvester is in this bay.
+   */
+  hasHarvester(): boolean {
+    return this._hasHarvester;
+  }
 
-	/**
-	 * Refills this bay using energy carried by the given creep.
-	 *
-	 * @param {Creep} creep
-	 *   A creep with carry parts and energy in store.
-	 * @return {boolean}
-	 *   True if more energy is needed.
-	 */
-	refillFrom(creep: Creep) {
-		const needsRefill = this.getStructuresNeedingRefill();
-		if (needsRefill.length === 0) return false;
+  /**
+   * Checks if this bay needs to be filled with more energy.
+   *
+   * @return {boolean}
+   *   True if more energy is needed.
+   */
+  needsRefill(): boolean {
+    return this.energy < this.energyCapacity;
+  }
 
-		const target = _.min(needsRefill, extension => (bayStructures as string[]).indexOf(extension.structureType));
+  /**
+   * Refills this bay using energy carried by the given creep.
+   *
+   * @param {Creep} creep
+   *   A creep with carry parts and energy in store.
+   * @return {boolean}
+   *   True if more energy is needed.
+   */
+  refillFrom(creep: Creep) {
+    const needsRefill = this.getStructuresNeedingRefill();
+    if (needsRefill.length === 0) {
+      return false;
+    }
 
-		// Don't let harvesters refill containers they're on.
-		if (
-			target.structureType === STRUCTURE_CONTAINER
-			&& creep.memory.role === 'harvester'
-			&& creep.pos.isEqualTo(target.pos)
-		) {
-			return false;
-		}
+    const target = _.minBy(needsRefill, extension => (bayStructures as string[]).indexOf(extension.structureType));
 
-		const targetCapacity = target.store.getFreeCapacity(RESOURCE_ENERGY);
-		const amount = Math.min(creep.store.getUsedCapacity(RESOURCE_ENERGY), targetCapacity);
-		const isLastTransfer = amount >= this.energyCapacity - this.energy || amount === creep.store.getUsedCapacity(RESOURCE_ENERGY);
-		if (creep.transfer(target, RESOURCE_ENERGY) === OK && isLastTransfer) return false;
+    // Don't let harvesters refill containers they're on.
+    if (
+      target!.structureType === STRUCTURE_CONTAINER
+      && creep.memory.role === 'harvester'
+      && creep.pos.isEqualTo(target?.pos!)
+    ) {
+      return false;
+    }
 
-		return true;
-	}
+    const targetCapacity = target?.store.getFreeCapacity(RESOURCE_ENERGY);
+    const amount = Math.min(creep.store.getUsedCapacity(RESOURCE_ENERGY), targetCapacity!);
+    const isLastTransfer = amount >= this.energyCapacity - this.energy || amount === creep.store.getUsedCapacity(RESOURCE_ENERGY);
+    if (creep.transfer(target!, RESOURCE_ENERGY) === OK && isLastTransfer) {
+      return false;
+    }
 
-	getStructuresNeedingRefill() {
-		return _.filter(this.extensions, (extension: AnyBayStructure) => {
-			if (extension.store) return extension.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+    return true;
+  }
 
-			return false;
-		});
-	}
+  getStructuresNeedingRefill() {
+    return _.filter(this.extensions, (extension: AnyBayStructure) => {
+      if (extension.store) {
+        return extension.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+      }
 
-	getExitPosition(): RoomPosition {
-		const coords = cache.inHeap('bayExitCoords:' + this.name, 500, () => {
-			let exitCoords;
-			const room = Game.rooms[this.pos.roomName];
-			handleMapArea(this.pos.x, this.pos.y, (x, y) => {
-				const position = new RoomPosition(x, y, this.pos.roomName);
-				if (room?.roomPlanner?.isPlannedLocation(position, 'road')) exitCoords = {x: position.x, y: position.y};
-			});
+      return false;
+    });
+  }
 
-			return exitCoords;
-		});
+  getExitPosition(): RoomPosition {
+    const coords = cache.inHeap(`bayExitCoords:${this.name}`, 500, () => {
+      let exitCoords;
+      const room = Game.rooms[this.pos.roomName];
+      handleMapArea(this.pos.x, this.pos.y, (x, y) => {
+        const position = new RoomPosition(x, y, this.pos.roomName);
+        if (room?.roomPlanner?.isPlannedLocation(position, 'road')) {
+          exitCoords = { x: position.x, y: position.y };
+        }
+      });
 
-		return new RoomPosition(coords.x, coords.y, this.pos.roomName);
-	}
+      return exitCoords;
+    });
 
-	getPossibleExitTiles(): RoomPosition[] {
-		return cache.inHeap('bayExitTiles:' + this.name, 500, () => {
-			const terrain = new Room.Terrain(this.pos.roomName);
-			// @todo Bay's available tiles should by handled and cached by the bay itself.
-			const availableTiles: RoomPosition[] = [];
-			handleMapArea(this.pos.x, this.pos.y, (x, y) => {
-				if (x === this.pos.x && y === this.pos.y) return;
-				if (terrain.get(x, y) === TERRAIN_MASK_WALL) return;
+    return new RoomPosition(coords.x, coords.y, this.pos.roomName);
+  }
 
-				const pos = new RoomPosition(x, y, this.pos.roomName);
+  getPossibleExitTiles(): RoomPosition[] {
+    return cache.inHeap(`bayExitTiles:${this.name}`, 500, () => {
+      const terrain = new Room.Terrain(this.pos.roomName);
+      // @todo Bay's available tiles should by handled and cached by the bay itself.
+      const availableTiles: RoomPosition[] = [];
+      handleMapArea(this.pos.x, this.pos.y, (x, y) => {
+        if (x === this.pos.x && y === this.pos.y) {
+          return;
+        }
+        if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
+          return;
+        }
 
-				// Check if there's a structure here already.
-				const structures = pos.lookFor(LOOK_STRUCTURES);
-				if (_.some(structures, structure => !structure.isWalkable())) return;
+        const pos = new RoomPosition(x, y, this.pos.roomName);
 
-				// Check if there's a construction site here already.
-				const sites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
-				if (_.some(sites, site => !site.isWalkable())) return;
+        // Check if there's a structure here already.
+        const structures = pos.lookFor(LOOK_STRUCTURES);
+        if (_.some(structures, structure => !structure.isWalkable())) {
+          return;
+        }
 
-				availableTiles.push(pos);
-			});
+        // Check if there's a construction site here already.
+        const sites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+        if (_.some(sites, site => !site.isWalkable())) {
+          return;
+        }
 
-			return availableTiles;
-		});
-	}
+        availableTiles.push(pos);
+      });
+
+      return availableTiles;
+    });
+  }
 }
+export default Bay;

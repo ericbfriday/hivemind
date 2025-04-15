@@ -11,50 +11,51 @@
  *   - Claimers   @3.x
  */
 
-import BodyBuilder, {MOVEMENT_MODE_PLAINS, MOVEMENT_MODE_ROAD} from 'creep/body-builder';
-import hivemind from 'hivemind';
-import SpawnRole from 'spawn-role/spawn-role';
-import {decodePosition, encodePosition} from 'utils/serialization';
-import {ENEMY_STRENGTH_NORMAL} from 'room-defense';
-import {getRoomIntel} from 'room-intel';
-import stats from 'utils/stats';
-import cache from 'utils/cache';
-import { getUsername } from 'utils/account';
-
-interface BuilderSpawnOption extends SpawnOption {
+import BodyBuilder, { MOVEMENT_MODE_PLAINS, MOVEMENT_MODE_ROAD } from '@/creep/body-builder';
+import hivemind from '@/hivemind';
+import SpawnRole from '@/spawn-role/spawn-role';
+import { decodePosition, encodePosition } from '@/utils/serialization';
+import { ENEMY_STRENGTH_NORMAL } from '@/room-defense';
+import { getRoomIntel } from '@/room-intel';
+import stats from '@/utils/stats';
+import cache from '@/utils/cache';
+import { getUsername } from '@/utils/account';
+import _ from 'lodash';
+import { RemoteHarvesterCreep, RemoteHarvesterCreepMemory } from '@/role/harvester.remote';
+export interface BuilderSpawnOption extends SpawnOption {
 	unitType: 'builder';
 	size: number;
 }
 
-interface ClaimerSpawnOption extends SpawnOption {
+export interface ClaimerSpawnOption extends SpawnOption {
 	unitType: 'claimer';
 	targetPos: RoomPosition;
 }
 
-interface HarvesterSpawnOption extends SpawnOption {
+export interface HarvesterSpawnOption extends SpawnOption {
 	unitType: 'harvester';
 	targetPos: RoomPosition;
 	isEstablished: boolean;
 	size: number;
 }
 
-interface HaulerSpawnOption extends SpawnOption {
+export interface HaulerSpawnOption extends SpawnOption {
 	unitType: 'hauler';
 	size: number;
 }
 
-interface SkKillerSpawnOption extends SpawnOption {
+export interface SkKillerSpawnOption extends SpawnOption {
 	unitType: 'skKiller';
 	targetRoom: string;
 }
 
-type RemoteMiningSpawnOption = BuilderSpawnOption
+export type RemoteMiningSpawnOption = BuilderSpawnOption
 	| ClaimerSpawnOption
 	| HarvesterSpawnOption
 	| HaulerSpawnOption
 	| SkKillerSpawnOption;
 
-export default class RemoteMiningSpawnRole extends SpawnRole {
+export class RemoteMiningSpawnRole extends SpawnRole {
 	/**
 	 * Adds claimer spawn options for the given room.
 	 *
@@ -101,7 +102,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 		});
 	}
 
-	registerPotentiallyActiveSource(room:Room, position: RoomPosition) {
+	registerPotentiallyActiveSource(room: Room, position: RoomPosition) {
 		// Keep a list of sources that are potentially active in cache.
 		// This is used to determine what rooms we need to spawn defenders for.
 		const roomList: Record<string, boolean> = cache.inHeap('activeRemoteRooms:' + room.name, 1, () => { return {}; });
@@ -150,7 +151,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 	}
 
 	addHaulerSpawnOptions(room: Room, options: RemoteMiningSpawnOption[], haulerDemand: number) {
-		const {currentCarryParts, maxHaulerSize} = cache.inObject(room, 'remoteMiningHaulerData', 1, () => {
+		const { currentCarryParts, maxHaulerSize } = cache.inObject(room, 'remoteMiningHaulerData', 1, () => {
 			// @todo Reduce needed carry parts to account for higher throughput with relays.
 			const maximumNeededCarryParts = this.getMaximumCarryParts(room);
 			const maxHaulerSize = this.getMaximumHaulerSize(room, maximumNeededCarryParts);
@@ -161,9 +162,9 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 				creep.memory.sourceRoom === room.name
 				&& (creep.spawning || creep.ticksToLive > haulerSpawnTime),
 			);
-			const currentCarryParts = _.sum(_.map(currentHaulers, creep => creep.getActiveBodyparts(CARRY)));
+			const currentCarryParts = _.sumBy(_.map(currentHaulers, creep => creep.getActiveBodyparts(CARRY)));
 
-			return {currentCarryParts, maxHaulerSize};
+			return { currentCarryParts, maxHaulerSize };
 		});
 
 		if (currentCarryParts >= haulerDemand) return;
@@ -202,7 +203,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 		const hasRoads = room.controller.level > 3 && (room.storage || room.terminal);
 
 		return (new BodyBuilder())
-			.setWeights({[CARRY]: 1})
+			.setWeights({ [CARRY]: 1 })
 			.setPartLimit(CARRY, maximumCarryParts)
 			.setMovementMode(hasRoads ? MOVEMENT_MODE_ROAD : MOVEMENT_MODE_PLAINS)
 			.setEnergyLimit(room.energyCapacityAvailable)
@@ -244,7 +245,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 
 		const currentWorkParts = cache.inObject(room, 'remoteMiningBuilderData', 1, () => {
 			const currentBuilders = _.filter(Game.creepsByRole['builder.mines'], creep => creep.memory.sourceRoom === room.name);
-			const currentWorkParts = _.sum(_.map(currentBuilders, creep => creep.getActiveBodyparts(WORK)));
+			const currentWorkParts = _.sumBy(_.map(currentBuilders, creep => creep.getActiveBodyparts(WORK)));
 
 			return currentWorkParts;
 		});
@@ -274,7 +275,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 	getMaximumBuilderSize(room: Room, maximumNeededWorkParts: number) {
 		const hasRoads = room.controller.level > 3 && (room.storage || room.terminal);
 		const maximumBody = (new BodyBuilder())
-			.setWeights({[CARRY]: 5, [WORK]: 2})
+			.setWeights({ [CARRY]: 5, [WORK]: 2 })
 			.setPartLimit(WORK, maximumNeededWorkParts)
 			.setMovementMode(hasRoads ? MOVEMENT_MODE_ROAD : MOVEMENT_MODE_PLAINS)
 			.setEnergyLimit(room.energyCapacityAvailable)
@@ -314,7 +315,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 		const maxAdditionalReservation = (claimPartCount - 1) * effectiveLifetime;
 		const roomMemory = Memory.rooms[position.roomName];
 		const remainingReservation = roomMemory.lastClaim ? Math.max(0, roomMemory.lastClaim.value + (roomMemory.lastClaim.time - Game.time)) : 0;
-		const extraReservation: number = _.sum(claimers, creep => (creep.spawning ? CREEP_CLAIM_LIFE_TIME : creep.ticksToLive) * creep.getActiveBodyparts(CLAIM));
+		const extraReservation: number = _.sumBy(claimers, creep => (creep.spawning ? CREEP_CLAIM_LIFE_TIME : creep.ticksToLive) * creep.getActiveBodyparts(CLAIM));
 		const reservationAtArrival = remainingReservation + extraReservation - claimerSpawnTime - pathLength;
 		if (reservationAtArrival + maxAdditionalReservation > CONTROLLER_RESERVE_MAX) return;
 
@@ -349,12 +350,12 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 
 		const currentCreeps = _.filter(Game.creepsByRole.skKiller, creep => creep.memory.targetRoom === roomName) as SkKillerCreep[];
 		const isActiveRoom = _.some(Game.creepsByRole['harvester.remote'], creep => creep.memory.operation === 'mine:' + roomName)
-			|| _.some(Game.creepsByRole['harvester.sk-mining'], (creep: RemoteHarvesterCreep) => decodePosition(creep.memory.source).roomName ===  roomName);
+			|| _.some(Game.creepsByRole['harvester.sk-mining'], (creep: RemoteHarvesterCreep) => decodePosition(creep.memory.source).roomName === roomName);
 
 		// Don't spawn if there is no full path.
 		const operation = Game.operationsByType.mining['mine:' + roomName];
 		const paths = operation.getPaths();
-		const travelTime = _.min(_.map(paths, path => path.travelTime ?? 500));
+		const travelTime = _.minBy(_.map(paths, path => path.travelTime ?? 500));
 		const option: SkKillerSpawnOption = {
 			unitType: 'skKiller',
 			priority: isActiveRoom ? 4 : 1,
@@ -446,7 +447,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 
 		if (harvesters.length >= freeSpots) return;
 		const requestedSaturation = operation.hasContainer(targetPos) || room.controller.level > 5 ? 0.9 : ((BUILD_POWER + HARVEST_POWER) / BUILD_POWER);
-		const workParts = _.sum(harvesters, creep => creep.getActiveBodyparts(WORK));
+		const workParts = _.sumBy(harvesters, creep => creep.getActiveBodyparts(WORK));
 		if (workParts >= operation.getHarvesterSize(targetPos) * requestedSaturation) return;
 
 		options.push(option);
@@ -497,7 +498,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 
 	getClaimerCreepBody(room: Room) {
 		return (new BodyBuilder())
-			.setWeights({[CLAIM]: 1})
+			.setWeights({ [CLAIM]: 1 })
 			// We could do 1 more claim part, since controller loses 1
 			// reservation each tick, but then we risk spawning claimers too late.
 			.setPartLimit(CLAIM, Math.floor(CONTROLLER_RESERVE_MAX / CREEP_CLAIM_LIFE_TIME))
@@ -507,7 +508,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 
 	getHarvesterCreepBody(room: Room, option: HarvesterSpawnOption): BodyPartConstant[] {
 		return (new BodyBuilder())
-			.setWeights({[WORK]: 20, [CARRY]: (option.isEstablished && room.controller.level >= 6) ? 0 : 1})
+			.setWeights({ [WORK]: 20, [CARRY]: (option.isEstablished && room.controller.level >= 6) ? 0 : 1 })
 			.setPartLimit(WORK, option.size > 0 ? option.size + 1 : 0)
 			.setMovementMode(option.isEstablished ? MOVEMENT_MODE_ROAD : MOVEMENT_MODE_PLAINS)
 			.setCarryContentLevel(0)
@@ -519,7 +520,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 		const hasRoads = room.controller.level > 3 && (room.storage || room.terminal);
 
 		return (new BodyBuilder())
-			.setWeights({[CARRY]: 1})
+			.setWeights({ [CARRY]: 1 })
 			.setPartLimit(CARRY, option.size)
 			.setMovementMode(hasRoads ? MOVEMENT_MODE_ROAD : MOVEMENT_MODE_PLAINS)
 			.setEnergyLimit(Math.min(room.energyCapacityAvailable, Math.max(room.energyCapacityAvailable * 0.9, room.energyAvailable)))
@@ -530,7 +531,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 		const hasRoads = room.controller.level > 3 && (room.storage || room.terminal);
 
 		return (new BodyBuilder())
-			.setWeights({[CARRY]: 5, [WORK]: 2})
+			.setWeights({ [CARRY]: 5, [WORK]: 2 })
 			.setPartLimit(WORK, option.size)
 			.setMovementMode(hasRoads ? MOVEMENT_MODE_ROAD : MOVEMENT_MODE_PLAINS)
 			.setEnergyLimit(Math.min(room.energyCapacityAvailable, Math.max(room.energyCapacityAvailable * 0.9, room.energyAvailable)))
@@ -539,7 +540,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 
 	getSkKillerCreepBody(room: Room, option: SkKillerSpawnOption): BodyPartConstant[] {
 		return (new BodyBuilder())
-			.setWeights({[ATTACK]: 4, [HEAL]: 1})
+			.setWeights({ [ATTACK]: 4, [HEAL]: 1 })
 			.setMovementMode(MOVEMENT_MODE_PLAINS)
 			.setMoveBufferRatio(1)
 			.setEnergyLimit(Math.min(room.energyCapacityAvailable, Math.max(room.energyCapacityAvailable * 0.9, room.energyAvailable)))
@@ -620,3 +621,5 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 		operation.addResourceCost(this.calculateBodyCost(body), RESOURCE_ENERGY);
 	}
 }
+
+export default RemoteMiningSpawnRole;

@@ -3,66 +3,67 @@ PWR_OPERATE_STORAGE PWR_OPERATE_SPAWN RESOURCE_OPS STORAGE_CAPACITY
 STRUCTURE_SPAWN PWR_OPERATE_EXTENSION RESOURCE_ENERGY
 PWR_REGEN_MINERAL POWER_CREEP_LIFE_TIME PWR_OPERATE_TOWER */
 
-import cache from 'utils/cache';
+import _ from 'lodash';
+import cache from '@/utils/cache';
 import Role from 'role/role';
-import utilities from 'utilities';
-import {ENEMY_STRENGTH_NONE} from 'room-defense';
+import utilities from '@/utilities';
+import { ENEMY_STRENGTH_NONE } from '@/room-defense';
 
 declare global {
-	interface PowerCreep {
+	export interface PowerCreep {
 		_powerUsed;
 	}
 
-	interface PowerCreepMemory {
+	export interface PowerCreepMemory {
 		newTargetRoom: string;
 		order: OperatorOrder;
 	}
 }
 
-interface OperatorOrderInterface {
+export interface OperatorOrderInterface {
 	priority: number;
 	weight: number;
-	canInterrupt?: boolean;
+	canInterrupt ?: boolean;
 	type: string;
 }
 
-interface OperatorWaitOrder extends OperatorOrderInterface {
+export interface OperatorWaitOrder extends OperatorOrderInterface {
 	type: 'performWait';
 	timer: number;
 }
 
-interface OperatorEnablePowersOrder extends OperatorOrderInterface {
+export interface OperatorEnablePowersOrder extends OperatorOrderInterface {
 	type: 'performEnablePowers';
 }
 
-interface OperatorRenewOrder extends OperatorOrderInterface {
+export interface OperatorRenewOrder extends OperatorOrderInterface {
 	type: 'performRenew';
 }
 
-interface OperatorUsePowerOrder extends OperatorOrderInterface {
+export interface OperatorUsePowerOrder extends OperatorOrderInterface {
 	type: 'usePower';
 	power: PowerConstant;
-	target?: Id<RoomObject & _HasId>;
+	target ?: Id<RoomObject & _HasId>;
 }
 
-interface OperatorDepositOpsOrder extends OperatorOrderInterface {
+export interface OperatorDepositOpsOrder extends OperatorOrderInterface {
 	type: 'depositOps';
-	target?: Id<AnyStoreStructure>;
+	target ?: Id<AnyStoreStructure>;
 }
 
-interface OperatorRetrieveOpsOrder extends OperatorOrderInterface {
+export interface OperatorRetrieveOpsOrder extends OperatorOrderInterface {
 	type: 'retrieveOps';
-	target?: Id<AnyStoreStructure>;
+	target ?: Id<AnyStoreStructure>;
 }
 
-type OperatorOrder = OperatorWaitOrder
-| OperatorEnablePowersOrder
-| OperatorRenewOrder
-| OperatorUsePowerOrder
-| OperatorDepositOpsOrder
-| OperatorRetrieveOpsOrder;
+export type OperatorOrder = OperatorWaitOrder
+	| OperatorEnablePowersOrder
+	| OperatorRenewOrder
+	| OperatorUsePowerOrder
+	| OperatorDepositOpsOrder
+	| OperatorRetrieveOpsOrder;
 
-export default class OperatorRole extends Role {
+export class OperatorRole extends Role {
 	creep: PowerCreep;
 
 	/**
@@ -658,3 +659,5 @@ export default class OperatorRole extends Role {
 		this.creep.usePower(PWR_GENERATE_OPS);
 	}
 }
+
+export default OperatorRole;

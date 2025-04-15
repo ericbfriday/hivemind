@@ -1,11 +1,12 @@
-import {packCoordList, unpackCoordListAsPosList} from 'utils/packrat';
-import {serializeCoords} from 'utils/serialization';
+import { packCoordList, unpackCoordListAsPosList } from '@/utils/packrat';
+import { serializeCoords } from '@/utils/serialization';
 
+import _ from 'lodash';
 declare global {
 	type SerializedPlan = Record<string, string>;
 }
 
-type PositionCache = Record<string, Record<number, RoomPosition>>;
+export interface PositionCache = Record<string, Record<number, RoomPosition>>;
 
 const structureSymbols = {
 	container: '⊔',
@@ -25,7 +26,8 @@ const structureSymbols = {
 	wall: '▦',
 };
 
-export default class RoomPlan {
+export default RoomPlan;
+export class RoomPlan {
 	public get MAX_ROOM_LEVEL() {
 		return 8;
 	}
@@ -135,7 +137,7 @@ export default class RoomPlan {
 		}
 
 		for (const pos of _.values<RoomPosition>(this.positionsByType.rampart || [])) {
-			visual.rect(pos.x - 0.5, pos.y - 0.5, 1, 1, {fill: '#0f0', opacity: 0.2});
+			visual.rect(pos.x - 0.5, pos.y - 0.5, 1, 1, { fill: '#0f0', opacity: 0.2 });
 		}
 	}
 

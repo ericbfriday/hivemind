@@ -1,120 +1,126 @@
 /* global FIND_HOSTILE_STRUCTURES STRUCTURE_INVADER_CORE */
 
-import cache from 'utils/cache';
+import hivemind from '@/hivemind';
+import { getRoomIntel } from '@/room-intel';
+import _ from 'lodash';
 import Process from 'process/process';
-import hivemind from 'hivemind';
-import {getRoomIntel} from 'room-intel';
+import cache from '@/utils/cache';
 
 declare global {
-	interface RoomMemory {
-		enemies: EnemyData;
-	}
+  export interface RoomMemory {
+    enemies: EnemyData
+  }
 
-	interface EnemyData {
-		parts: Record<string, number>;
-		lastSeen: number;
-		expires?: number;
-		safe: boolean;
-		damage: number;
-		heal: number;
-		hasInvaderCore?: boolean;
-	}
+  export interface EnemyData {
+    parts: Record<string, number>
+    lastSeen: number
+    expires?: number
+    safe: boolean
+    damage: number
+    heal: number
+    hasInvaderCore?: boolean
+  }
 }
 
-export default class RoomIntelProcess extends Process {
-	room: Room;
+export default RoomIntelProcess;
+export class RoomIntelProcess extends Process {
+  room: Room;
 
-	/**
-	 * Gathers tick-by-tick intel in a room.
-	 *
-	 * @param {object} parameters
-	 *   Options on how to run this process.
-	 */
-	constructor(parameters: RoomProcessParameters) {
-		super(parameters);
-		this.room = parameters.room;
-	}
+  /**
+   * Gathers tick-by-tick intel in a room.
+   *
+   * @param {object} parameters
+   *   Options on how to run this process.
+   */
+  constructor(parameters: RoomProcessParameters) {
+    super(parameters);
+    this.room = parameters.room;
+  }
 
-	/**
-	 * Gathers intel in a room.
-	 */
-	run() {
-		getRoomIntel(this.room.name).gatherIntel();
-		this.room.scan();
+  /**
+   * Gathers intel in a room.
+   */
+  run() {
+    getRoomIntel(this.room.name).gatherIntel();
+    this.room.scan();
 
-		this.findHostiles();
-	}
+    this.findHostiles();
+  }
 
-	/**
-	 * Detects hostile creeps.
-	 */
-	findHostiles() {
-		const cacheDuration = Game.cpu.bucket > 8000 ? 1 : 10;
-		this.room.memory.enemies = cache.inHeap('enemies:' + this.room.name, cacheDuration, () => {
-			const parts = {};
-			let lastSeen = this.room.memory.enemies ? this.room.memory.enemies.lastSeen : 0;
-			let expires = null;
-			let safe = true;
-			let healCapacity = 0;
-			let damageCapacity = 0;
-			let hasInvaderCore = false;
+  /**
+   * Detects hostile creeps.
+   */
+  findHostiles() {
+    const cacheDuration = Game.cpu.bucket > 8000 ? 1 : 10;
+    this.room.memory.enemies = cache.inHeap(`enemies:${this.room.name}`, cacheDuration, () => {
+      const parts = {};
+      let lastSeen = this.room.memory.enemies ? this.room.memory.enemies.lastSeen : 0;
+      let expires = null;
+      let safe = true;
+      let healCapacity = 0;
+      let damageCapacity = 0;
+      let hasInvaderCore = false;
 
-			_.each(this.room.enemyCreeps, (hostiles, owner) => {
-				if (hivemind.relations.isAlly(owner)) return;
+      _.each(this.room.enemyCreeps, (hostiles, owner) => {
+        if (hivemind.relations.isAlly(owner)) {
+          return;
+        }
 
-				// Count body parts for strength estimation.
-				for (const creep of hostiles) {
-					if (creep.isDangerous()) {
-						if (
-							creep.owner.username === 'Source Keeper'
-							&& _.min(_.map(this.room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos))) <= 5
-						) {
-							// We ignore source keepers for total enemy strength.
-							continue;
-						}
+        // Count body parts for strength estimation.
+        for (const creep of hostiles) {
+          if (creep.isDangerous()) {
+            if (
+              creep.owner.username === 'Source Keeper'
+              && _.minBy(_.map(this.room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos))) <= 5
+            ) {
+              // We ignore source keepers for total enemy strength.
+              continue;
+            }
 
-						safe = false;
-						lastSeen = Game.time;
-						healCapacity += creep.getHealCapacity(1);
-						damageCapacity += creep.getDamageCapacity(1);
-						if (!expires || expires < Game.time + creep.ticksToLive) {
-							expires = Game.time + creep.ticksToLive;
-						}
-					}
+            safe = false;
+            lastSeen = Game.time;
+            healCapacity += creep.getHealCapacity(1);
+            damageCapacity += creep.getDamageCapacity(1);
+            if (!expires || expires < Game.time + creep.ticksToLive) {
+              expires = Game.time + creep.ticksToLive;
+            }
+          }
 
-					for (const part of creep.body) {
-						parts[part.type] = (parts[part.type] || 0) + 1;
-					}
-				}
-			});
+          for (const part of creep.body) {
+            parts[part.type] = (parts[part.type] || 0) + 1;
+          }
+        }
+      });
 
-			for (const structure of this.room.structuresByType[STRUCTURE_INVADER_CORE] || []) {
-				hasInvaderCore = true;
-				safe = safe && (structure.level === 0 || (structure.ticksToDeploy ?? 0) > 1000);
-				lastSeen = Game.time;
+      for (const structure of this.room.structuresByType[STRUCTURE_INVADER_CORE] || []) {
+        hasInvaderCore = true;
+        safe = safe && (structure.level === 0 || (structure.ticksToDeploy ?? 0) > 1000);
+        lastSeen = Game.time;
 
-				for (const effect of (structure.effects || [])) {
-					if (effect.effect === EFFECT_COLLAPSE_TIMER && (!expires || expires < Game.time + effect.ticksRemaining)) {
-						expires = Game.time + effect.ticksRemaining;
-					}
-				}
-			}
+        for (const effect of (structure.effects || [])) {
+          if (effect.effect === EFFECT_COLLAPSE_TIMER && (!expires || expires < Game.time + effect.ticksRemaining)) {
+            expires = Game.time + effect.ticksRemaining;
+          }
+        }
+      }
 
-			return {
-				parts,
-				lastSeen,
-				expires,
-				safe,
-				damage: damageCapacity,
-				heal: healCapacity,
-				hasInvaderCore,
-			};
-		});
+      return {
+        parts,
+        lastSeen,
+        expires,
+        safe,
+        damage: damageCapacity,
+        heal: healCapacity,
+        hasInvaderCore,
+      };
+    });
 
-		if (this.room.isMine() && !this.room.memory.enemies.safe) {
-			this.room.assertMilitarySituation();
-		}
+    if (this.room.isMine() && !this.room.memory.enemies.safe) {
+      this.room.assertMilitarySituation();
+    }
 
-		if (this.room.memory.enemies.safe && !this.room.memory.enemies.hasInvaderCore && _.size(this.room.memory.enemies.parts) === 0) delete this.room.memory.enemies;
-	}
+    if (this.room.memory.enemies.safe && !this.room.memory.enemies.hasInvaderCore && _.size(this.room.memory.enemies.parts) === 0) {
+      delete this.room.memory.enemies;
+    }
+  }
 }

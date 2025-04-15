@@ -1,111 +1,59 @@
 {
-	"name": "screeps-bot-hivemind",
-	"version": "2.0.1",
-	"type": "module",
-	"description": "",
-	"main": "dist/main.js",
-	"screeps_bot": true,
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/Mirroar/hivemind.git"
-	},
-	"author": "David Franke",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/Mirroar/hivemind/issues"
-	},
-	"engines": {
-		"node": "^16.0"
-	},
-	"scripts": {
-		"build": "rollup -c",
-		"test": "xo"
-	},
-	"devDependencies": {
-		"@babel/core": "^7.15.0",
-		"@rollup/plugin-commonjs": "^20.0.0",
-		"@rollup/plugin-node-resolve": "^13.0.4",
-		"@types/lodash": "^3.10.6",
-		"@types/node": "^13.13.52",
-		"eslint-import-resolver-typescript": "^2.7.1",
-		"grunt": "^1.4.1",
-		"grunt-screeps": "^1.5.0",
-		"grunt-ts": "^6.0.0-beta.22",
-		"lodash": "^3.0.0",
-		"prettier": "^2.3.2",
-		"rollup": "^2.56.2",
-		"rollup-plugin-clear": "^2.0.7",
-		"rollup-plugin-screeps": "^1.0.1",
-		"rollup-plugin-typescript2": "^0.30.0",
-		"source-map": "~0.6.1",
-		"ts-node": "^10.2.1",
-		"typescript": "^4.3.5",
-		"xo": "~0.43.0"
-	},
-	"xo": {
-		"rules": {
-			"brace-style": "off",
-			"@typescript-eslint/brace-style": [
-				"error",
-				"stroustrup"
-			],
-			"comma-dangle": [
-				"error",
-				"always-multiline"
-			],
-			"curly": [
-				"error",
-				"multi-line"
-			],
-			"import/no-unresolved": [
-				"error",
-				{
-					"ignore": [
-						"relations.local",
-						"settings.local"
-					]
-				}
-			],
-			"import/no-unassigned-import": [
-				"error",
-				{
-					"allow": [
-						"prototype/*",
-						"**/constants"
-					]
-				}
-			],
-			"prefer-destructuring": [
-				"error",
-				{
-					"array": false,
-					"object": false
-				}
-			],
-			"unicorn/prefer-node-protocol": [
-				"off"
-			],
-			"unicorn/no-array-callback-reference": [
-				"off"
-			],
-			"unicorn/no-array-method-this-argument": [
-				"off"
-			]
-		},
-		"globals": [
-			"_",
-			"Game",
-			"Memory"
-		],
-		"ignores": [
-			"snippets.js",
-			"mock/constants.ts",
-			"src/utils/Profiler"
-		],
-		"settings": {
-			"import/resolver": {
-				"typescript": {}
-			}
-		}
-	}
+  "name": "screeps-bot-hivemind",
+  "type": "module",
+  "version": "2.0.1",
+  "description": "",
+  "author": "David Franke",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Mirroar/hivemind.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mirroar/hivemind/issues"
+  },
+  "main": "dist/main.js",
+  "screeps_bot": true,
+  "engines": {
+    "node": "^18.0"
+  },
+  "scripts": {
+    "build": "yarn exec rollup -c",
+    "test": "xo",
+    "lint": "yarn exec eslint",
+    "lint:fix": "yarn exec eslint --fix",
+    "lint:inspect": "yarn dlx @eslint/config-inspector"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.12.0",
+    "@babel/core": "^7.26.10",
+    "@eslint/js": "^9.24.0",
+    "@eslint/json": "^0.11.0",
+    "@eslint/markdown": "^6.3.0",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@types/lodash": "^4.17.16",
+    "@types/node": "^22.14.1",
+    "eslint": "^9.24.0",
+    "eslint-import-resolver-typescript": "^4.3.2",
+    "eslint-plugin-format": "^1.0.1",
+    "globals": "^16.0.0",
+    "grunt": "^1.6.1",
+    "grunt-screeps": "^1.5.0",
+    "grunt-ts": "^6.0.0-beta.22",
+    "lodash": "4.17.21",
+    "prettier": "3.5.3",
+    "rollup": "^4.40.0",
+    "rollup-plugin-clear": "^2.0.7",
+    "rollup-plugin-screeps": "^1.0.1",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "source-map": "0.7.4",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "typescript": "^4.9.5",
+    "typescript-eslint": "^8.30.1"
+  },
+  "volta": {
+    "node": "18.20.8"
+  }
 }

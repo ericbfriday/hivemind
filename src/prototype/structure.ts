@@ -1,35 +1,36 @@
-import cache from 'utils/cache';
-import {handleMapArea} from 'utils/map';
+import _ from 'lodash';
+import cache from '@/utils/cache';
 
+import { handleMapArea } from '@/utils/map';
 /* global Structure StructureExtension StructureSpawn StructureTower
 STRUCTURE_RAMPART TOWER_OPTIMAL_RANGE TOWER_FALLOFF_RANGE TOWER_FALLOFF
 OBSTACLE_OBJECT_TYPES BODYPART_COST */
 declare global {
-	interface Structure {
-		heapMemory: StructureHeapMemory;
-		isWalkable: () => boolean;
-		isOperational: () => boolean;
-	}
+  export interface Structure {
+    heapMemory: StructureHeapMemory
+    isWalkable: () => boolean
+    isOperational: () => boolean
+  }
 
-	interface StructureExtension {
-		isBayExtension: () => boolean;
-	}
+  export interface StructureExtension {
+    isBayExtension: () => boolean
+  }
 
-	interface StructureSpawn {
-		isBaySpawn: () => boolean;
-		calculateCreepBodyCost;
-		getSpawnDirections: () => DirectionConstant[];
-	}
+  export interface StructureSpawn {
+    isBaySpawn: () => boolean
+    calculateCreepBodyCost
+    getSpawnDirections: () => DirectionConstant[]
+  }
 
-	interface StructureTower {
-		getPowerAtRange;
-	}
+  export interface StructureTower {
+    getPowerAtRange
+  }
 
-	interface StructureFactory {
-		getEffectiveLevel: () => number;
-	}
+  export interface StructureFactory {
+    getEffectiveLevel: () => number
+  }
 
-	interface StructureHeapMemory {}
+  export interface StructureHeapMemory { }
 }
 
 // @todo Periodically clear heap memory of deceased creeps.
@@ -38,19 +39,21 @@ const structureHeapMemory: Record<string, StructureHeapMemory> = {};
 // Define quick access property creep.heapMemory.
 Object.defineProperty(Structure.prototype, 'heapMemory', {
 
-	/**
-	 * Gets semi-persistent memory for a structure.
-	 *
-	 * @return {object}
-	 *   The memory object.
-	 */
-	get() {
-		if (!structureHeapMemory[this.id]) structureHeapMemory[this.id] = {};
+  /**
+   * Gets semi-persistent memory for a structure.
+   *
+   * @return {object}
+   *   The memory object.
+   */
+  get() {
+    if (!structureHeapMemory[this.id]) {
+      structureHeapMemory[this.id] = {};
+    }
 
-		return structureHeapMemory[this.id];
-	},
-	enumerable: false,
-	configurable: true,
+    return structureHeapMemory[this.id];
+  },
+  enumerable: false,
+  configurable: true,
 });
 
 /**
@@ -60,12 +63,14 @@ Object.defineProperty(Structure.prototype, 'heapMemory', {
  *   True if a creep can move onto this structure.
  */
 Structure.prototype.isWalkable = function () {
-	if (_.includes(OBSTACLE_OBJECT_TYPES, this.structureType)) return false;
-	if (this.structureType === STRUCTURE_RAMPART) {
-		return this.my || this.isPublic;
-	}
+  if (_.includes(OBSTACLE_OBJECT_TYPES, this.structureType)) {
+    return false;
+  }
+  if (this.structureType === STRUCTURE_RAMPART) {
+    return this.my || this.isPublic;
+  }
 
-	return true;
+  return true;
 };
 
 /**
@@ -75,32 +80,38 @@ Structure.prototype.isWalkable = function () {
  *   True if the structure is operational.
  */
 Structure.prototype.isOperational = function (this: Structure) {
-	const inactiveStructures = getInactiveStructures(this.room);
+  const inactiveStructures = getInactiveStructures(this.room);
 
-	if (inactiveStructures[this.id]) return false;
+  if (inactiveStructures[this.id]) {
+    return false;
+  }
 
-	return true;
+  return true;
 };
 
 function getInactiveStructures(room: Room): Partial<Record<Id<Structure>, boolean>> {
-	const rcl = room.controller?.level ?? 0;
-	if (rcl >= 8) return {};
+  const rcl = room.controller?.level ?? 0;
+  if (rcl >= 8) {
+    return {};
+  }
 
-	return cache.inHeap('inactiveStructures:' + room.name + ':' + rcl, 500, () => {
-		const inactiveStructures = {};
-		_.each(room.myStructuresByType, (structures, structureType) => {
-			// Check if more structures than allowed exist.
-			if (!CONTROLLER_STRUCTURES[structureType] || structures.length <= CONTROLLER_STRUCTURES[structureType][rcl]) return;
+  return cache.inHeap(`inactiveStructures:${room.name}:${rcl}`, 500, () => {
+    const inactiveStructures = {};
+    _.each(room.myStructuresByType, (structures, structureType) => {
+      // Check if more structures than allowed exist.
+      if (!CONTROLLER_STRUCTURES[structureType] || structures.length <= CONTROLLER_STRUCTURES[structureType][rcl]) {
+        return;
+      }
 
-			for (const structure of structures) {
-				if (!structure.isActive()) {
-					inactiveStructures[structure.id] = true;
-				}
-			}
-		});
+      for (const structure of structures) {
+        if (!structure.isActive()) {
+          inactiveStructures[structure.id] = true;
+        }
+      }
+    });
 
-		return inactiveStructures;
-	});
+    return inactiveStructures;
+  });
 }
 
 /**
@@ -110,46 +121,60 @@ function getInactiveStructures(room: Room): Partial<Record<Id<Structure>, boolea
  *   True if the extension is part of a bay.
  */
 StructureExtension.prototype.isBayExtension = function () {
-	if (!this.bayChecked) {
-		this.bayChecked = true;
-		this.bay = null;
+  if (!this.bayChecked) {
+    this.bayChecked = true;
+    this.bay = null;
 
-		for (const bay of this.room.bays) {
-			if (bay.hasExtension(this)) {
-				this.bay = bay;
-				break;
-			}
-		}
-	}
+    for (const bay of this.room.bays) {
+      if (bay.hasExtension(this)) {
+        this.bay = bay;
+        break;
+      }
+    }
+  }
 
-	return this.bay !== null;
+  return this.bay !== null;
 };
 
 StructureSpawn.prototype.isBaySpawn = StructureExtension.prototype.isBayExtension;
 
 StructureSpawn.prototype.getSpawnDirections = function (this: StructureSpawn): DirectionConstant[] {
-	if (!this.room.roomPlanner) return undefined;
+  if (!this.room.roomPlanner) {
+    return undefined;
+  }
 
-	return cache.inHeap('spawnDir:' + this.name, 2500, () => {
-		const directions = [];
-		const terrain = this.room.getTerrain();
+  return cache.inHeap(`spawnDir:${this.name}`, 2500, () => {
+    const directions = [];
+    const terrain = this.room.getTerrain();
 
-		handleMapArea(this.pos.x, this.pos.y, (x, y) => {
-			if (x === this.pos.x && y === this.pos.y) return;
-			if (terrain.get(x, y) === TERRAIN_MASK_WALL) return;
+    handleMapArea(this.pos.x, this.pos.y, (x, y) => {
+      if (x === this.pos.x && y === this.pos.y) {
+        return;
+      }
+      if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
+        return;
+      }
 
-			const position = new RoomPosition(x, y, this.pos.roomName);
-			if (!this.room.roomPlanner.isPlannedLocation(position, STRUCTURE_ROAD)) return;
-			if (this.room.roomPlanner.isPlannedLocation(position, 'bay_center')) return;
-			if (_.some(position.lookFor(LOOK_STRUCTURES), s => (OBSTACLE_OBJECT_TYPES as string[]).includes(s.structureType))) return;
+      const position = new RoomPosition(x, y, this.pos.roomName);
+      if (!this.room.roomPlanner.isPlannedLocation(position, STRUCTURE_ROAD)) {
+        return;
+      }
+      if (this.room.roomPlanner.isPlannedLocation(position, 'bay_center')) {
+        return;
+      }
+      if (_.some(position.lookFor(LOOK_STRUCTURES), s => (OBSTACLE_OBJECT_TYPES as string[]).includes(s.structureType))) {
+        return;
+      }
 
-			directions.push(this.pos.getDirectionTo(position));
-		});
+      directions.push(this.pos.getDirectionTo(position));
+    });
 
-		if (directions.length === 0) return undefined;
+    if (directions.length === 0) {
+      return undefined;
+    }
 
-		return directions;
-	});
+    return directions;
+  });
 };
 
 /**
@@ -162,10 +187,14 @@ StructureSpawn.prototype.getSpawnDirections = function (this: StructureSpawn): D
  *   Relative power between 0 and 1.
  */
 StructureTower.prototype.getPowerAtRange = function (this: StructureTower, range: number) {
-	if (range < TOWER_OPTIMAL_RANGE) range = TOWER_OPTIMAL_RANGE;
-	if (range > TOWER_FALLOFF_RANGE) range = TOWER_FALLOFF_RANGE;
+  if (range < TOWER_OPTIMAL_RANGE) {
+    range = TOWER_OPTIMAL_RANGE;
+  }
+  if (range > TOWER_FALLOFF_RANGE) {
+    range = TOWER_FALLOFF_RANGE;
+  }
 
-	return 1 - (((range - TOWER_OPTIMAL_RANGE) / (TOWER_FALLOFF_RANGE - TOWER_OPTIMAL_RANGE)) * TOWER_FALLOFF);
+  return 1 - (((range - TOWER_OPTIMAL_RANGE) / (TOWER_FALLOFF_RANGE - TOWER_OPTIMAL_RANGE)) * TOWER_FALLOFF);
 };
 
 /**
@@ -178,13 +207,13 @@ StructureTower.prototype.getPowerAtRange = function (this: StructureTower, range
  *   The total cost in energy units.
  */
 StructureSpawn.prototype.calculateCreepBodyCost = function (bodyMemory) {
-	// @todo This really doesn't need to be a method of StructureSpawn.
-	let cost = 0;
-	_.each(bodyMemory, (count, partType) => {
-		cost += BODYPART_COST[partType] * count;
-	});
+  // @todo This really doesn't need to be a method of StructureSpawn.
+  let cost = 0;
+  _.each(bodyMemory, (count, partType) => {
+    cost += BODYPART_COST[partType] * count;
+  });
 
-	return cost;
+  return cost;
 };
 
 /**
@@ -194,15 +223,17 @@ StructureSpawn.prototype.calculateCreepBodyCost = function (bodyMemory) {
  * exists in the room, that power's level is returned.
  */
 StructureFactory.prototype.getEffectiveLevel = function (this: StructureFactory): number {
-	return cache.inObject(this.heapMemory, 'effectiveLevel', 500, () => {
-		for (const name in this.room.powerCreeps) {
-			const powerCreep = this.room.powerCreeps[name];
+  return cache.inObject(this.heapMemory, 'effectiveLevel', 500, () => {
+    for (const name in this.room.powerCreeps) {
+      const powerCreep = this.room.powerCreeps[name];
 
-			if (powerCreep.powers[PWR_OPERATE_FACTORY]) return powerCreep.powers[PWR_OPERATE_FACTORY].level;
-		}
+      if (powerCreep.powers[PWR_OPERATE_FACTORY]) {
+        return powerCreep.powers[PWR_OPERATE_FACTORY].level;
+      }
+    }
 
-		return 0;
-	});
+    return 0;
+  });
 };
 
-export {};
+export { };

@@ -1,11 +1,11 @@
-const MockHivemind = function () {};
+function MockHivemind() {}
 
 MockHivemind.prototype.log = function () {
-	return {
-		debug() {},
-		info() {},
-		error() {},
-	};
-};
+  return {
+    debug() {},
+    info() {},
+    error() {},
+  }
+}
 
-export default MockHivemind;
+export default MockHivemind

@@ -6,28 +6,29 @@ LOOK_CONSTRUCTION_SITES CONSTRUCTION_COST CREEP_LIFE_TIME MAX_CONSTRUCTION_SITES
 CONTROLLER_STRUCTURES FIND_HOSTILE_STRUCTURES OK STRUCTURE_LINK
 FIND_MY_CONSTRUCTION_SITES */
 
-import cache from 'utils/cache';
-import hivemind from 'hivemind';
-import PersistentFeatureFlag from 'utils/persistent-feature-flag';
+import _ from 'lodash';
+import cache from '@/utils/cache';
+import hivemind from '@/hivemind';
+import PersistentFeatureFlag from '@/utils/persistent-feature-flag';
 import RemoteMiningOperation from 'operation/remote-mining';
 import RoomPlanner from 'room/planner/room-planner';
-import {ENEMY_STRENGTH_NONE} from 'room-defense';
-import {serializeCoords} from 'utils/serialization';
+import { ENEMY_STRENGTH_NONE } from '@/room-defense';
+import { serializeCoords } from '@/utils/serialization';
 
 declare global {
-	interface Structure {
+	export interface Structure {
 		needsDismantling: () => boolean;
 	}
 
-	interface Room {
+	export interface Room {
 		roomManager: RoomManager;
 	}
 
-	interface RoomMemory {
+	export interface RoomMemory {
 		manager: RoomManagerMemory;
 	}
 
-	interface RoomManagerMemory {
+	export interface RoomManagerMemory {
 		runNextTick: boolean;
 		hasMisplacedSpawn: boolean;
 		isMovingMispacedSpawn: boolean;
@@ -35,16 +36,16 @@ declare global {
 	}
 }
 
-interface ScoredExtractorPosition {
+export interface ScoredExtractorPosition {
 	position: RoomPosition;
 	hasExtractor: boolean;
 	score: number;
-	mineralType?: MineralConstant;
+	mineralType ?: MineralConstant;
 }
 
-type RoomManagerFeatureFlag = 'finishedRecovering' | 'cleanedRoom' | 'builtAllStructures' | 'ranAtRcl'; 
+export type RoomManagerFeatureFlag = 'finishedRecovering' | 'cleanedRoom' | 'builtAllStructures' | 'ranAtRcl';
 
-export default class RoomManager {
+export class RoomManager {
 	room: Room;
 	roomPlanner: RoomPlanner;
 	memory: RoomManagerMemory;
@@ -151,7 +152,7 @@ export default class RoomManager {
 		// We only need to check decaying structures if the room is fully built.
 		if (!this.featureFlags.isSet('builtAllStructures')) return;
 		if (!hivemind.hasIntervalPassed(CREEP_LIFE_TIME, this.lastDecayCheck)) return;
-		
+
 		this.lastDecayCheck = Game.time;
 		this.initializeStructureInformation();
 		this.checkDecayedRoomPlanStructures();
@@ -244,7 +245,7 @@ export default class RoomManager {
 
 		this.removeHostileStructures();
 		this.removeHostileConstructionSites();
-		
+
 		if (!this.room.roomPlanner?.hasRoomPlan()) return;
 
 		this.cleanExtensions();
@@ -1021,3 +1022,5 @@ Structure.prototype.needsDismantling = function (this: Structure): boolean {
 
 	return false;
 };
+
+export default RoomManager;

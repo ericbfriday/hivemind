@@ -1,10 +1,10 @@
 import type SpawnManager from 'spawn-manager';
 import settings from '@/settings-manager';
-import _ from 'lodash';
-import Process from 'process/process';
-
 import container from '@/utils/container';
 import { drawTable } from '@/utils/room-visuals';
+
+import _ from 'lodash';
+import Process from 'process/process';
 
 declare global {
   export interface StructureSpawn {

@@ -1,7 +1,7 @@
-import _ from 'lodash';
 import { ENEMY_STRENGTH_NORMAL } from '@/room-defense';
-
 import container from '@/utils/container';
+
+import _ from 'lodash';
 
 export type ResourceLevel = 'low' | 'medium' | 'high' | 'excessive';
 export type ResourceLevelCuttoffs = [number, number, number];

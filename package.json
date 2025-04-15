@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "yarn exec rollup -c",
-    "test": "xo",
+    "// test": "xo",
     "lint": "yarn exec eslint",
     "lint:fix": "yarn exec eslint --fix",
     "lint:inspect": "yarn dlx @eslint/config-inspector"

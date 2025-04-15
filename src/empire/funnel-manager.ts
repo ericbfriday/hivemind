@@ -1,8 +1,8 @@
 import type RoomStatus from 'room/room-status';
-import _ from 'lodash';
 import TradeRoute from '@/trade-route';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
+import _ from 'lodash';
 
 export interface TraderouteInfo {
   source: string

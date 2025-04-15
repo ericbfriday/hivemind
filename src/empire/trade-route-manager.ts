@@ -1,8 +1,8 @@
 import type ResourceLevelManager from 'room/resource-level-manager';
-import _ from 'lodash';
 import { ENEMY_STRENGTH_NONE } from '@/room-defense';
 import cache from '@/utils/cache';
 import { getResourcesIn } from '@/utils/store';
+import _ from 'lodash';
 
 export interface TransportRouteOption {
   priority: number

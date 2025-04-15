@@ -1,11 +1,11 @@
 import balancer from '@/excess-energy-balancer';
 
+import cache from '@/utils/cache';
 /* global RESOURCE_ENERGY OK STRUCTURE_CONTAINER WORK
 UPGRADE_CONTROLLER_POWER */
 import _ from 'lodash';
 import Role from 'role/role';
 import TransporterRole from 'role/transporter';
-import cache from '@/utils/cache';
 
 declare global {
   export interface UpgraderCreep extends Creep {

@@ -7,7 +7,6 @@ STRUCTURE_TERMINAL FIND_RUINS STRUCTURE_INVADER_CORE EFFECT_COLLAPSE_TIMER */
 import type RoomStatus from 'room/room-status';
 import hivemind from '@/hivemind';
 import interShard from '@/intershard';
-import _ from 'lodash';
 import { getUsername } from '@/utils/account';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
@@ -16,6 +15,7 @@ import { handleMapArea } from '@/utils/map';
 import NavMesh from '@/utils/nav-mesh';
 import { packCoord, packCoordList, unpackCoordList, unpackCoordListAsPosList } from '@/utils/packrat';
 import { deserializeCoords, serializeCoords } from '@/utils/serialization';
+import _ from 'lodash';
 
 declare global {
   export interface RoomMemory {

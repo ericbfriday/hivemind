@@ -1,19 +1,19 @@
 /* global PathFinder Room RoomPosition CREEP_LIFE_TIME FIND_MY_CREEPS
 TERRAIN_MASK_WALL STRUCTURE_ROAD FIND_CONSTRUCTION_SITES STRUCTURE_RAMPART */
 
-import type RoomStatus from 'room/room-status';
 import type NavMesh from '@/utils/nav-mesh';
+import type RoomStatus from 'room/room-status';
 import hivemind from '@/hivemind';
+import interShard from '@/intershard';
+import Squad, { getAllSquads } from '@/manager.squad';
 import { getRoomIntel } from '@/room-intel';
 import settings from '@/settings-manager';
-import interShard from '@/intershard';
-import _ from 'lodash';
-import Squad, { getAllSquads } from '@/manager.squad';
-import Process from 'process/process';
 import { getUsername } from '@/utils/account';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
 import stats from '@/utils/stats';
+import _ from 'lodash';
+import Process from 'process/process';
 
 export interface ExpansionTarget {
   roomName: string

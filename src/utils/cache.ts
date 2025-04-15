@@ -1,4 +1,4 @@
-import hivemind from '@/hivemind'
+import hivemind from '@/hivemind';
 
 declare global {
   export interface CacheEntry<T> {
@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-const heapCache = {}
+const heapCache = {};
 
 const cache = {
   /**
@@ -25,11 +25,11 @@ const cache = {
    *   The requested cache object.
    */
   inHeap<T>(cacheKey: string, maxAge: number, generateCallback?: (oldValue?: CacheEntry<T>) => T): T {
-    return cache.inObject(heapCache, cacheKey, maxAge, generateCallback)
+    return cache.inObject(heapCache, cacheKey, maxAge, generateCallback);
   },
 
   fromHeap<T>(cacheKey: string, allowExpired?: boolean): T {
-    return cache.fromObject(heapCache, cacheKey, allowExpired)
+    return cache.fromObject(heapCache, cacheKey, allowExpired);
   },
 
   /**
@@ -46,11 +46,11 @@ const cache = {
    *   The requested cache object.
    */
   inMemory<T>(cacheKey: string, maxAge: number, generateCallback?: (oldValue?: CacheEntry<T>) => T): T {
-    return cache.inObject(Memory, cacheKey, maxAge, generateCallback)
+    return cache.inObject(Memory, cacheKey, maxAge, generateCallback);
   },
 
   fromMemory<T>(cacheKey: string, allowExpired?: boolean): T {
-    return cache.fromObject(Memory, cacheKey, allowExpired)
+    return cache.fromObject(Memory, cacheKey, allowExpired);
   },
 
   /**
@@ -70,34 +70,34 @@ const cache = {
    */
   inObject<T>(o: any, cacheKey: string, maxAge: number, generateCallback?: (oldValue?: CacheEntry<T>) => T): T {
     if (!o._cache) {
-      o._cache = {}
+      o._cache = {};
     }
 
     if (!o._cache[cacheKey] || hivemind.hasIntervalPassed(maxAge, o._cache[cacheKey].created)) {
-      const data = generateCallback ? generateCallback(o._cache[cacheKey]) : {}
+      const data = generateCallback ? generateCallback(o._cache[cacheKey]) : {};
 
       o._cache[cacheKey] = {
         data,
         maxAge,
         created: Game.time,
-      }
+      };
     }
 
-    return o._cache[cacheKey].data
+    return o._cache[cacheKey].data;
   },
 
   fromObject<T>(o: any, cacheKey: string, allowExpired?: boolean): T {
     if (!o._cache) {
-      return null
+      return null;
     }
     if (!o._cache[cacheKey]) {
-      return null
+      return null;
     }
     if (!allowExpired && hivemind.hasIntervalPassed(o._cache[cacheKey].maxAge, o._cache[cacheKey].created)) {
-      return null
+      return null;
     }
 
-    return o._cache[cacheKey].data
+    return o._cache[cacheKey].data;
   },
 
   /**
@@ -109,15 +109,15 @@ const cache = {
    */
   collectGarbage(o?: any) {
     if (!o) {
-      o = heapCache
+      o = heapCache;
     }
 
     for (const key in o._cache || {}) {
       if (Game.time - o._cache[key].created < 2 * o._cache[key].maxAge) {
-        continue
+        continue;
       }
 
-      delete o._cache[key]
+      delete o._cache[key];
     }
   },
 
@@ -132,18 +132,18 @@ const cache = {
    */
   removeEntry(o: any, key: string) {
     if (!o) {
-      o = heapCache
+      o = heapCache;
     }
     if (!o._cache) {
-      return
+      return;
     }
 
-    delete o._cache[key]
+    delete o._cache[key];
   },
 
   removeFromHeap(key: string) {
-    cache.removeEntry(heapCache, key)
+    cache.removeEntry(heapCache, key);
   },
-}
+};
 
-export default cache
+export default cache;

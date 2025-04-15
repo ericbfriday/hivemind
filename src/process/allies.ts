@@ -1,6 +1,6 @@
 import hivemind from '@/hivemind';
-import Process from 'process/process';
 import { FunnelGoal, simpleAllies } from '@/utils/communication';
+import Process from 'process/process';
 
 declare global {
   export interface Memory {

@@ -1,6 +1,6 @@
 import type FunnelManager from 'empire/funnel-manager';
-import _ from 'lodash';
 import { drawTable } from '@/utils/room-visuals';
+import _ from 'lodash';
 
 declare global {
   export interface ReportClasses {

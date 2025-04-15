@@ -1,10 +1,10 @@
 import hivemind from '@/hivemind';
+import cache from '@/utils/cache';
 /* global Creep Room FIND_CREEPS BOOSTS ATTACK
 RANGED_ATTACK HEAL STRUCTURE_TOWER TOWER_POWER_HEAL TOWER_POWER_ATTACK
 ATTACK_POWER RANGED_ATTACK_POWER HEAL_POWER RANGED_HEAL_POWER
 CARRY CLAIM MOVE TOUGH WORK TOWER_ENERGY_COST */
 import _ from 'lodash';
-import cache from '@/utils/cache';
 
 declare global {
   export interface Room {

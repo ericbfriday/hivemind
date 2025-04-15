@@ -2,11 +2,11 @@
 LOOK_STRUCTURES */
 
 import hivemind from '@/hivemind';
-import _ from 'lodash';
-import Operation from 'operation/operation';
 import cache from '@/utils/cache';
 import { getDangerMatrix } from '@/utils/cost-matrix';
 import { getResourcesIn } from '@/utils/store';
+import _ from 'lodash';
+import Operation from 'operation/operation';
 
 declare global {
   export interface RoomMemory {

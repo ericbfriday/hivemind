@@ -6,10 +6,11 @@ export default antfu({
     pluginName: 'style',
     'quotes': 'single',
     overrides: {
+      'curly': 'off',
       'style/brace-style': ['error', 'stroustrup'],
       'style/indent': ["error", 2],
       'style/no-console': 'off',
-      'style/semi': 2,
+      'style/semi': ['warn', 'always'],
       'style/no-tabs': 'warn',
       'style/max-statements-per-line': 'warn',
       'style/no-mixed-spaces-and-tabs': 'warn',
@@ -17,16 +18,14 @@ export default antfu({
   },
   javascript: {
     overrides: {
+      'no-console': 'off',
     }
   },
   typescript: {
     overrides: {
-      'no-console': 'off',
       'ts/no-namespace': ['warn', { allowDeclarations: true, allowDefinitionFiles: true }],
-      'ts/no-unused-vars': [1, { argsIgnorePattern: '^_' }],
       'ts/no-explicit-any': 1,
       'ts/strict-boolean-expressions': 0,
-      'ts/no-unsafe-assignment': 0,
       'ts/no-unsafe-call': 0,
       'ts/no-unsafe-member-access': 0,
       'ts/no-unsafe-return': 0,
@@ -35,7 +34,7 @@ export default antfu({
       'ts/no-unused-vars': 0,
       'ts/no-unused-expressions': 1,
       'ts/no-empty-function': 1,
-      'ts/no-empty-interface': 1,
+      'ts/no-empty-interface': 0,
     }
   },
   jsonc: true,

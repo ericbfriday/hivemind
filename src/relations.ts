@@ -1,6 +1,6 @@
 import settings from '@/settings-manager';
-import localRelations from 'relations.local';
 import { getUsername } from '@/utils/account';
+import localRelations from 'relations.local';
 
 export default Relations;
 export class Relations {

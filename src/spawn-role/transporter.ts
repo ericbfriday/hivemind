@@ -249,4 +249,4 @@ export class TransporterSpawnRole extends SpawnRole {
   }
 }
 
-export default TransporterSpawnRole ;
+export default TransporterSpawnRole;

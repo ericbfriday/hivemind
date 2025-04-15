@@ -6,14 +6,14 @@ FIND_MY_CONSTRUCTION_SITES LOOK_STRUCTURES MAX_CONSTRUCTION_SITES */
 
 import type CombatManager from '@/creep/combat-manager';
 import type RemoteMiningOperation from 'operation/remote-mining';
+import type { RemoteHarvesterCreep } from './harvester.remote';
 import hivemind from '@/hivemind';
-import _ from 'lodash';
-import Role from 'role/role';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
 import { decodePosition, encodePosition, serializePositionPath } from '@/utils/serialization';
 import { getResourcesIn } from '@/utils/store';
-import { RemoteHarvesterCreep } from './harvester.remote';
+import _ from 'lodash';
+import Role from 'role/role';
 
 declare global {
   export interface RelayHaulerCreep extends Creep {

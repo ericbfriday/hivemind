@@ -1,8 +1,8 @@
 import interShard from '@/intershard';
 
+import { getSquad } from '@/manager.squad';
 /* global CLAIM WORK */
 import _ from 'lodash';
-import { getSquad } from '@/manager.squad';
 import Role from 'role/role';
 
 export default UnassignedRole;

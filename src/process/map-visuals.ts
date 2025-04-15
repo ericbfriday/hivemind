@@ -3,11 +3,11 @@
 import type RoomStatus from 'room/room-status';
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
-import RemotePathManager from 'empire/remote-path-manager';
-import Process from 'process/process';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
 import { deserializePosition } from '@/utils/serialization';
+import RemotePathManager from 'empire/remote-path-manager';
+import Process from 'process/process';
 
 // @todo Move constants to settings.
 const drawIntelStatus = false;

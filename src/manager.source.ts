@@ -1,8 +1,8 @@
 /* global Source Mineral StructureKeeperLair LOOK_TERRAIN
 FIND_STRUCTURES STRUCTURE_CONTAINER STRUCTURE_LINK STRUCTURE_KEEPER_LAIR */
 
-import cache from '@/utils/cache'
-import _ from 'lodash'
+import cache from '@/utils/cache';
+import _ from 'lodash';
 
 declare global {
   export interface Source {
@@ -31,19 +31,19 @@ Object.defineProperty(Source.prototype, 'harvesters', {
    */
   get(this: Source) {
     return cache.inObject(this, 'harvesters', 1, () => {
-      const harvesters: Creep[] = []
+      const harvesters: Creep[] = [];
       for (const harvester of Object.values(this.room.creepsByRole.harvester) || []) {
         if ((harvester.memory as HarvesterCreepMemory).fixedSource! === this.id) {
-          harvesters.push(harvester)
+          harvesters.push(harvester);
         }
       }
 
-      return harvesters
-    })
+      return harvesters;
+    });
   },
   enumerable: false,
   configurable: true,
-})
+});
 
 // Define quick access property mineral.harvesters.
 Object.defineProperty(Mineral.prototype, 'harvesters', {
@@ -55,19 +55,19 @@ Object.defineProperty(Mineral.prototype, 'harvesters', {
    */
   get(this: Mineral) {
     return cache.inObject(this, 'harvesters', 1, () => {
-      const harvesters: Creep[] = []
+      const harvesters: Creep[] = [];
       for (const harvester of Object.values(this.room!.creepsByRole.harvester) || []) {
         if ((harvester.memory as HarvesterCreepMemory)!.fixedMineralSource === this.id) {
-          harvesters.push(harvester)
+          harvesters.push(harvester);
         }
       }
 
-      return harvesters
-    })
+      return harvesters;
+    });
   },
   enumerable: false,
   configurable: true,
-})
+});
 
 /**
  * Calculates and caches the number of walkable tiles around a source.
@@ -77,27 +77,27 @@ Object.defineProperty(Mineral.prototype, 'harvesters', {
  */
 function getHarvestSpotCount(this: Source | Mineral) {
   return cache.inHeap(`numFreeSquares:${this.id}`, 5000, () => {
-    const terrain = this.room!.lookForAtArea(LOOK_TERRAIN, this.pos.y - 1, this.pos.x - 1, this.pos.y + 1, this.pos.x + 1, true)
-    const adjacentTerrain: LookForAtAreaResultWithPos<Terrain, 'terrain'>[] = []
+    const terrain = this.room!.lookForAtArea(LOOK_TERRAIN, this.pos.y - 1, this.pos.x - 1, this.pos.y + 1, this.pos.x + 1, true);
+    const adjacentTerrain: LookForAtAreaResultWithPos<Terrain, 'terrain'>[] = [];
     for (const tile of terrain) {
       if (tile.x === this.pos.x && tile.y === this.pos.y) {
-        continue
+        continue;
       }
       if (tile.terrain !== 'plain' && tile.terrain !== 'swamp') {
-        continue
+        continue;
       }
 
       // Make sure no structures are blocking this tile.
-      const structures = this.room!.lookForAt(LOOK_STRUCTURES, tile.x, tile.y)
+      const structures = this.room!.lookForAt(LOOK_STRUCTURES, tile.x, tile.y);
       if (_.some(structures, (s: Structure) => !s.isWalkable())) {
-        continue
+        continue;
       }
 
-      adjacentTerrain.push(tile)
+      adjacentTerrain.push(tile);
     }
 
-    return adjacentTerrain.length
-  })
+    return adjacentTerrain.length;
+  });
 }
 
 /**
@@ -107,8 +107,8 @@ function getHarvestSpotCount(this: Source | Mineral) {
  *   Maximum number of harvesters on this source.
  */
 Source.prototype.getNumHarvestSpots = function (this: Source) {
-  return getHarvestSpotCount.call(this)
-}
+  return getHarvestSpotCount.call(this);
+};
 
 /**
  * Calculates and caches the number of walkable tiles around a source.
@@ -117,8 +117,8 @@ Source.prototype.getNumHarvestSpots = function (this: Source) {
  *   Maximum number of harvesters on this mineral.
  */
 Mineral.prototype.getNumHarvestSpots = function (this: Mineral) {
-  return getHarvestSpotCount.call(this)
-}
+  return getHarvestSpotCount.call(this);
+};
 
 /**
  * Finds a container in close proximity to this target, for dropping off resources.
@@ -132,33 +132,33 @@ function getNearbyContainer(this: Source | Mineral) {
     // @todo Could use old data and just check if object still exits.
     const structures: StructureContainer[] = _.filter(this.room!.structuresByType[STRUCTURE_CONTAINER], (s) => {
       if (s.pos.getRangeTo(this) > 5) {
-        return false
+        return false;
       }
 
       if (!this.room!.roomPlanner) {
-        return true
+        return true;
       }
 
-      const positionType = (this instanceof Source) ? 'container.source' : 'container.mineral'
+      const positionType = (this instanceof Source) ? 'container.source' : 'container.mineral';
       if (this.room!.roomPlanner.isPlannedLocation(s.pos, positionType)) {
-        return true
+        return true;
       }
 
-      return false
-    })
+      return false;
+    });
     if (structures.length > 0) {
-      const structure = this.pos.findClosestByRange(structures)
-      return structure?.id ?? null
+      const structure = this.pos.findClosestByRange(structures);
+      return structure?.id ?? null;
     }
 
-    return null
-  })
+    return null;
+  });
 
   if (containerId) {
-    return Game.getObjectById<StructureContainer>(containerId)
+    return Game.getObjectById<StructureContainer>(containerId);
   }
 
-  return null
+  return null;
 }
 
 /**
@@ -168,8 +168,8 @@ function getNearbyContainer(this: Source | Mineral) {
  *   A container close to this source.
  */
 Source.prototype.getNearbyContainer = function (this: Source) {
-  return getNearbyContainer.call(this)
-}
+  return getNearbyContainer.call(this);
+};
 
 /**
  * Finds a container in close proximity to this mineral, for dropping off resources.
@@ -178,8 +178,8 @@ Source.prototype.getNearbyContainer = function (this: Source) {
  *   A container close to this mineral.
  */
 Mineral.prototype.getNearbyContainer = function (this: Mineral) {
-  return getNearbyContainer.call(this)
-}
+  return getNearbyContainer.call(this);
+};
 
 /**
  * Finds a link in close proximity to this source, for dropping off energy.
@@ -193,21 +193,21 @@ Source.prototype.getNearbyLink = function (this: Source) {
     // Check if there is a link nearby.
     const structures = this.pos.findInRange(FIND_STRUCTURES, 3, {
       filter: structure => structure.structureType === STRUCTURE_LINK,
-    })
+    });
     if (structures.length > 0) {
-      const structure = this.pos.findClosestByRange(structures)
-      return structure?.id ?? null
+      const structure = this.pos.findClosestByRange(structures);
+      return structure?.id ?? null;
     }
 
-    return null
-  })
+    return null;
+  });
 
   if (linkId) {
-    return Game.getObjectById(linkId as Id<StructureLink>)
+    return Game.getObjectById(linkId as Id<StructureLink>);
   }
 
-  return null
-}
+  return null;
+};
 
 /**
  * Finds a source keeper lair in close proximity to this source.
@@ -221,20 +221,20 @@ function getNearbyLair(this: Source | Mineral) {
     // Check if there is a lair nearby.
     const structures = this.pos.findInRange(FIND_STRUCTURES, 10, {
       filter: structure => structure.structureType === STRUCTURE_KEEPER_LAIR,
-    })
+    });
     if (structures.length > 0) {
-      const structure = this.pos.findClosestByRange(structures)
-      return structure?.id ?? null
+      const structure = this.pos.findClosestByRange(structures);
+      return structure?.id ?? null;
     }
 
-    return null
-  })
+    return null;
+  });
 
   if (lairId) {
-    return Game.getObjectById(lairId)
+    return Game.getObjectById(lairId);
   }
 
-  return null
+  return null;
 }
 
 /**
@@ -244,8 +244,8 @@ function getNearbyLair(this: Source | Mineral) {
  *   The lair protecting this source.
  */
 Source.prototype.getNearbyLair = function (this: Source) {
-  return getNearbyLair.call(this)
-}
+  return getNearbyLair.call(this);
+};
 
 /**
  * Finds a source keeper lair in close proximity to this mineral.
@@ -254,5 +254,5 @@ Source.prototype.getNearbyLair = function (this: Source) {
  *   The lair protecting this mineral.
  */
 Mineral.prototype.getNearbyLair = function (this: Mineral) {
-  return getNearbyLair.call(this)
-}
+  return getNearbyLair.call(this);
+};

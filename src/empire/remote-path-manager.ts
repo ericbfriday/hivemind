@@ -2,11 +2,11 @@
 
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
-import _ from 'lodash';
 import cache from '@/utils/cache';
 import { handleMapArea } from '@/utils/map';
 import { packPosList, unpackPosList } from '@/utils/packrat';
 import { encodePosition } from '@/utils/serialization';
+import _ from 'lodash';
 
 declare global {
   interface RemotePathMemory {

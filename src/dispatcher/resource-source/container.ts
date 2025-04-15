@@ -1,6 +1,6 @@
 import StructureSource from '@/dispatcher/resource-source/structure';
-import _ from 'lodash';
 import { getResourcesIn } from '@/utils/store';
+import _ from 'lodash';
 
 export interface ContainerSourceTask extends StructureSourceTask {
   type: 'container'

@@ -1,9 +1,9 @@
 /* global FIND_HOSTILE_CREEPS STRUCTURE_RAMPART */
 
 import hivemind from '@/hivemind';
+import container from '@/utils/container';
 import _ from 'lodash';
 import Role from 'role/role';
-import container from '@/utils/container';
 
 declare global {
   export interface GuardianCreep extends Creep {

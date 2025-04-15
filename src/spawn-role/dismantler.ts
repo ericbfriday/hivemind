@@ -2,8 +2,8 @@
 
 import type RemoteMiningOperation from 'operation/remote-mining';
 import BodyBuilder, { MOVEMENT_MODE_ROAD } from '@/creep/body-builder';
-import _ from 'lodash';
 import SpawnRole from '@/spawn-role/spawn-role';
+import _ from 'lodash';
 
 export interface DismantlerSpawnOption extends SpawnOption {
   targetRoom?: string

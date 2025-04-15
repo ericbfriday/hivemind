@@ -2,9 +2,9 @@
 
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
+import cache from '@/utils/cache';
 import _ from 'lodash';
 import Process from 'process/process';
-import cache from '@/utils/cache';
 
 declare global {
   export interface RoomMemory {

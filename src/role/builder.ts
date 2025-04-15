@@ -4,16 +4,16 @@ UPGRADE_CONTROLLER_POWER RESOURCE_ENERGY */
 
 import balancer from '@/excess-energy-balancer';
 import hivemind from '@/hivemind';
-import _ from 'lodash';
-import Role from 'role/role';
-import TransporterRole from 'role/transporter';
 import { ENEMY_STRENGTH_NONE, ENEMY_STRENGTH_NORMAL } from '@/room-defense';
 import utilities from '@/utilities';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
 import { getResourcesIn } from '@/utils/store';
-
 import { throttle } from '@/utils/throttle';
+import _ from 'lodash';
+import Role from 'role/role';
+
+import TransporterRole from 'role/transporter';
 
 export interface RepairOrder {
   type: 'repair'

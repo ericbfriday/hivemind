@@ -1,10 +1,10 @@
 import type CombatManager from '@/creep/combat-manager';
 import type RemoteMiningOperation from 'operation/remote-mining';
 import hivemind from '@/hivemind';
-import Role from 'role/role';
 import { getUsername } from '@/utils/account';
 import container from '@/utils/container';
 import { decodePosition } from '@/utils/serialization';
+import Role from 'role/role';
 
 declare global {
   export interface RoomMemory {

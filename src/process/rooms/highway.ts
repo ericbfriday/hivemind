@@ -1,8 +1,8 @@
 import { getRoomIntel } from '@/room-intel';
-import _ from 'lodash';
-import Process from 'process/process';
 import cache from '@/utils/cache';
 import { isCrossroads } from '@/utils/room-name';
+import _ from 'lodash';
+import Process from 'process/process';
 
 declare global {
   export interface StrategyMemory {

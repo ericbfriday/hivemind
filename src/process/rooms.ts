@@ -1,6 +1,9 @@
 import hivemind, { PROCESS_PRIORITY_ALWAYS, PROCESS_PRIORITY_DEFAULT } from '@/hivemind';
-import settings from '@/settings-manager';
 import interShard from '@/intershard';
+import settings from '@/settings-manager';
+import container from '@/utils/container';
+import { isHighway } from '@/utils/room-name';
+import { encodePosition } from '@/utils/serialization';
 import _ from 'lodash';
 import Process from 'process/process';
 import HighwayRoomProcess from 'process/rooms/highway';
@@ -9,9 +12,6 @@ import OwnedRoomProcess from 'process/rooms/owned';
 import RoomManagerProcess from 'process/rooms/owned/manager';
 import RoomPlanner from 'room/planner/room-planner';
 import RoomManager from 'room/room-manager';
-import container from '@/utils/container';
-import { isHighway } from '@/utils/room-name';
-import { encodePosition } from '@/utils/serialization';
 
 declare global {
   export interface Memory {

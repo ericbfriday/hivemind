@@ -1,10 +1,10 @@
 import hivemind from '@/hivemind';
-import { getRoomIntel } from '@/room-intel';
-import _ from 'lodash';
 import { ENEMY_STRENGTH_NONE } from '@/room-defense';
+import { getRoomIntel } from '@/room-intel';
 import cache from '@/utils/cache';
 import { handleMapArea } from '@/utils/map';
 import { encodePosition } from '@/utils/serialization';
+import _ from 'lodash';
 
 export interface CostMatrixOptions {
   singleRoom?: boolean

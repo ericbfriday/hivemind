@@ -1,14 +1,14 @@
 /* global RoomPosition MOVE ATTACK HEAL RANGED_ATTACK ATTACK_POWER
 RANGED_ATTACK_POWER HEAL_POWER RESOURCE_ENERGY */
 
-import hivemind from '@/hivemind';
+import type { RemoteHarvesterCreep } from '@/role/harvester.remote';
 import BodyBuilder from '@/creep/body-builder';
-import _ from 'lodash';
+import hivemind from '@/hivemind';
 import SpawnRole from '@/spawn-role/spawn-role';
 import cache from '@/utils/cache';
 import NavMesh from '@/utils/nav-mesh';
 import { decodePosition, encodePosition } from '@/utils/serialization';
-import { RemoteHarvesterCreep } from '@/role/harvester.remote';
+import _ from 'lodash';
 
 export interface BrawlerSpawnOption extends SpawnOption {
   targetPos?: string

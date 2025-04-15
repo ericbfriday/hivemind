@@ -2,10 +2,10 @@
 
 import type SpawnRole from '@/spawn-role/spawn-role';
 import hivemind from '@/hivemind';
-import _ from 'lodash';
 import utilities from '@/utilities';
 import cache from '@/utils/cache';
 import { handleMapArea } from '@/utils/map';
+import _ from 'lodash';
 
 declare global {
   export interface StructureSpawn {

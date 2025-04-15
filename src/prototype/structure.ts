@@ -1,7 +1,7 @@
-import _ from 'lodash';
 import cache from '@/utils/cache';
-
 import { handleMapArea } from '@/utils/map';
+
+import _ from 'lodash';
 /* global Structure StructureExtension StructureSpawn StructureTower
 STRUCTURE_RAMPART TOWER_OPTIMAL_RANGE TOWER_FALLOFF_RANGE TOWER_FALLOFF
 OBSTACLE_OBJECT_TYPES BODYPART_COST */

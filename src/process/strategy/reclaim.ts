@@ -1,6 +1,6 @@
 import type ReclaimManager from 'reclaim-manager';
-import Process from 'process/process';
 import container from '@/utils/container';
+import Process from 'process/process';
 
 export default ReclaimProcess;
 export class ReclaimProcess extends Process {

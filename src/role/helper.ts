@@ -1,8 +1,8 @@
 /* global RESOURCE_ENERGY */
 
+import { getResourcesIn } from '@/utils/store';
 import _ from 'lodash';
 import Role from 'role/role';
-import { getResourcesIn } from '@/utils/store';
 
 declare global {
   export interface HelperCreep extends Creep {

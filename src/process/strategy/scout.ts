@@ -2,14 +2,14 @@
 
 import type RoomStatus from 'room/room-status';
 import hivemind from '@/hivemind';
-import { getRoomIntel } from '@/room-intel';
-import PathManager from 'empire/remote-path-manager';
 import interShard from '@/intershard';
-import _ from 'lodash';
-import Process from 'process/process';
+import { getRoomIntel } from '@/room-intel';
 import container from '@/utils/container';
 import { isHighway } from '@/utils/room-name';
 import { decodePosition } from '@/utils/serialization';
+import PathManager from 'empire/remote-path-manager';
+import _ from 'lodash';
+import Process from 'process/process';
 
 declare global {
   export interface StructureObserver {

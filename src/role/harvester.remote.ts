@@ -3,28 +3,27 @@ STRUCTURE_CONTAINER FIND_SOURCES LOOK_CONSTRUCTION_SITES
 FIND_MY_CONSTRUCTION_SITES */
 
 import type CombatManager from '@/creep/combat-manager';
+import container from '@/utils/container';
+import { decodePosition, serializePositionPath } from '@/utils/serialization';
 import _ from 'lodash';
 import RemoteMiningOperation from 'operation/remote-mining';
 import Role from 'role/role';
-import container from '@/utils/container';
-import { decodePosition, serializePositionPath } from '@/utils/serialization';
 
-  export interface RemoteHarvesterCreep extends Creep {
-    memory: RemoteHarvesterCreepMemory
-    heapMemory: RemoteHarvesterCreepHeapMemory
-    operation: RemoteMiningOperation
-  }
+export interface RemoteHarvesterCreep extends Creep {
+  memory: RemoteHarvesterCreepMemory
+  heapMemory: RemoteHarvesterCreepHeapMemory
+  operation: RemoteMiningOperation
+}
 
-  export interface RemoteHarvesterCreepMemory extends CreepMemory {
-    role: 'harvester.remote'
-    source: string
-  }
+export interface RemoteHarvesterCreepMemory extends CreepMemory {
+  role: 'harvester.remote'
+  source: string
+}
 
-  export interface RemoteHarvesterCreepHeapMemory extends CreepHeapMemory {
-  }
+export interface RemoteHarvesterCreepHeapMemory extends CreepHeapMemory {
+}
 
-
-export  class RemoteHarvesterRole extends Role {
+export class RemoteHarvesterRole extends Role {
   private combatManager: CombatManager;
 
   constructor() {

@@ -1,5 +1,5 @@
-import _ from 'lodash';
 import cache from '@/utils/cache';
+import _ from 'lodash';
 
 declare global {
   export interface ReportClasses {

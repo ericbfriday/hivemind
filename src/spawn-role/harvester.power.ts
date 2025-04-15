@@ -1,11 +1,11 @@
 /* global RoomPosition CREEP_LIFE_TIME CREEP_SPAWN_TIME MAX_CREEP_SIZE
 ATTACK POWER_BANK_HIT_BACK ATTACK_POWER HEAL_POWER MOVE HEAL */
 
-import hivemind from '@/hivemind';
 import BodyBuilder from '@/creep/body-builder';
-import _ from 'lodash';
+import hivemind from '@/hivemind';
 import SpawnRole from '@/spawn-role/spawn-role';
 import NavMesh from '@/utils/nav-mesh';
+import _ from 'lodash';
 
 export interface PowerHarvesterSpawnOption extends SpawnOption {
   targetRoom: string

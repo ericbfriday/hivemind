@@ -2,10 +2,10 @@
 
 import type { EnemyStrength } from '@/room-defense';
 import hivemind from '@/hivemind';
-import _ from 'lodash';
-import Process from 'process/process';
 import { ENEMY_STRENGTH_NONE, ENEMY_STRENGTH_NORMAL } from '@/room-defense';
 import cache from '@/utils/cache';
+import _ from 'lodash';
+import Process from 'process/process';
 
 export default RoomDefenseProcess;
 export class RoomDefenseProcess extends Process {

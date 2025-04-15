@@ -1,11 +1,11 @@
 /* global ENERGY_REGEN_TIME PWR_REGEN_SOURCE POWER_INFO MOVE WORK CARRY */
 
 import BodyBuilder, { MOVEMENT_MODE_MINIMAL, MOVEMENT_MODE_ROAD } from '@/creep/body-builder';
-import _ from 'lodash';
 import SpawnRole from '@/spawn-role/spawn-role';
 import { getDangerMatrix } from '@/utils/cost-matrix';
 import { handleMapArea } from '@/utils/map';
 import stats from '@/utils/stats';
+import _ from 'lodash';
 
 export interface HarvesterSpawnOption extends SpawnOption {
   source: Id<Source>

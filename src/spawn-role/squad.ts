@@ -2,9 +2,9 @@
 
 import type Squad from '@/manager.squad';
 import BodyBuilder, { MOVEMENT_MODE_SWAMP } from '@/creep/body-builder';
-import _ from 'lodash';
 import { getAllSquads } from '@/manager.squad';
 import SpawnRole from '@/spawn-role/spawn-role';
+import _ from 'lodash';
 
 const availableUnitTypes = [
   'ranger',

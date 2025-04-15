@@ -1,6 +1,6 @@
 import TaskProvider from '@/dispatcher/task-provider';
-import _ from 'lodash';
 import { ENEMY_STRENGTH_NORMAL } from '@/room-defense';
+import _ from 'lodash';
 
 export interface WorkerCreepDestinationTask extends ResourceDestinationTask {
   type: 'workerCreep'

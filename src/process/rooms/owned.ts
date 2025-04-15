@@ -2,6 +2,7 @@
 
 import balancer from '@/excess-energy-balancer';
 import hivemind, { PROCESS_PRIORITY_ALWAYS, PROCESS_PRIORITY_DEFAULT, PROCESS_PRIORITY_LOW } from '@/hivemind';
+import { timeCall } from '@/utils/cpu';
 import RoomOperation from 'operation/room';
 import Process from 'process/process';
 import RoomDefenseProcess from 'process/rooms/owned/defense';
@@ -11,7 +12,6 @@ import ManageLinksProcess from 'process/rooms/owned/links';
 import RoomManagerProcess from 'process/rooms/owned/manager';
 import RoomSongsProcess from 'process/rooms/owned/songs';
 import ManageSpawnsProcess from 'process/rooms/owned/spawns';
-import { timeCall } from '@/utils/cpu';
 
 declare global {
   export interface Memory {

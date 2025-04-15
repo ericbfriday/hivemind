@@ -1,7 +1,7 @@
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
-import _ from 'lodash';
 import { getExitCenters } from '@/utils/room-info';
+import _ from 'lodash';
 
 declare global {
   interface VariationInfo {

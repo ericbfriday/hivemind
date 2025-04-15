@@ -1,6 +1,7 @@
 import type { Container } from './utils/container';
 import ResourceLevelManager from '@/room/resource-level-manager';
 import brawlerSpawnRole from '@/spawn-role/brawler';
+import BrawlerSpawnRole from '@/spawn-role/brawler';
 import builderSpawnRole from '@/spawn-role/builder';
 import dismantlerSpawnRole from '@/spawn-role/dismantler';
 import harvesterSpawnRole from '@/spawn-role/harvester';
@@ -16,8 +17,8 @@ import roomDefenseSpawnRole from '@/spawn-role/room-defense';
 import scoutSpawnRole from '@/spawn-role/scout';
 import squadSpawnRole from '@/spawn-role/squad';
 import transporterSpawnRole from '@/spawn-role/transporter';
-import upgraderSpawnRole from '@/spawn-role/upgrader';
 
+import upgraderSpawnRole from '@/spawn-role/upgrader';
 import CombatManager from './creep/combat-manager';
 import TrafficManager from './creep/traffic-manager';
 import FunnelManager from './empire/funnel-manager';
@@ -34,9 +35,8 @@ import RolesReport from './report/roles';
 import RoomsReport from './report/rooms';
 import RoomStatus from './room/room-status';
 import SpawnManager from './spawn-manager';
-import NavMesh from './utils/nav-mesh';
-import BrawlerSpawnRole from '@/spawn-role/brawler';
 import SpawnRole from './spawn-role/spawn-role';
+import NavMesh from './utils/nav-mesh';
 
 export interface DependencyInjectionContainer {
   CombatManager: CombatManager

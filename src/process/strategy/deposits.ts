@@ -3,9 +3,9 @@ CONTROLLER_STRUCTURES STRUCTURE_POWER_SPAWN */
 
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
+import NavMesh from '@/utils/nav-mesh';
 import _ from 'lodash';
 import Process from 'process/process';
-import NavMesh from '@/utils/nav-mesh';
 
 declare global {
   export interface StrategyMemory {

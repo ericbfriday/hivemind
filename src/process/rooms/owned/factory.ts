@@ -1,6 +1,6 @@
 import settings from '@/settings-manager';
-import Process from 'process/process';
 import { drawTable } from '@/utils/room-visuals';
+import Process from 'process/process';
 
 export default ManageFactoryProcess;
 export class ManageFactoryProcess extends Process {

@@ -1,9 +1,9 @@
 import hivemind from '@/hivemind';
 import utilities from '@/utilities';
-import _ from 'lodash';
 import cache from '@/utils/cache';
 import { handleMapArea } from '@/utils/map';
 import { getResourcesIn } from '@/utils/store';
+import _ from 'lodash';
 
 export type AttackTarget = Creep | Structure;
 

@@ -1,10 +1,12 @@
 import type TrafficManager from '@/creep/traffic-manager';
-import hivemind from '@/hivemind';
 import CreepManager from '@/creep-manager';
+import hivemind from '@/hivemind';
+import utilities from '@/utilities';
+import container from '@/utils/container';
 import _ from 'lodash';
+
 import Process from 'process/process';
 import brawlerRole from 'role/brawler';
-
 import builderRole from 'role/builder';
 import mineBuilderRole from 'role/builder.mines';
 import remoteBuilderRole from 'role/builder.remote';
@@ -23,11 +25,9 @@ import poweHarvesterRole from 'role/power/harvester';
 import powerHaulerRole from 'role/power/hauler';
 import scoutRole from 'role/scout';
 import transporterRole from 'role/transporter';
+
 import unassignedRole from 'role/unassigned';
 import upgraderRole from 'role/upgrader';
-
-import utilities from '@/utilities';
-import container from '@/utils/container';
 // Normal creep roles.
 const creepRoles = {
   'brawler': brawlerRole,

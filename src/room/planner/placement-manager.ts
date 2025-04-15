@@ -1,7 +1,7 @@
 import type RoomPlan from 'room/planner/room-plan';
-import _ from 'lodash';
 import { handleMapArea } from '@/utils/map';
 import { decodePosition, encodePosition } from '@/utils/serialization';
+import _ from 'lodash';
 
 export default PlacementManager;
 export class PlacementManager {

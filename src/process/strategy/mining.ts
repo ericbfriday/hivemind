@@ -1,11 +1,11 @@
 /* global PWR_OPERATE_SPAWN POWER_INFO */
 
 import hivemind from '@/hivemind';
+import container from '@/utils/container';
+import stats from '@/utils/stats';
 import _ from 'lodash';
 import RemoteMiningOperation from 'operation/remote-mining';
 import Process from 'process/process';
-import container from '@/utils/container';
-import stats from '@/utils/stats';
 
 declare global {
   export interface StrategyMemory {

@@ -1,8 +1,8 @@
 import type RoomStatus from 'room/room-status';
 import hivemind from '@/hivemind';
+import container from '@/utils/container';
 import _ from 'lodash';
 import Process from 'process/process';
-import container from '@/utils/container';
 
 export default SpawnPowerCreepsProcess;
 export class SpawnPowerCreepsProcess extends Process {

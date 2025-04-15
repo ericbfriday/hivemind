@@ -1,5 +1,5 @@
-import settings from '@/settings-manager';
 import StructureDestination from '@/dispatcher/resource-destination/structure';
+import settings from '@/settings-manager';
 
 export interface NukerDestinationTask extends StructureDestinationTask {
   type: 'nuker'

@@ -5,12 +5,12 @@ STRUCTURE_CONTAINER FIND_SOURCES_ACTIVE */
 
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
-import _ from 'lodash';
-import Role from 'role/role';
-import TransporterRole from 'role/transporter';
 import { getUsername } from '@/utils/account';
 import NavMesh from '@/utils/nav-mesh';
 import { decodePosition, encodePosition } from '@/utils/serialization';
+import _ from 'lodash';
+import Role from 'role/role';
+import TransporterRole from 'role/transporter';
 
 declare global {
   export interface RemoteBuilderCreep extends Creep {

@@ -2,11 +2,11 @@
 
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
-import _ from 'lodash';
 import cache from '@/utils/cache';
 import { getCostMatrix } from '@/utils/cost-matrix';
 import { ErrorMapper } from '@/utils/ErrorMapper';
 import { handleMapArea } from '@/utils/map';
+import _ from 'lodash';
 
 declare global {
   type TileCallback = (x: number, y: number) => boolean | void;

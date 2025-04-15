@@ -4,10 +4,10 @@ FIND_MY_CONSTRUCTION_SITES */
 
 import type RemoteMiningOperation from 'operation/remote-mining';
 import hivemind from '@/hivemind';
-import _ from 'lodash';
-import Role from 'role/role';
 import container from '@/utils/container';
 import { encodePosition, serializePositionPath } from '@/utils/serialization';
+import _ from 'lodash';
+import Role from 'role/role';
 
 declare global {
   export interface SkKillerCreep extends Creep {

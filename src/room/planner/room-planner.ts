@@ -1,13 +1,13 @@
 import type RoomPlan from 'room/planner/room-plan';
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
+import cache from '@/utils/cache';
+import stats from '@/utils/stats';
 /* global PathFinder Room RoomPosition RoomVisual CONTROLLER_STRUCTURES
 FIND_SOURCES */
 import _ from 'lodash';
 import RoomPlanGenerator from 'room/planner/room-plan-generator';
 import { getRoomPlanFor, setRoomPlanFor } from 'room/planner/room-plan-management';
-import cache from '@/utils/cache';
-import stats from '@/utils/stats';
 
 declare global {
   export interface Room {

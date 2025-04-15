@@ -1,6 +1,6 @@
 import hivemind from '@/hivemind';
-import _ from 'lodash';
 import cache from '@/utils/cache';
+import _ from 'lodash';
 
 declare global {
 	type FactoryProductConstant = keyof typeof COMMODITIES;

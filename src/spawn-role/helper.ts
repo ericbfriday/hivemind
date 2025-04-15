@@ -1,8 +1,8 @@
 /* global MOVE CARRY */
 
 import BodyBuilder, { MOVEMENT_MODE_ROAD } from '@/creep/body-builder';
-import _ from 'lodash';
 import SpawnRole from '@/spawn-role/spawn-role';
+import _ from 'lodash';
 
 export class HelperSpawnRole extends SpawnRole {
   /**

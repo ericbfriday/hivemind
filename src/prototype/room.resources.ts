@@ -3,14 +3,14 @@ RESOURCE_POWER STRUCTURE_LAB RESOURCES_ALL */
 
 import type RemoteMiningOperation from 'operation/remote-mining';
 import type { ResourceLevel } from 'room/resource-level-manager';
-import { getRoomIntel } from '@/room-intel';
 import ResourceDestinationDispatcher from '@/dispatcher/resource-destination/dispatcher';
 import ResourceSourceDispatcher from '@/dispatcher/resource-source/dispatcher';
-import _ from 'lodash';
+import { getRoomIntel } from '@/room-intel';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
 import { decodePosition } from '@/utils/serialization';
 import { getResourcesIn } from '@/utils/store';
+import _ from 'lodash';
 
 declare global {
   export interface Room {
@@ -420,7 +420,7 @@ Room.prototype.getRemoteHarvestSourcePositions = function (this: Room) {
 };
 
 function getRemoteHarvestSourceEvaluation(operation: RemoteMiningOperation, location: string): SourceEvaluation {
-  const filteredPaths: RoomPosition[] = _.filter(Object.values(operation.getPaths()), ({path}) => path.path);
+  const filteredPaths: RoomPosition[] = _.filter(Object.values(operation.getPaths()), ({ path }) => path.path);
 
   return {
     location,

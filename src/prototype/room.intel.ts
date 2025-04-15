@@ -5,10 +5,10 @@ STRUCTURE_POWER_SPAWN FIND_SOURCES FIND_MINERALS */
 import FactoryManager from '@/factory-manager';
 import Bay from '@/manager.bay';
 import RoomDefense from '@/room-defense';
-import _ from 'lodash';
 import { getUsername } from '@/utils/account';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
+import _ from 'lodash';
 
 declare global {
   export interface Room {

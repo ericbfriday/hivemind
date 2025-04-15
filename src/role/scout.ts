@@ -3,11 +3,11 @@
 import type RoomStatus from 'room/room-status';
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
-import _ from 'lodash';
-import Role from 'role/role';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
 import { decodePosition, encodePosition } from '@/utils/serialization';
+import _ from 'lodash';
+import Role from 'role/role';
 
 declare global {
   export interface ScoutCreep extends Creep {

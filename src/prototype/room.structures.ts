@@ -1,9 +1,9 @@
 /* global Room STRUCTURE_LINK CONTROLLER_STRUCTURES FIND_STRUCTURES */
 
 import type Bay from '@/manager.bay';
+import cache from '@/utils/cache';
 import LinkNetwork from 'link-network';
 import _ from 'lodash';
-import cache from '@/utils/cache';
 
 declare global {
   export interface Room {

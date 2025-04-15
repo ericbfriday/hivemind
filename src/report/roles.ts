@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import { getCallStats } from '@/utils/cpu';
 import { drawTable } from '@/utils/room-visuals';
+import _ from 'lodash';
 
 declare global {
   export interface ReportClasses {

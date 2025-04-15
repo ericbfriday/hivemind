@@ -2,9 +2,9 @@
 PWR_OPERATE_FACTORY */
 
 import hivemind from '@/hivemind';
+import cache from '@/utils/cache';
 import _ from 'lodash';
 import Process from 'process/process';
-import cache from '@/utils/cache';
 
 const powerNames = {
   [PWR_DISRUPT_SOURCE]: 'PWR_DISRUPT_SOURCE',

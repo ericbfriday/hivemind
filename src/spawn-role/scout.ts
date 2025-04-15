@@ -3,10 +3,10 @@
 import type RoomStatus from 'room/room-status';
 import hivemind from '@/hivemind';
 import interShard from '@/intershard';
-import _ from 'lodash';
 import SpawnRole from '@/spawn-role/spawn-role';
 import container from '@/utils/container';
 import { decodePosition } from '@/utils/serialization';
+import _ from 'lodash';
 
 declare global {
   export interface RoomMemory {

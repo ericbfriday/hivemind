@@ -1,8 +1,8 @@
-import hivemind from '@/hivemind'
-import PlayerIntel from '@/player-intel'
+import hivemind from '@/hivemind';
+import PlayerIntel from '@/player-intel';
 
 export class PlayerIntelManager {
-  intelCache: Record<string, PlayerIntel> = {}
+  intelCache: Record<string, PlayerIntel> = {};
 
   /**
    * Factory method for player intel objects.
@@ -15,51 +15,51 @@ export class PlayerIntelManager {
    */
   get(userName: string): PlayerIntel {
     if (!hivemind.segmentMemory.isReady()) {
-      throw new Error(`Memory is not ready to generate player intel for user "${userName}".`)
+      throw new Error(`Memory is not ready to generate player intel for user "${userName}".`);
     }
 
     if (!this.intelCache[userName]) {
-      this.intelCache[userName] = new PlayerIntel(userName)
+      this.intelCache[userName] = new PlayerIntel(userName);
     }
 
-    this.intelCache[userName].cleanupMemory()
+    this.intelCache[userName].cleanupMemory();
 
-    return this.intelCache[userName]
+    return this.intelCache[userName];
   }
 
   getAll(): PlayerIntel[] {
     if (!hivemind.segmentMemory.isReady()) {
-      throw new Error('Memory is not ready to generate player intel.')
+      throw new Error('Memory is not ready to generate player intel.');
     }
 
-    const result = []
+    const result = [];
     hivemind.segmentMemory.each('u-intel:', (key) => {
-      const userName = key.slice(8)
-      const intel = this.get(userName)
+      const userName = key.slice(8);
+      const intel = this.get(userName);
 
-      result.push(intel)
-    })
+      result.push(intel);
+    });
 
-    return result
+    return result;
   }
 
   updateOwnedRoom(userName: string, roomName: string) {
-    const playerIntel = this.get(userName)
+    const playerIntel = this.get(userName);
 
-    playerIntel.updateOwnedRoom(roomName)
+    playerIntel.updateOwnedRoom(roomName);
   }
 
   updateClaimedRoom(userName: string, roomName: string) {
-    const playerIntel = this.get(userName)
+    const playerIntel = this.get(userName);
 
-    playerIntel.updateRemote(roomName)
+    playerIntel.updateRemote(roomName);
   }
 
   updateCreepSighting(userName: string, roomName: string, creeps: Creep[]) {
-    const playerIntel = this.get(userName)
+    const playerIntel = this.get(userName);
 
-    playerIntel.updateCreeps(creeps)
+    playerIntel.updateCreeps(creeps);
   }
 }
 
-export default PlayerIntelManager
+export default PlayerIntelManager;

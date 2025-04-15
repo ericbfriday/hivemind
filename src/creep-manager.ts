@@ -1,8 +1,8 @@
 import type Role from 'role/role';
 import hivemind from '@/hivemind';
-import _ from 'lodash';
 import { timeCall } from '@/utils/cpu';
 import { getThrottleOffset, throttle } from '@/utils/throttle';
+import _ from 'lodash';
 
 declare global {
   export interface CreepMemory {
@@ -29,7 +29,7 @@ declare global {
     targetRoom?: string
     upgrading?: boolean
 
-    stack?: unknown[];
+    stack?: unknown[]
 
     // Internal throttle offset.
     // @todo Move to heap, this doesn't need persistence.

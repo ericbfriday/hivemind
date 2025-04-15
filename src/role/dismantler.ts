@@ -1,9 +1,9 @@
 /* global RoomPosition LOOK_STRUCTURES STRUCTURE_RAMPART */
 
+import { encodePosition } from '@/utils/serialization';
 import _ from 'lodash';
 import RemoteMiningOperation from 'operation/remote-mining';
 import Role from 'role/role';
-import { encodePosition } from '@/utils/serialization';
 
 declare global {
   export interface DismantlerCreep extends Creep {

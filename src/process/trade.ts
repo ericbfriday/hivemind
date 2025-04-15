@@ -3,13 +3,13 @@ ORDER_BUY ORDER_SELL PIXEL STORAGE_CAPACITY INTERSHARD_RESOURCES
 REACTION_TIME */
 
 import hivemind from '@/hivemind';
-import _ from 'lodash';
-import Process from 'process/process';
 import { ENEMY_STRENGTH_NORMAL } from '@/room-defense';
 import utilities from '@/utilities';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
 import { getResourcesIn } from '@/utils/store';
+import _ from 'lodash';
+import Process from 'process/process';
 // Minimum value for a trade. Would be cool if this was a game constant.
 const minTradeValue = 0.001;
 // Amount of credits to keep in reserve for creating orders.

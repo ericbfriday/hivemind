@@ -1,13 +1,13 @@
 import hivemind from '@/hivemind';
+import cache from '@/utils/cache';
 import BoostManager from 'boost-manager';
 import _ from 'lodash';
 import MiningOperation from 'operation/remote-mining';
 import RoomOperation from 'operation/room';
-import Process from 'process/process';
 
+import Process from 'process/process';
 import RoomPlanner from 'room/planner/room-planner';
 import RoomManager from 'room/room-manager';
-import cache from '@/utils/cache';
 
 declare global {
   export interface Game {

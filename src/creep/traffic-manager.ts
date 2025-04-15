@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import { getCostMatrix, getDangerMatrix } from '@/utils/cost-matrix';
 import { handleMapArea } from '@/utils/map';
+import _ from 'lodash';
 
 declare global {
   export interface Creep {

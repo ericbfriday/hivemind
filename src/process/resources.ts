@@ -2,10 +2,10 @@
 
 import type { TransportRouteOption } from 'empire/trade-route-manager';
 import hivemind from '@/hivemind';
-import _ from 'lodash';
-import Process from 'process/process';
 import utilities from '@/utilities';
 import container from '@/utils/container';
+import _ from 'lodash';
+import Process from 'process/process';
 /**
  * Sends resources between owned rooms when needed.
  */

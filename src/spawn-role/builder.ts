@@ -1,11 +1,11 @@
 /* global FIND_MY_CONSTRUCTION_SITES MOVE WORK CARRY */
 
+import type { RemoteHarvesterCreep } from '@/role/harvester.remote';
 import BodyBuilder, { MOVEMENT_MODE_ROAD } from '@/creep/body-builder';
-import _ from 'lodash';
 import { ENEMY_STRENGTH_NORMAL } from '@/room-defense';
 import SpawnRole from '@/spawn-role/spawn-role';
 import cache from '@/utils/cache';
-import { RemoteHarvesterCreep } from '@/role/harvester.remote';
+import _ from 'lodash';
 
 export interface BuilderSpawnOption extends SpawnOption {
   size: number

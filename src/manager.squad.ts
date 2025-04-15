@@ -1,5 +1,5 @@
-import cache from '@/utils/cache'
-import { decodePosition, encodePosition } from '@/utils/serialization'
+import cache from '@/utils/cache';
+import { decodePosition, encodePosition } from '@/utils/serialization';
 
 declare global {
   export interface CreepMemory {
@@ -25,9 +25,9 @@ declare global {
 }
 
 export class Squad {
-  units: Partial<Record<SquadUnitType, Array<Id<Creep>>>>
-  name: string
-  memory: SquadMemory
+  units: Partial<Record<SquadUnitType, Array<Id<Creep>>>>;
+  name: string;
+  memory: SquadMemory;
 
   /**
    * Squads are sets of creeps spawned in a single room.
@@ -37,21 +37,21 @@ export class Squad {
    *   Identifier of this squad for memory.
    */
   constructor(squadName: string) {
-    this.name = squadName
-    this.units = {}
+    this.name = squadName;
+    this.units = {};
 
     if (!Memory.squads) {
-      Memory.squads = {}
+      Memory.squads = {};
     }
 
     if (!Memory.squads[squadName]) {
       Memory.squads[squadName] = {
         composition: {},
         fullySpawned: false,
-      }
+      };
     }
 
-    this.memory = Memory.squads[squadName]
+    this.memory = Memory.squads[squadName];
   }
 
   /**
@@ -65,12 +65,12 @@ export class Squad {
    */
   addUnit(unitType: SquadUnitType): number {
     if (!this.memory.composition[unitType]) {
-      this.memory.composition[unitType] = 0
+      this.memory.composition[unitType] = 0;
     }
 
-    this.memory.composition[unitType]++
+    this.memory.composition[unitType]++;
 
-    return this.memory.composition[unitType]
+    return this.memory.composition[unitType];
   }
 
   /**
@@ -84,16 +84,16 @@ export class Squad {
    */
   removeUnit(unitType: SquadUnitType): number {
     if (!this.memory.composition[unitType]) {
-      return 0
+      return 0;
     }
 
-    this.memory.composition[unitType]--
+    this.memory.composition[unitType]--;
 
-    return this.memory.composition[unitType]
+    return this.memory.composition[unitType];
   }
 
   getUnits(): Partial<Record<SquadUnitType, Array<Id<Creep>>>> {
-    return this.units
+    return this.units;
   }
 
   /**
@@ -105,27 +105,27 @@ export class Squad {
    *   Number of units of the chosen type that should be in this squad.
    */
   setUnitCount(unitType: SquadUnitType, count: number) {
-    this.memory.composition[unitType] = count
+    this.memory.composition[unitType] = count;
   }
 
   getUnitCount(unitType: SquadUnitType) {
-    return this.memory.composition[unitType] || 0
+    return this.memory.composition[unitType] || 0;
   }
 
   /**
    * Clears all registered units for this squad.
    */
   clearUnits() {
-    this.memory.composition = {}
+    this.memory.composition = {};
   }
 
   /**
    * Stops spawning units and removes a squad completely.
    */
   disband() {
-    this.clearUnits()
-    this.setSpawn(null)
-    this.setTarget(null)
+    this.clearUnits();
+    this.setSpawn(null);
+    this.setTarget(null);
     // @todo Recycle units, then clear memory.
   }
 
@@ -138,16 +138,16 @@ export class Squad {
   getOrders() {
     // @todo This is really not used anymore.
     // Check if there is a target for this squad.
-    const targetPos = this.getTarget()
+    const targetPos = this.getTarget();
     if (!targetPos) {
-      return []
+      return [];
     }
 
     return [{
       priority: 5,
       weight: 0,
       target: encodePosition(targetPos),
-    }]
+    }];
   }
 
   /**
@@ -157,7 +157,7 @@ export class Squad {
    *   Name of the room to spawn in.
    */
   setSpawn(roomName: string) {
-    this.memory.spawnRoom = roomName
+    this.memory.spawnRoom = roomName;
   }
 
   /**
@@ -167,7 +167,7 @@ export class Squad {
    *   Name of the room the squad spawns in.
    */
   getSpawn(): string {
-    return this.memory.spawnRoom
+    return this.memory.spawnRoom;
   }
 
   /**
@@ -178,10 +178,10 @@ export class Squad {
    */
   setTarget(targetPos: RoomPosition) {
     if (targetPos) {
-      this.memory.targetPos = encodePosition(targetPos)
+      this.memory.targetPos = encodePosition(targetPos);
     }
     else {
-      delete this.memory.targetPos
+      delete this.memory.targetPos;
     }
   }
 
@@ -193,33 +193,33 @@ export class Squad {
    */
   getTarget(): RoomPosition {
     if (this.memory.targetPos) {
-      return decodePosition(this.memory.targetPos)
+      return decodePosition(this.memory.targetPos);
     }
 
-    return null
+    return null;
   }
 }
 
 function getAllSquads(): Record<string, Squad> {
   return cache.inObject(Game, 'squads', 1, () => {
-    const squads = {}
+    const squads = {};
     for (const squadName in Memory.squads) {
-      squads[squadName] = new Squad(squadName)
+      squads[squadName] = new Squad(squadName);
     }
 
-    return squads
-  })
+    return squads;
+  });
 }
 
 function getSquad(squadName: string): Squad | null {
-  return getAllSquads()[squadName] || null
+  return getAllSquads()[squadName] || null;
 }
 
 export {
   getAllSquads,
   getSquad,
-}
+};
 
-globalThis.Squad = Squad
+globalThis.Squad = Squad;
 
-export default Squad
+export default Squad;

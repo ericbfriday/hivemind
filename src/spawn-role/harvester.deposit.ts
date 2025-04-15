@@ -1,13 +1,13 @@
 /* global RoomPosition CREEP_LIFE_TIME CREEP_SPAWN_TIME MAX_CREEP_SIZE
 ATTACK POWER_BANK_HIT_BACK ATTACK_POWER HEAL_POWER MOVE HEAL */
 
+import BodyBuilder from '@/creep/body-builder';
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
-import BodyBuilder from '@/creep/body-builder';
-import _ from 'lodash';
 import SpawnRole from '@/spawn-role/spawn-role';
 import NavMesh from '@/utils/nav-mesh';
 import { decodePosition, encodePosition } from '@/utils/serialization';
+import _ from 'lodash';
 
 export interface DepositHarvesterSpawnOption extends SpawnOption {
   targetPos: string

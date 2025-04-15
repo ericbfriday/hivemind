@@ -6,10 +6,10 @@ LOOK_CONSTRUCTION_SITES */
 // @todo Collect energy if it's lying on the path.
 
 import hivemind from '@/hivemind';
+import { decodePosition, encodePosition, serializePositionPath } from '@/utils/serialization';
 import _ from 'lodash';
 import RemoteMiningOperation from 'operation/remote-mining';
 import Role from 'role/role';
-import { decodePosition, encodePosition, serializePositionPath } from '@/utils/serialization';
 
 declare global {
   export interface MineBuilderCreep extends Creep {

@@ -1,8 +1,8 @@
 import type PlayerIntelManager from 'player-intel-manager';
 import hivemind from '@/hivemind';
 import { getRoomIntel, getRoomsWithIntel } from '@/room-intel';
-import Process from 'process/process';
 import container from '@/utils/container';
+import Process from 'process/process';
 
 export default PlayerIntelProcess;
 export class PlayerIntelProcess extends Process {

@@ -5,7 +5,6 @@ import type { GetPathOptions } from '@/utilities';
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
 import settings from '@/settings-manager';
-import _ from 'lodash';
 import utilities from '@/utilities';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
@@ -13,6 +12,7 @@ import { getCostMatrix } from '@/utils/cost-matrix';
 import { handleMapArea } from '@/utils/map';
 import NavMesh from '@/utils/nav-mesh';
 import { decodePosition, deserializePositionPath, encodePosition, serializePositionPath } from '@/utils/serialization';
+import _ from 'lodash';
 
 declare global {
   export interface Creep {

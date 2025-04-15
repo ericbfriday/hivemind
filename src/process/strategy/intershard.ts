@@ -1,14 +1,14 @@
-import type RoomStatus from 'room/room-status';
 import type NavMesh from '@/utils/nav-mesh';
+import type RoomStatus from 'room/room-status';
 import hivemind from '@/hivemind';
-import { getRoomIntel } from '@/room-intel';
 import interShard from '@/intershard';
-import _ from 'lodash';
 import Squad from '@/manager.squad';
-import Process from 'process/process';
+import { getRoomIntel } from '@/room-intel';
 import cache from '@/utils/cache';
 import container from '@/utils/container';
 import { decodePosition } from '@/utils/serialization';
+import _ from 'lodash';
+import Process from 'process/process';
 
 declare global {
   export interface ShardMemory {

@@ -1,9 +1,9 @@
 /* global hivemind MOVE CARRY */
 
 import BodyBuilder from '@/creep/body-builder';
-import _ from 'lodash';
 import SpawnRole from '@/spawn-role/spawn-role';
 import TradeRoute from '@/trade-route';
+import _ from 'lodash';
 
 declare global {
   export interface MuleSpawnOption extends SpawnOption {

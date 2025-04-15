@@ -1,8 +1,8 @@
 /* global REACTIONS */
 
 import hivemind from '@/hivemind';
-import Process from 'process/process';
 import container from '@/utils/container';
+import Process from 'process/process';
 
 declare global {
   export interface RoomMemory {

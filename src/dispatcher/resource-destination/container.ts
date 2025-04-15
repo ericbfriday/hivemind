@@ -1,7 +1,7 @@
 import StructureDestination from '@/dispatcher/resource-destination/structure';
-import _ from 'lodash';
 import utilities from '@/utilities';
 import cache from '@/utils/cache';
+import _ from 'lodash';
 
 export interface ContainerDestinationTask extends StructureDestinationTask {
   type: 'container'

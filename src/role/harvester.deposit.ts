@@ -3,12 +3,12 @@ POWER_BANK_DECAY FIND_MY_CREEPS HEAL_POWER RANGED_HEAL_POWER HEAL
 FIND_DROPPED_RESOURCES RESOURCE_POWER FIND_HOSTILE_CREEPS RANGED_ATTACK
 POWER_BANK_HIT_BACK */
 
-import Role from 'role/role';
 import cache from '@/utils/cache';
 import { getCostMatrix } from '@/utils/cost-matrix';
 import NavMesh from '@/utils/nav-mesh';
 import { deserializePosition } from '@/utils/serialization';
 import { getResourcesIn } from '@/utils/store';
+import Role from 'role/role';
 
 declare global {
   export interface DepositHarvesterCreep extends Creep {

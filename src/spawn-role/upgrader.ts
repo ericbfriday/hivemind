@@ -1,12 +1,12 @@
 /* global CONTROLLER_DOWNGRADE MOVE WORK CARRY
 CONTROLLER_MAX_UPGRADE_PER_TICK */
 
+import BodyBuilder, { MOVEMENT_MODE_ROAD, MOVEMENT_MODE_SLOW } from '@/creep/body-builder';
 import balancer from '@/excess-energy-balancer';
 import hivemind from '@/hivemind';
-import BodyBuilder, { MOVEMENT_MODE_ROAD, MOVEMENT_MODE_SLOW } from '@/creep/body-builder';
-import _ from 'lodash';
 import SpawnRole from '@/spawn-role/spawn-role';
 import container from '@/utils/container';
+import _ from 'lodash';
 
 export interface UpgraderSpawnOption extends SpawnOption {
   mini?: boolean

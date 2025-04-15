@@ -1,6 +1,6 @@
-import _ from 'lodash';/* global InterShardMemory */
-
 import { encodePosition } from '@/utils/serialization';
+
+import _ from 'lodash';/* global InterShardMemory */
 
 declare global {
   export interface Memory {

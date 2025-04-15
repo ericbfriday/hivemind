@@ -2,10 +2,10 @@
 LOOK_STRUCTURES RESOURCE_ENERGY STRUCTURE_TOWER
 STRUCTURE_LINK STRUCTURE_CONTAINER */
 
-import _ from 'lodash';
 import cache from '@/utils/cache';
 import { handleMapArea } from '@/utils/map';
 import { encodePosition } from '@/utils/serialization';
+import _ from 'lodash';
 
 declare global {
   export interface Room {
@@ -18,7 +18,6 @@ declare global {
 
 const bayStructures = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_LINK, STRUCTURE_CONTAINER];
 const problematicStructures = [STRUCTURE_STORAGE, STRUCTURE_TERMINAL, STRUCTURE_FACTORY, STRUCTURE_LAB, STRUCTURE_NUKER, STRUCTURE_POWER_SPAWN];
-
 
 export class Bay {
   readonly pos: RoomPosition;

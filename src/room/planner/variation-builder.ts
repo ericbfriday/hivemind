@@ -2,13 +2,13 @@ import type { ExitCoords } from '@/utils/room-info';
 import hivemind from '@/hivemind';
 import { getRoomIntel } from '@/room-intel';
 import settings from '@/settings-manager';
-import _ from 'lodash';
-import PlaceTowersStep from 'room/planner/step/place-towers';
-import RoomVariationBuilderBase from 'room/planner/variation-builder-base';
 import { handleMapArea } from '@/utils/map';
 import minCut from '@/utils/mincut';
 import { getExitCenters } from '@/utils/room-info';
 import { decodePosition, encodePosition } from '@/utils/serialization';
+import _ from 'lodash';
+import PlaceTowersStep from 'room/planner/step/place-towers';
+import RoomVariationBuilderBase from 'room/planner/variation-builder-base';
 
 const TILE_IS_ENDANGERED = 0;
 const TILE_IS_SAFE = 1;

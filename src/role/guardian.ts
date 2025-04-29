@@ -6,151 +6,151 @@ import _ from 'lodash';
 import Role from 'role/role';
 
 declare global {
-  export interface GuardianCreep extends Creep {
-    memory: GuardianCreepMemory
-    heapMemory: GuardianCreepHeapMemory
-  }
+    export interface GuardianCreep extends Creep {
+        memory: GuardianCreepMemory
+        heapMemory: GuardianCreepHeapMemory
+    }
 
-  export interface GuardianCreepMemory extends CreepMemory {
-    role: 'guardian'
-  }
+    export interface GuardianCreepMemory extends CreepMemory {
+        role: 'guardian'
+    }
 
-  export interface GuardianCreepHeapMemory extends CreepHeapMemory {
-  }
+    export interface GuardianCreepHeapMemory extends CreepHeapMemory {
+    }
 }
 
 const filterEnemyCreeps = (c: Creep) => !hivemind.relations.isAlly(c.owner.username) && c.isDangerous();
 
 export default GuardianRole;
 export class GuardianRole extends Role {
-  constructor() {
-    super();
+    constructor() {
+        super();
 
-    // Guardians have high priority because of their importance to room defense.
-    this.stopAt = 0;
-    this.throttleAt = 0;
-  }
-
-  /**
-   * Makes a creep behave like a guardian.
-   *
-   * @param {Creep} creep
-   *   The creep to run logic for.
-   */
-  run(creep: GuardianCreep) {
-    const rampart = this.getBestRampartToCover(creep);
-    if (!rampart) {
-      return;
+        // Guardians have high priority because of their importance to room defense.
+        this.stopAt = 0;
+        this.throttleAt = 0;
     }
 
-    creep.whenInRange(0, rampart, () => { });
-    this.setAlternatePositions(creep);
-    this.attackTargetsInRange(creep);
-  }
-
-  setAlternatePositions(creep: GuardianCreep) {
-    container.get('TrafficManager').setAlternatePositions(creep, this.getAdjacentRampartPositions(creep));
-  }
-
-  getAdjacentRampartPositions(creep: GuardianCreep): RoomPosition[] {
-    const closestRamparts = _.filter(
-      creep.room.myStructuresByType[STRUCTURE_RAMPART],
-      (s) => {
-        if (s.pos.getRangeTo(creep.pos) !== 1) {
-          return false;
-        }
-        if (!creep.room.roomPlanner.isPlannedLocation(s.pos, 'rampart')) {
-          return false;
-        }
-        if (creep.room.roomPlanner.isPlannedLocation(s.pos, 'rampart.ramp')) {
-          return false;
+    /**
+     * Makes a creep behave like a guardian.
+     *
+     * @param {Creep} creep
+     *   The creep to run logic for.
+     */
+    run(creep: GuardianCreep) {
+        const rampart = this.getBestRampartToCover(creep);
+        if (!rampart) {
+            return;
         }
 
-        return true;
-      },
-    );
+        creep.whenInRange(0, rampart, () => { });
+        this.setAlternatePositions(creep);
+        this.attackTargetsInRange(creep);
+    }
 
-    return _.map(closestRamparts, s => s.pos);
-  }
+    setAlternatePositions(creep: GuardianCreep) {
+        container.get('TrafficManager').setAlternatePositions(creep, this.getAdjacentRampartPositions(creep));
+    }
 
-  getBestRampartToCover(creep: GuardianCreep): StructureRampart {
+    getAdjacentRampartPositions(creep: GuardianCreep): RoomPosition[] {
+        const closestRamparts = _.filter(
+            creep.room.myStructuresByType[STRUCTURE_RAMPART],
+            (s) => {
+                if (s.pos.getRangeTo(creep.pos) !== 1) {
+                    return false;
+                }
+                if (!creep.room.roomPlanner.isPlannedLocation(s.pos, 'rampart')) {
+                    return false;
+                }
+                if (creep.room.roomPlanner.isPlannedLocation(s.pos, 'rampart.ramp')) {
+                    return false;
+                }
+
+                return true;
+            },
+        );
+
+        return _.map(closestRamparts, s => s.pos);
+    }
+
+    getBestRampartToCover(creep: GuardianCreep): StructureRampart {
     // @todo Make sure we can find a safe path to the rampart in question.
-    const targets = creep.room.find(FIND_HOSTILE_CREEPS, {
-      filter: filterEnemyCreeps,
-    });
+        const targets = creep.room.find(FIND_HOSTILE_CREEPS, {
+            filter: filterEnemyCreeps,
+        });
 
-    const ramparts: StructureRampart[] = [];
-    for (const target of targets) {
-      const closestRampart = _.minBy(
-        _.filter(
-          creep.room.myStructuresByType[STRUCTURE_RAMPART],
-          (s) => {
-            if (!creep.room.roomPlanner.isPlannedLocation(s.pos, 'rampart')) {
-              return false;
-            }
-            if (creep.room.roomPlanner.isPlannedLocation(s.pos, 'rampart.ramp')) {
-              return false;
-            }
+        const ramparts: StructureRampart[] = [];
+        for (const target of targets) {
+            const closestRampart = _.minBy(
+                _.filter(
+                    creep.room.myStructuresByType[STRUCTURE_RAMPART],
+                    (s) => {
+                        if (!creep.room.roomPlanner.isPlannedLocation(s.pos, 'rampart')) {
+                            return false;
+                        }
+                        if (creep.room.roomPlanner.isPlannedLocation(s.pos, 'rampart.ramp')) {
+                            return false;
+                        }
 
-            // Only target ramparts not occupied by another creep.
-            const occupyingCreeps = s.pos.lookFor(LOOK_CREEPS);
-            if (occupyingCreeps.length > 0 && occupyingCreeps[0].id !== creep.id) {
-              return false;
-            }
+                        // Only target ramparts not occupied by another creep.
+                        const occupyingCreeps = s.pos.lookFor(LOOK_CREEPS);
+                        if (occupyingCreeps.length > 0 && occupyingCreeps[0].id !== creep.id) {
+                            return false;
+                        }
 
-            return true;
-          },
-        ),
-        s => s.pos.getRangeTo(target.pos),
-      );
-      if (!ramparts.includes(closestRampart)) {
-        ramparts.push(closestRampart);
-      }
+                        return true;
+                    },
+                ),
+                s => s.pos.getRangeTo(target.pos),
+            );
+            if (!ramparts.includes(closestRampart)) {
+                ramparts.push(closestRampart);
+            }
+        }
+
+        return _.minBy(ramparts, (s: StructureRampart) => s.pos.getRangeTo(creep.pos) / 2 + s.pos.getRangeTo(s.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+            filter: filterEnemyCreeps,
+        })));
     }
 
-    return _.minBy(ramparts, (s: StructureRampart) => s.pos.getRangeTo(creep.pos) / 2 + s.pos.getRangeTo(s.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-      filter: filterEnemyCreeps,
-    })));
-  }
-
-  attackTargetsInRange(creep: GuardianCreep) {
+    attackTargetsInRange(creep: GuardianCreep) {
     // Ask military manager for best target for joint attacks.
-    creep.room.assertMilitarySituation();
+        creep.room.assertMilitarySituation();
 
-    if (creep.getActiveBodyparts(RANGED_ATTACK) > 0) {
-      const targets = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
-        filter: filterEnemyCreeps,
-      });
-      if (targets.length === 0) {
-        return;
-      }
+        if (creep.getActiveBodyparts(RANGED_ATTACK) > 0) {
+            const targets = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
+                filter: filterEnemyCreeps,
+            });
+            if (targets.length === 0) {
+                return;
+            }
 
-      let target = _.maxBy(targets, 'militaryPriority');
-      if (!target || (typeof target === 'number')) {
-        if (targets.length > 2 || _.find(targets, c => c.pos.getRangeTo(creep) === 1)) {
-          creep.rangedMassAttack();
+            let target = _.maxBy(targets, 'militaryPriority');
+            if (!target || (typeof target === 'number')) {
+                if (targets.length > 2 || _.find(targets, c => c.pos.getRangeTo(creep) === 1)) {
+                    creep.rangedMassAttack();
+                }
+                else {
+                    target = _.sample(targets);
+                }
+            }
+
+            creep.rangedAttack(target);
         }
-        else {
-          target = _.sample(targets);
+
+        if (creep.getActiveBodyparts(ATTACK) > 0) {
+            const targets = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 1, {
+                filter: filterEnemyCreeps,
+            });
+            if (targets.length === 0) {
+                return;
+            }
+
+            let target = _.maxBy(targets, 'militaryPriority');
+            if (!target || (typeof target === 'number')) {
+                target = _.sample(targets);
+            }
+            creep.attack(target);
         }
-      }
-
-      creep.rangedAttack(target);
     }
-
-    if (creep.getActiveBodyparts(ATTACK) > 0) {
-      const targets = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 1, {
-        filter: filterEnemyCreeps,
-      });
-      if (targets.length === 0) {
-        return;
-      }
-
-      let target = _.maxBy(targets, 'militaryPriority');
-      if (!target || (typeof target === 'number')) {
-        target = _.sample(targets);
-      }
-      creep.attack(target);
-    }
-  }
 }

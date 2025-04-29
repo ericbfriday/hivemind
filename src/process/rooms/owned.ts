@@ -14,172 +14,172 @@ import RoomSongsProcess from 'process/rooms/owned/songs';
 import ManageSpawnsProcess from 'process/rooms/owned/spawns';
 
 declare global {
-  export interface Memory {
-    roomStats: Record<string, Record<string, number>>
-  }
+    export interface Memory {
+        roomStats: Record<string, Record<string, number>>
+    }
 }
 
 export default OwnedRoomProcess;
 export class OwnedRoomProcess extends Process {
-  room: Room;
+    room: Room;
 
-  /**
-   * Manages rooms we own.
-   * @constructor
-   *
-   * @param {object} parameters
-   *   Options on how to run this process.
-   */
-  constructor(parameters: RoomProcessParameters) {
-    super(parameters);
-    this.room = parameters.room;
-  }
-
-  /**
-   * Manages one of our rooms.
-   */
-  run() {
-    const operationName = `room:${this.room.name}`;
-    let operation = Game.operationsByType.room[operationName];
-    if (!operation) {
-      operation = new RoomOperation(operationName);
-      operation.setRoom(this.room.name);
+    /**
+     * Manages rooms we own.
+     * @constructor
+     *
+     * @param {object} parameters
+     *   Options on how to run this process.
+     */
+    constructor(parameters: RoomProcessParameters) {
+        super(parameters);
+        this.room = parameters.room;
     }
 
-    // Draw bays.
-    if (!hivemind.settings.get('disableRoomVisuals')) {
-      for (const bay of this.room.bays || []) {
-        const visual = this.room.visual;
-        let color = '255, 255, 128';
-        if (bay.isBlocked()) {
-          color = '255, 0, 0';
+    /**
+     * Manages one of our rooms.
+     */
+    run() {
+        const operationName = `room:${this.room.name}`;
+        let operation = Game.operationsByType.room[operationName];
+        if (!operation) {
+            operation = new RoomOperation(operationName);
+            operation.setRoom(this.room.name);
         }
-        else if (bay.energyCapacity === 0) {
-          color = '128, 128, 128';
+
+        // Draw bays.
+        if (!hivemind.settings.get('disableRoomVisuals')) {
+            for (const bay of this.room.bays || []) {
+                const visual = this.room.visual;
+                let color = '255, 255, 128';
+                if (bay.isBlocked()) {
+                    color = '255, 0, 0';
+                }
+                else if (bay.energyCapacity === 0) {
+                    color = '128, 128, 128';
+                }
+                visual.rect(bay.pos.x - 1.4, bay.pos.y - 1.4, 2.8, 2.8, {
+                    fill: `rgba(${color}, 0.2)`,
+                    opacity: 0.5,
+                    stroke: `rgba(${color}, 1)`,
+                });
+            }
         }
-        visual.rect(bay.pos.x - 1.4, bay.pos.y - 1.4, 2.8, 2.8, {
-          fill: `rgba(${color}, 0.2)`,
-          opacity: 0.5,
-          stroke: `rgba(${color}, 1)`,
+
+        const totalTime = timeCall(`operation:${operationName}`, () => {
+            hivemind.runSubProcess('rooms_roomplanner', () => {
+                // RoomPlanner has its own 100 tick throttling, so we runLogic every tick.
+                if (this.room.roomPlanner) {
+                    this.room.roomPlanner.runLogic();
+                }
+            });
+
+            const prioritizeRoomManager = this.room.roomManager.shouldRunImmediately();
+            hivemind.runSubProcess('rooms_manager', () => {
+                hivemind.runProcess(`${this.room.name}_manager`, RoomManagerProcess, {
+                    interval: prioritizeRoomManager ? 0 : 100,
+                    room: this.room,
+                    priority: prioritizeRoomManager ? PROCESS_PRIORITY_ALWAYS : PROCESS_PRIORITY_DEFAULT,
+                });
+            });
+
+            // @todo Only run processes based on current room level or existing structures.
+            hivemind.runSubProcess('rooms_defense', () => {
+                hivemind.runProcess(`${this.room.name}_defense`, RoomDefenseProcess, {
+                    room: this.room,
+                    priority: PROCESS_PRIORITY_ALWAYS,
+                });
+            });
+
+            hivemind.runSubProcess('rooms_links', () => {
+                hivemind.runProcess(`${this.room.name}_links`, ManageLinksProcess, {
+                    interval: 3,
+                    room: this.room,
+                });
+            });
+
+            hivemind.runSubProcess('rooms_labs', () => {
+                hivemind.runProcess(`${this.room.name}_labs`, ManageLabsProcess, {
+                    room: this.room,
+                    priority: PROCESS_PRIORITY_ALWAYS,
+                });
+            });
+
+            hivemind.runSubProcess('rooms_spawns', () => {
+                hivemind.runProcess(`${this.room.name}_spawns`, ManageSpawnsProcess, {
+                    room: this.room,
+                    priority: PROCESS_PRIORITY_ALWAYS,
+                });
+            });
+
+            hivemind.runSubProcess('rooms_power', () => {
+                // Process power in power spawns.
+                const powerSpawn = this.room.powerSpawn;
+                if (powerSpawn && powerSpawn.my && powerSpawn.power > 0 && powerSpawn.energy >= POWER_SPAWN_ENERGY_RATIO && powerSpawn.processPower() === OK) {
+                    balancer.recordPowerEnergy(POWER_SPAWN_ENERGY_RATIO);
+                }
+            });
+
+            hivemind.runSubProcess('rooms_factory', () => {
+                hivemind.runProcess(`${this.room.name}_factory`, ManageFactoryProcess, {
+                    room: this.room,
+                    priority: PROCESS_PRIORITY_ALWAYS,
+                });
+            });
+
+            hivemind.runSubProcess('rooms_observers', () => {
+                // Use observers if requested.
+                if (this.room.observer && this.room.memory.observeTargets && this.room.memory.observeTargets.length > 0) {
+                    const target = this.room.memory.observeTargets.pop();
+                    this.room.observer.observeRoom(target);
+                    this.room.observer.hasScouted = true;
+                    hivemind.log('intel', this.room.name).info('Observing', target);
+                }
+            });
+
+            hivemind.runSubProcess('rooms_songs', () => {
+                // Sing a song.
+                hivemind.runProcess(`${this.room.name}_song`, RoomSongsProcess, {
+                    room: this.room,
+                    priority: PROCESS_PRIORITY_LOW,
+                });
+            });
+
+            hivemind.runSubProcess('rooms_stats', () => {
+                this.gatherStats();
+            });
         });
-      }
+
+        operation.addCpuCost(totalTime);
     }
 
-    const totalTime = timeCall(`operation:${operationName}`, () => {
-      hivemind.runSubProcess('rooms_roomplanner', () => {
-        // RoomPlanner has its own 100 tick throttling, so we runLogic every tick.
-        if (this.room.roomPlanner) {
-          this.room.roomPlanner.runLogic();
+    gatherStats() {
+        if (!hivemind.settings.get('recordRoomStats')) {
+            return;
         }
-      });
 
-      const prioritizeRoomManager = this.room.roomManager.shouldRunImmediately();
-      hivemind.runSubProcess('rooms_manager', () => {
-        hivemind.runProcess(`${this.room.name}_manager`, RoomManagerProcess, {
-          interval: prioritizeRoomManager ? 0 : 100,
-          room: this.room,
-          priority: prioritizeRoomManager ? PROCESS_PRIORITY_ALWAYS : PROCESS_PRIORITY_DEFAULT,
-        });
-      });
+        const roomName = this.room.name;
 
-      // @todo Only run processes based on current room level or existing structures.
-      hivemind.runSubProcess('rooms_defense', () => {
-        hivemind.runProcess(`${this.room.name}_defense`, RoomDefenseProcess, {
-          room: this.room,
-          priority: PROCESS_PRIORITY_ALWAYS,
-        });
-      });
-
-      hivemind.runSubProcess('rooms_links', () => {
-        hivemind.runProcess(`${this.room.name}_links`, ManageLinksProcess, {
-          interval: 3,
-          room: this.room,
-        });
-      });
-
-      hivemind.runSubProcess('rooms_labs', () => {
-        hivemind.runProcess(`${this.room.name}_labs`, ManageLabsProcess, {
-          room: this.room,
-          priority: PROCESS_PRIORITY_ALWAYS,
-        });
-      });
-
-      hivemind.runSubProcess('rooms_spawns', () => {
-        hivemind.runProcess(`${this.room.name}_spawns`, ManageSpawnsProcess, {
-          room: this.room,
-          priority: PROCESS_PRIORITY_ALWAYS,
-        });
-      });
-
-      hivemind.runSubProcess('rooms_power', () => {
-        // Process power in power spawns.
-        const powerSpawn = this.room.powerSpawn;
-        if (powerSpawn && powerSpawn.my && powerSpawn.power > 0 && powerSpawn.energy >= POWER_SPAWN_ENERGY_RATIO && powerSpawn.processPower() === OK) {
-          balancer.recordPowerEnergy(POWER_SPAWN_ENERGY_RATIO);
+        if (!Memory.roomStats) {
+            Memory.roomStats = {};
         }
-      });
-
-      hivemind.runSubProcess('rooms_factory', () => {
-        hivemind.runProcess(`${this.room.name}_factory`, ManageFactoryProcess, {
-          room: this.room,
-          priority: PROCESS_PRIORITY_ALWAYS,
-        });
-      });
-
-      hivemind.runSubProcess('rooms_observers', () => {
-        // Use observers if requested.
-        if (this.room.observer && this.room.memory.observeTargets && this.room.memory.observeTargets.length > 0) {
-          const target = this.room.memory.observeTargets.pop();
-          this.room.observer.observeRoom(target);
-          this.room.observer.hasScouted = true;
-          hivemind.log('intel', this.room.name).info('Observing', target);
+        if (!Memory.roomStats[roomName]) {
+            Memory.roomStats[roomName] = {
+                claimed: Game.time,
+            };
         }
-      });
 
-      hivemind.runSubProcess('rooms_songs', () => {
-        // Sing a song.
-        hivemind.runProcess(`${this.room.name}_song`, RoomSongsProcess, {
-          room: this.room,
-          priority: PROCESS_PRIORITY_LOW,
-        });
-      });
+        const memory = Memory.roomStats[roomName];
+        const key = `rcl${this.room.controller.level}`;
+        if (!memory[key]) {
+            memory[key] = Game.time - memory.claimed;
+        }
 
-      hivemind.runSubProcess('rooms_stats', () => {
-        this.gatherStats();
-      });
-    });
+        if (!memory.tower && (this.room.myStructuresByType[STRUCTURE_TOWER] || []).length > 0) {
+            memory.tower = Game.time - memory.claimed;
+        }
 
-    operation.addCpuCost(totalTime);
-  }
-
-  gatherStats() {
-    if (!hivemind.settings.get('recordRoomStats')) {
-      return;
+        if (!memory.storage && this.room.storage) {
+            memory.storage = Game.time - memory.claimed;
+        }
     }
-
-    const roomName = this.room.name;
-
-    if (!Memory.roomStats) {
-      Memory.roomStats = {};
-    }
-    if (!Memory.roomStats[roomName]) {
-      Memory.roomStats[roomName] = {
-        claimed: Game.time,
-      };
-    }
-
-    const memory = Memory.roomStats[roomName];
-    const key = `rcl${this.room.controller.level}`;
-    if (!memory[key]) {
-      memory[key] = Game.time - memory.claimed;
-    }
-
-    if (!memory.tower && (this.room.myStructuresByType[STRUCTURE_TOWER] || []).length > 0) {
-      memory.tower = Game.time - memory.claimed;
-    }
-
-    if (!memory.storage && this.room.storage) {
-      memory.storage = Game.time - memory.claimed;
-    }
-  }
 }

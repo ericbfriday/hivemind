@@ -11,362 +11,362 @@ import container from '@/utils/container';
 import _ from 'lodash';
 
 declare global {
-  export interface Room {
-    creeps: Record<string, Creep>
-    powerCreeps: Record<string, PowerCreep>
-    creepsByRole: Record<string, Record<string, Creep>>
-    enemyCreeps: Record<string, Creep[]>
-    defense: RoomDefense
-    sources: Source[]
-    minerals: Mineral[]
-    enhanceData
-    scan
-    updateControllerContainer
-    updateControllerLink
-    updateStorageLink
-    needsScout
-    isMine: (allowReserved?: boolean) => boolean
-    nuker?: StructureNuker
-    powerSpawn?: StructurePowerSpawn
-    observer?: StructureObserver
-    factory?: StructureFactory
-    factoryManager: FactoryManager
-    needsReclaiming: () => boolean
-    isSafeForReclaiming: () => boolean
-  }
+    export interface Room {
+        creeps: Record<string, Creep>
+        powerCreeps: Record<string, PowerCreep>
+        creepsByRole: Record<string, Record<string, Creep>>
+        enemyCreeps: Record<string, Creep[]>
+        defense: RoomDefense
+        sources: Source[]
+        minerals: Mineral[]
+        enhanceData
+        scan
+        updateControllerContainer
+        updateControllerLink
+        updateStorageLink
+        needsScout
+        isMine: (allowReserved?: boolean) => boolean
+        nuker?: StructureNuker
+        powerSpawn?: StructurePowerSpawn
+        observer?: StructureObserver
+        factory?: StructureFactory
+        factoryManager: FactoryManager
+        needsReclaiming: () => boolean
+        isSafeForReclaiming: () => boolean
+    }
 
-  export interface RoomMemory {
-    controllerLink?: any
-    controllerContainer?: any
-    storageLink?: any
-  }
+    export interface RoomMemory {
+        controllerLink?: any
+        controllerContainer?: any
+        storageLink?: any
+    }
 }
 
 // Define quick access property room.enemyCreeps.
 Object.defineProperty(Room.prototype, 'enemyCreeps', {
 
-  /**
-   * Gets all enemy creeps in a room, keyed by owner username.
-   *
-   * @return {object}
-   *   All enemy creeps in this room.
-   */
-  get(this: Room) {
-    return cache.inObject(this, 'enemyCreeps', 1, () => _.groupBy(this.find(FIND_HOSTILE_CREEPS), 'owner.username'));
-  },
-  enumerable: false,
-  configurable: true,
+    /**
+     * Gets all enemy creeps in a room, keyed by owner username.
+     *
+     * @return {object}
+     *   All enemy creeps in this room.
+     */
+    get(this: Room) {
+        return cache.inObject(this, 'enemyCreeps', 1, () => _.groupBy(this.find(FIND_HOSTILE_CREEPS), 'owner.username'));
+    },
+    enumerable: false,
+    configurable: true,
 });
 
 // Define quick access property room.enemyCreeps.
 Object.defineProperty(Room.prototype, 'powerCreeps', {
 
-  /**
-   * Gets all power creeps in a room, keyed by name.
-   *
-   * @return {object}
-   *   All power creeps in this room.
-   */
-  get(this: Room) {
-    return cache.inObject(this, 'powerCreeps', 1, () => {
-      const powerCreeps = {};
-      for (const powerCreep of this.find(FIND_MY_POWER_CREEPS)) {
-        powerCreeps[powerCreep.name] = powerCreep;
-      }
+    /**
+     * Gets all power creeps in a room, keyed by name.
+     *
+     * @return {object}
+     *   All power creeps in this room.
+     */
+    get(this: Room) {
+        return cache.inObject(this, 'powerCreeps', 1, () => {
+            const powerCreeps = {};
+            for (const powerCreep of this.find(FIND_MY_POWER_CREEPS)) {
+                powerCreeps[powerCreep.name] = powerCreep;
+            }
 
-      return powerCreeps;
-    });
-  },
-  enumerable: false,
-  configurable: true,
+            return powerCreeps;
+        });
+    },
+    enumerable: false,
+    configurable: true,
 });
 
 // Define quick access property room.defense
 Object.defineProperty(Room.prototype, 'defense', {
 
-  /**
-   * Gets a room's defense manager.
-   *
-   * @return {RoomDefense}
-   *   The room's defense manager.
-   */
-  get(this: Room) {
-    return cache.inObject(this, 'roomDefense', 1, () => new RoomDefense(this.name));
-  },
-  enumerable: false,
-  configurable: true,
+    /**
+     * Gets a room's defense manager.
+     *
+     * @return {RoomDefense}
+     *   The room's defense manager.
+     */
+    get(this: Room) {
+        return cache.inObject(this, 'roomDefense', 1, () => new RoomDefense(this.name));
+    },
+    enumerable: false,
+    configurable: true,
 });
 
 // Define quick access property room.sources
 Object.defineProperty(Room.prototype, 'sources', {
 
-  /**
-   * Gets a room's sources.
-   *
-   * @return {Source[]}
-   *   The room's sources.
-   */
-  get(this: Room) {
-    return cache.inObject(this, 'sources', 1, () => {
-      const sourceIds = cache.inHeap(`sources:${this.name}`, 10_000, () => _.map(this.find(FIND_SOURCES), 'id'));
+    /**
+     * Gets a room's sources.
+     *
+     * @return {Source[]}
+     *   The room's sources.
+     */
+    get(this: Room) {
+        return cache.inObject(this, 'sources', 1, () => {
+            const sourceIds = cache.inHeap(`sources:${this.name}`, 10_000, () => _.map(this.find(FIND_SOURCES), 'id'));
 
-      return _.map(sourceIds, Game.getObjectById);
-    });
-  },
-  enumerable: false,
-  configurable: true,
+            return _.map(sourceIds, Game.getObjectById);
+        });
+    },
+    enumerable: false,
+    configurable: true,
 });
 
 // Define quick access property room.minerals
 Object.defineProperty(Room.prototype, 'minerals', {
 
-  /**
-   * Gets a room's minerals.
-   *
-   * @return {Source[]}
-   *   The room's minerals.
-   */
-  get(this: Room): Mineral[] {
-    return cache.inObject(this, 'minerals', 1, () => {
-      const mineralIds = cache.inHeap(`mineral:${this.name}`, 10_000, () => this.find(FIND_MINERALS)?.map(({ id }) => id));
+    /**
+     * Gets a room's minerals.
+     *
+     * @return {Source[]}
+     *   The room's minerals.
+     */
+    get(this: Room): Mineral[] {
+        return cache.inObject(this, 'minerals', 1, () => {
+            const mineralIds = cache.inHeap(`mineral:${this.name}`, 10_000, () => this.find(FIND_MINERALS)?.map(({ id }) => id));
 
-      const minerals: Mineral<MineralConstant>[] = [];
-      for (const mineralId of mineralIds) {
-        const mineral = Game.getObjectById(mineralId);
-        if (!mineral) {
-          continue;
-        }
+            const minerals: Mineral<MineralConstant>[] = [];
+            for (const mineralId of mineralIds) {
+                const mineral = Game.getObjectById(mineralId);
+                if (!mineral) {
+                    continue;
+                }
 
-        minerals.push(mineral);
-      }
+                minerals.push(mineral);
+            }
 
-      return minerals;
-    });
-  },
-  enumerable: false,
-  configurable: true,
-});
-
-const structuresToReference = [
-  STRUCTURE_NUKER,
-  STRUCTURE_OBSERVER,
-  STRUCTURE_POWER_SPAWN,
-  STRUCTURE_FACTORY,
-];
-
-for (const structureType of structuresToReference) {
-  Object.defineProperty(Room.prototype, structureType, {
-    get(this: Room) {
-      return getCachedStructureReference(this, structureType);
+            return minerals;
+        });
     },
     enumerable: false,
     configurable: true,
-  });
+});
+
+const structuresToReference = [
+    STRUCTURE_NUKER,
+    STRUCTURE_OBSERVER,
+    STRUCTURE_POWER_SPAWN,
+    STRUCTURE_FACTORY,
+];
+
+for (const structureType of structuresToReference) {
+    Object.defineProperty(Room.prototype, structureType, {
+        get(this: Room) {
+            return getCachedStructureReference(this, structureType);
+        },
+        enumerable: false,
+        configurable: true,
+    });
 }
 
 function getCachedStructureReference<T extends typeof structuresToReference[number]>(room: Room, structureType: T): Structure<T> | null {
-  if (!room.controller) {
-    return null;
-  }
-
-  const cacheKey = `${room.name}:${structureType}:id`;
-  const structureId = cache.inHeap(cacheKey, 250, () => {
-    if (CONTROLLER_STRUCTURES[structureType][room.controller!.level] === 0) {
-      return null;
+    if (!room.controller) {
+        return null;
     }
 
-    const structures = room.structuresByType[structureType] || [];
-    if (structures.length > 0) {
-      return structures[0].id;
+    const cacheKey = `${room.name}:${structureType}:id`;
+    const structureId = cache.inHeap(cacheKey, 250, () => {
+        if (CONTROLLER_STRUCTURES[structureType][room.controller.level] === 0) {
+            return null;
+        }
+
+        const structures = room.structuresByType[structureType] || [];
+        if (structures.length > 0) {
+            return structures[0].id;
+        }
+
+        return null;
+    });
+
+    if (!structureId) {
+        return null;
+    }
+    if (structureId === 'nuker') {
+        return null;
+    }
+    const structure = Game.getObjectById(structureId);
+    if (!structure) {
+        cache.removeEntry(null, cacheKey);
     }
 
-    return null;
-  });
-
-  if (!structureId) {
-    return null;
-  }
-  if (structureId === 'nuker') {
-    return null;
-  }
-  const structure = Game.getObjectById(structureId);
-  if (!structure) {
-    cache.removeEntry(null, cacheKey);
-  }
-
-  return structure as unknown as Structure<T>;
+    return structure as unknown as Structure<T>;
 }
 
 Object.defineProperty(Room.prototype, 'factoryManager', {
-  get(this: Room) {
-    return cache.inObject(this, 'factoryManager', 1, () => this.factory?.isOperational() ? new FactoryManager(this.name) : null);
-  },
-  enumerable: false,
-  configurable: true,
+    get(this: Room) {
+        return cache.inObject(this, 'factoryManager', 1, () => this.factory?.isOperational() ? new FactoryManager(this.name) : null);
+    },
+    enumerable: false,
+    configurable: true,
 });
 
 Object.defineProperty(Room.prototype, 'bays', {
-  get(this: Room) {
-    return cache.inObject(this, 'bays', 1, () => {
-      if (!this.isMine()) {
-        return [];
-      }
-      if (!this.roomPlanner) {
-        return [];
-      }
+    get(this: Room) {
+        return cache.inObject(this, 'bays', 1, () => {
+            if (!this.isMine()) {
+                return [];
+            }
+            if (!this.roomPlanner) {
+                return [];
+            }
 
-      const bays: Bay[] = [];
-      for (const pos of this.roomPlanner.getLocations('bay_center')) {
-        let hasHarvester = false;
-        if (this.roomPlanner.isPlannedLocation(pos, 'harvester')) {
-          // @todo Don't use pos.lookFor, instead filter this.creepsByRole.harvester.
-          const creeps = pos.lookFor(LOOK_CREEPS);
-          hasHarvester = creeps.length > 0 && creeps[0].my && creeps[0].memory.role === 'harvester';
-        }
+            const bays: Bay[] = [];
+            for (const pos of this.roomPlanner.getLocations('bay_center')) {
+                let hasHarvester = false;
+                if (this.roomPlanner.isPlannedLocation(pos, 'harvester')) {
+                    // @todo Don't use pos.lookFor, instead filter this.creepsByRole.harvester.
+                    const creeps = pos.lookFor(LOOK_CREEPS);
+                    hasHarvester = creeps.length > 0 && creeps[0].my && creeps[0].memory.role === 'harvester';
+                }
 
-        const bay = new Bay(pos, hasHarvester);
-        bays.push(bay!);
-      }
+                const bay = new Bay(pos, hasHarvester);
+                bays.push(bay);
+            }
 
-      return bays;
-    });
-  },
-  enumerable: false,
-  configurable: true,
+            return bays;
+        });
+    },
+    enumerable: false,
+    configurable: true,
 });
 
 /**
  * Adds some additional data to room objects.
  */
 Room.prototype.enhanceData = function (this: Room) {
-  if (this.factory && !this.factory.isOperational()) {
-    delete this.factory;
-  }
-  if (this.terminal && !this.terminal.isOperational()) {
-    delete this.terminal;
-  }
-  if (this.storage && !this.storage.isOperational()) {
-    delete this.storage;
-  }
+    if (this.factory && !this.factory.isOperational()) {
+        delete this.factory;
+    }
+    if (this.terminal && !this.terminal.isOperational()) {
+        delete this.terminal;
+    }
+    if (this.storage && !this.storage.isOperational()) {
+        delete this.storage;
+    }
 
-  // Prepare memory for creep cache (filled globally later).
-  if (!this.creeps) {
-    this.creeps = {};
-    this.creepsByRole = {};
-  }
+    // Prepare memory for creep cache (filled globally later).
+    if (!this.creeps) {
+        this.creeps = {};
+        this.creepsByRole = {};
+    }
 };
 
 /**
  * Gathers information about a room and saves it to memory for faster access.
  */
 Room.prototype.scan = function (this: Room) {
-  // @todo Remove this function in favor of adding properties to the room object directly.
-  cache.inHeap(`room:${this.name}:scan`, 10, () => {
-    if (!this.controller?.my) {
-      delete this.memory.controllerContainer;
-      delete this.memory.controllerLink;
-      delete this.memory.storageLink;
-      return;
-    }
+    // @todo Remove this function in favor of adding properties to the room object directly.
+    cache.inHeap(`room:${this.name}:scan`, 10, () => {
+        if (!this.controller?.my) {
+            delete this.memory.controllerContainer;
+            delete this.memory.controllerLink;
+            delete this.memory.storageLink;
+            return;
+        }
 
-    this.updateControllerContainer();
-    this.updateControllerLink();
-    this.updateStorageLink();
-  });
+        this.updateControllerContainer();
+        this.updateControllerLink();
+        this.updateStorageLink();
+    });
 };
 
 /**
  * Updates location of the room's controller container.
  */
 Room.prototype.updateControllerContainer = function (this: Room) {
-  // @todo Split into a get function and set / delete value according to result.
-  // Check if the controller has a container nearby.
-  // Use room planner locations if available.
-  if (this.roomPlanner) {
-    const containerPositions: RoomPosition[] = this.roomPlanner.getLocations('container.controller');
-    if (containerPositions.length > 0) {
-      const structures = _.filter(
-        this.structuresByType[STRUCTURE_CONTAINER],
-        structure => _.some(containerPositions, pos => pos.x === structure.pos.x && pos.y === structure.pos.y),
-      );
-      this.memory.controllerContainer = structures.length > 0 && structures[0].id;
-      if (!this.memory.controllerContainer) {
-        delete this.memory.controllerContainer;
-      }
-      return;
+    // @todo Split into a get function and set / delete value according to result.
+    // Check if the controller has a container nearby.
+    // Use room planner locations if available.
+    if (this.roomPlanner) {
+        const containerPositions: RoomPosition[] = this.roomPlanner.getLocations('container.controller');
+        if (containerPositions.length > 0) {
+            const structures = _.filter(
+                this.structuresByType[STRUCTURE_CONTAINER],
+                structure => _.some(containerPositions, pos => pos.x === structure.pos.x && pos.y === structure.pos.y),
+            );
+            this.memory.controllerContainer = structures.length > 0 && structures[0].id;
+            if (!this.memory.controllerContainer) {
+                delete this.memory.controllerContainer;
+            }
+            return;
+        }
     }
-  }
 
-  const structures = _.filter(
-    this.structuresByType[STRUCTURE_CONTAINER],
-    structure => structure.pos.getRangeTo(this.controller!) <= 3,
-  );
-  this.memory.controllerContainer = structures.length > 0 && structures[0].id;
-  if (!this.memory.controllerContainer) {
-    delete this.memory.controllerContainer;
-  }
+    const structures = _.filter(
+        this.structuresByType[STRUCTURE_CONTAINER],
+        structure => structure.pos.getRangeTo(this.controller) <= 3,
+    );
+    this.memory.controllerContainer = structures.length > 0 && structures[0].id;
+    if (!this.memory.controllerContainer) {
+        delete this.memory.controllerContainer;
+    }
 };
 
 /**
  * Updates location of the room's controller link.
  */
 Room.prototype.updateControllerLink = function (this: Room) {
-  // @todo Split into a get function and set / delete value according to result.
-  // Check if the controller has a link nearby.
-  // Use room planner locations if available.
-  if (this.roomPlanner) {
-    const linkPositions: RoomPosition[] = this.roomPlanner.getLocations('link.controller');
-    if (linkPositions.length > 0) {
-      const structures = _.filter(
-        this.myStructuresByType[STRUCTURE_LINK],
-        structure => _.some(linkPositions, pos => pos.x === structure.pos.x && pos.y === structure.pos.y),
-      );
-      this.memory.controllerLink = structures.length > 0 && structures[0].id;
-      if (!this.memory.controllerLink) {
-        delete this.memory.controllerLink;
-      }
-      return;
+    // @todo Split into a get function and set / delete value according to result.
+    // Check if the controller has a link nearby.
+    // Use room planner locations if available.
+    if (this.roomPlanner) {
+        const linkPositions: RoomPosition[] = this.roomPlanner.getLocations('link.controller');
+        if (linkPositions.length > 0) {
+            const structures = _.filter(
+                this.myStructuresByType[STRUCTURE_LINK],
+                structure => _.some(linkPositions, pos => pos.x === structure.pos.x && pos.y === structure.pos.y),
+            );
+            this.memory.controllerLink = structures.length > 0 && structures[0].id;
+            if (!this.memory.controllerLink) {
+                delete this.memory.controllerLink;
+            }
+            return;
+        }
     }
-  }
 
-  const structures = _.filter(
-    this.myStructuresByType[STRUCTURE_LINK],
-    structure => structure.pos.getRangeTo(this.controller!) <= 3,
-  );
-  this.memory.controllerLink = structures.length > 0 && structures[0].id;
-  if (!this.memory.controllerLink) {
-    delete this.memory.controllerLink;
-  }
+    const structures = _.filter(
+        this.myStructuresByType[STRUCTURE_LINK],
+        structure => structure.pos.getRangeTo(this.controller) <= 3,
+    );
+    this.memory.controllerLink = structures.length > 0 && structures[0].id;
+    if (!this.memory.controllerLink) {
+        delete this.memory.controllerLink;
+    }
 };
 
 /**
  * Updates location of the room's storage link.
  */
 Room.prototype.updateStorageLink = function (this: Room) {
-  // @todo Split into a get function and set / delete value according to result.
-  if (!this.storage) {
-    return;
-  }
-
-  // Check if storage has a link nearby.
-  // Use room planner locations if available.
-  if (this.roomPlanner) {
-    const linkPositions: RoomPosition[] = this.roomPlanner.getLocations('link.storage');
-    if (linkPositions.length > 0) {
-      const structures = _.filter(
-        this.myStructuresByType[STRUCTURE_LINK],
-        structure => _.some(linkPositions, pos => pos.x === structure.pos.x && pos.y === structure.pos.y),
-      );
-      this.memory.storageLink = structures.length > 0 && structures[0].id;
-      return;
+    // @todo Split into a get function and set / delete value according to result.
+    if (!this.storage) {
+        return;
     }
-  }
 
-  const structures = _.filter(
-    this.myStructuresByType[STRUCTURE_LINK],
-    structure => structure.pos.getRangeTo(this.storage!) <= 3,
-  );
-  this.memory.storageLink = structures.length > 0 && structures[0].id;
+    // Check if storage has a link nearby.
+    // Use room planner locations if available.
+    if (this.roomPlanner) {
+        const linkPositions: RoomPosition[] = this.roomPlanner.getLocations('link.storage');
+        if (linkPositions.length > 0) {
+            const structures = _.filter(
+                this.myStructuresByType[STRUCTURE_LINK],
+                structure => _.some(linkPositions, pos => pos.x === structure.pos.x && pos.y === structure.pos.y),
+            );
+            this.memory.storageLink = structures.length > 0 && structures[0].id;
+            return;
+        }
+    }
+
+    const structures = _.filter(
+        this.myStructuresByType[STRUCTURE_LINK],
+        structure => structure.pos.getRangeTo(this.storage) <= 3,
+    );
+    this.memory.storageLink = structures.length > 0 && structures[0].id;
 };
 
 /**
@@ -376,9 +376,9 @@ Room.prototype.updateStorageLink = function (this: Room) {
  *   True if a scout is needed.
  */
 Room.prototype.needsScout = function (this: Room) {
-  const roomStatus = container.get('RoomStatus');
+    const roomStatus = container.get('RoomStatus');
 
-  return roomStatus.getPotentialScoutTargets().some(roomName => roomStatus.getOrigin(roomName) === this.name);
+    return roomStatus.getPotentialScoutTargets().some(roomName => roomStatus.getOrigin(roomName) === this.name);
 };
 
 /**
@@ -391,32 +391,32 @@ Room.prototype.needsScout = function (this: Room) {
  *   True if the room is owned / reserved by the player.
  */
 Room.prototype.isMine = function (this: Room, allowReserved?: boolean) {
-  if (!this.controller) {
-    return false;
-  }
-  if (this.controller.my) {
-    return true;
-  }
+    if (!this.controller) {
+        return false;
+    }
+    if (this.controller.my) {
+        return true;
+    }
 
-  if (!allowReserved) {
-    return false;
-  }
-  if (!this.controller.reservation) {
-    return false;
-  }
-  if (this.controller.reservation.username === getUsername()) {
-    return true;
-  }
+    if (!allowReserved) {
+        return false;
+    }
+    if (!this.controller.reservation) {
+        return false;
+    }
+    if (this.controller.reservation.username === getUsername()) {
+        return true;
+    }
 
-  return false;
+    return false;
 };
 
 Room.prototype.needsReclaiming = function (this: Room) {
-  const reclaimManager = container.get('ReclaimManager');
-  return reclaimManager.roomNeedsReclaiming(this);
+    const reclaimManager = container.get('ReclaimManager');
+    return reclaimManager.roomNeedsReclaiming(this);
 };
 
 Room.prototype.isSafeForReclaiming = function (this: Room) {
-  const reclaimManager = container.get('ReclaimManager');
-  return reclaimManager.roomIsSafeForReclaiming(this);
+    const reclaimManager = container.get('ReclaimManager');
+    return reclaimManager.roomIsSafeForReclaiming(this);
 };

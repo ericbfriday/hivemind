@@ -7,9 +7,9 @@
 import _ from 'lodash';
 
 declare global {
-  export interface Room {
-    getCreepsWithOrder: (type: string, target: string) => Creep[]
-  }
+    export interface Room {
+        getCreepsWithOrder: (type: string, target: string) => Creep[]
+    }
 }
 
 /**
@@ -24,22 +24,22 @@ declare global {
  *   An array of creeps that have a matching order.
  */
 Room.prototype.getCreepsWithOrder = function (this: Room, type: string, target: string): Creep[] {
-  return _.filter(this.creeps, (creep) => {
-    if (!creep.memory.order) {
-      return false;
-    }
-    if (creep.memory.order.type !== type) {
-      return false;
-    }
-    if (creep.memory.order.target && creep.memory.order.target !== target) {
-      return false;
-    }
-    if (creep.memory.order.name && creep.memory.order.name !== target) {
-      return false;
-    }
+    return _.filter(this.creeps, (creep) => {
+        if (!creep.memory.order) {
+            return false;
+        }
+        if (creep.memory.order.type !== type) {
+            return false;
+        }
+        if (creep.memory.order.target && creep.memory.order.target !== target) {
+            return false;
+        }
+        if (creep.memory.order.name && creep.memory.order.name !== target) {
+            return false;
+        }
 
-    return true;
-  });
+        return true;
+    });
 };
 
 export { };

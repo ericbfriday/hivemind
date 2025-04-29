@@ -1,0 +1,52 @@
+{
+    "compilerOptions": {
+        "target": "es2017",
+        "lib": ["esnext", "dom"],
+        "experimentalDecorators": true,
+        "rootDir": "./src",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "paths": {
+            "@/*": ["./src/*"],
+            "utils/*": ["./src/utils/*"],
+            "spawn-role/*": ["./src/spawn-role/*"],
+            "dispatcher/*": ["./src/dispatcher/*"],
+            "operation/*": ["./src/operation/*"],
+            "process/*": ["./src/process/*"],
+            "prototype/*": ["./src/prototype/*"],
+            "room/*": ["./src/room/*"],
+            "creep/*": ["./src/creep/*"],
+            "role/*": ["./src/role/*"],
+            "report/*": ["./src/report/*"],
+            "empire/*": ["./src/empire/*"]
+        },
+        "typeRoots": [
+            "./node_modules/@types",
+            "./node_modules/typed-screeps"
+        ],
+        "strict": false,
+        "strictNullChecks": false,
+        "allowUnreachableCode": false,
+        "noImplicitAny": false,
+        "noImplicitReturns": true,
+        "importHelpers": true,
+        "newLine": "LF",
+        "outDir": "dist",
+        "sourceMap": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "skipDefaultLibCheck": true,
+        "skipLibCheck": true
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "test",
+        "mock",
+        "*.example.ts",
+        "snippets.js",
+        "tsup.config.ts"
+    ]
+}

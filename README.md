@@ -8,12 +8,12 @@ Welcome to Hivemind, an open-source AI bot designed to autonomously operate with
 
 - [Project Overview](#project-overview)
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
 - [Features](#features)
-  - [Capabilities](#capabilities)
-  - [Limitations](#limitations)
-  - [Reasoning](#reasoning)
+    - [Capabilities](#capabilities)
+    - [Limitations](#limitations)
+    - [Reasoning](#reasoning)
 - [Customization](#customization)
 - [Manual Interaction](#manual-interaction)
 - [Contributing](#contributing)
@@ -44,31 +44,31 @@ Your best bet for finding up-to-date information on setting up a private server 
 
 1. **Clone the Repository**:
 
-   ```bash
-   git clone https://github.com/Mirroar/hivemind.git
-   cd hivemind
-   ```
+    ```bash
+    git clone https://github.com/Mirroar/hivemind.git
+    cd hivemind
+    ```
 
 2. **Install Dependencies**:
 
-   ```bash
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
 3. **Transpile TypeScript to JavaScript**:
 
-   ```bash
-   rollup -c
-   ```
+    ```bash
+    rollup -c
+    ```
 
 4. **Deploy**:
    You can copy the files from the `dist` directory to the server using the screeps game client.
 
-   Alternatively, you can push the code using grunt (requires copying `Gruntfile.example.js` to `Gruntfile.js` and adding your account information):
+    Alternatively, you can push the code using grunt (requires copying `Gruntfile.example.js` to `Gruntfile.js` and adding your account information):
 
-   ```bash
-   grunt screeps
-   ```
+    ```bash
+    grunt screeps
+    ```
 
 ## Features
 

@@ -4,27 +4,27 @@ import Process from 'process/process';
 
 export default ReclaimProcess;
 export class ReclaimProcess extends Process {
-  manager: ReclaimManager;
+    manager: ReclaimManager;
 
-  constructor(parameters: ProcessParameters) {
-    super(parameters);
-    this.manager = container.get('ReclaimManager');
-  }
-
-  /**
-   * Sends builders to destroyed rooms we still have control over.
-   */
-  run() {
-    this.markReclaimableRooms();
-    this.manager.cleanReclaimMemory();
-  }
-
-  /**
-   * Keeps a record of reclaimable rooms.
-   */
-  markReclaimableRooms() {
-    for (const room of Game.myRooms) {
-      this.manager.updateReclaimStatus(room);
+    constructor(parameters: ProcessParameters) {
+        super(parameters);
+        this.manager = container.get('ReclaimManager');
     }
-  }
+
+    /**
+     * Sends builders to destroyed rooms we still have control over.
+     */
+    run() {
+        this.markReclaimableRooms();
+        this.manager.cleanReclaimMemory();
+    }
+
+    /**
+     * Keeps a record of reclaimable rooms.
+     */
+    markReclaimableRooms() {
+        for (const room of Game.myRooms) {
+            this.manager.updateReclaimStatus(room);
+        }
+    }
 }

@@ -1,69 +1,69 @@
 import StructureDestination from '@/dispatcher/resource-destination/structure';
 
 export interface FactoryDestinationTask extends StructureDestinationTask {
-  type: 'factory'
-  target: Id<StructureFactory>
+    type: 'factory'
+    target: Id<StructureFactory>
 }
 
 export default FactoryDestination;
 export class FactoryDestination extends StructureDestination<FactoryDestinationTask> {
-  constructor(readonly room: Room) {
-    super(room);
-  }
-
-  getType(): 'factory' {
-    return 'factory';
-  }
-
-  getHighestPriority() {
-    return 3;
-  }
-
-  getTasks(context: ResourceDestinationContext) {
-    if (!this.room.factory) {
-      return [];
+    constructor(readonly room: Room) {
+        super(room);
     }
 
-    return this.cacheEmptyTaskListFor(context.resourceType || '', 5, () => {
-      if (this.room.factory.store.getFreeCapacity() < 100) {
-        return [];
-      }
+    getType(): 'factory' {
+        return 'factory';
+    }
 
-      const options: FactoryDestinationTask[] = [];
-      const missingResources = this.room.factoryManager.getMissingComponents();
-      if (!missingResources) {
-        return [];
-      }
+    getHighestPriority() {
+        return 3;
+    }
 
-      const neededResources = this.room.factoryManager.getRequestedComponents() || {};
-
-      let resourceType: ResourceConstant;
-      for (resourceType in missingResources) {
-        if (context.resourceType && resourceType !== context.resourceType) {
-          continue;
+    getTasks(context: ResourceDestinationContext) {
+        if (!this.room.factory) {
+            return [];
         }
 
-        // @todo Create only one task, but allow picking up multiple resource types when resolving.
-        const option: FactoryDestinationTask = {
-          type: this.getType(),
-          priority: 3,
-          weight: missingResources[resourceType] / neededResources[resourceType],
-          resourceType,
-          amount: missingResources[resourceType],
-          target: this.room.factory.id,
-        };
+        return this.cacheEmptyTaskListFor(context.resourceType || '', 5, () => {
+            if (this.room.factory.store.getFreeCapacity() < 100) {
+                return [];
+            }
 
-        if (option.amount < 100) {
-          option.priority--;
-        }
-        if (option.amount < 10) {
-          option.priority--;
-        }
+            const options: FactoryDestinationTask[] = [];
+            const missingResources = this.room.factoryManager.getMissingComponents();
+            if (!missingResources) {
+                return [];
+            }
 
-        options.push(option);
-      }
+            const neededResources = this.room.factoryManager.getRequestedComponents() || {};
 
-      return options;
-    });
-  }
+            let resourceType: ResourceConstant;
+            for (resourceType in missingResources) {
+                if (context.resourceType && resourceType !== context.resourceType) {
+                    continue;
+                }
+
+                // @todo Create only one task, but allow picking up multiple resource types when resolving.
+                const option: FactoryDestinationTask = {
+                    type: this.getType(),
+                    priority: 3,
+                    weight: missingResources[resourceType] / neededResources[resourceType],
+                    resourceType,
+                    amount: missingResources[resourceType],
+                    target: this.room.factory.id,
+                };
+
+                if (option.amount < 100) {
+                    option.priority--;
+                }
+                if (option.amount < 10) {
+                    option.priority--;
+                }
+
+                options.push(option);
+            }
+
+            return options;
+        });
+    }
 }

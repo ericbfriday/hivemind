@@ -1,43 +1,43 @@
 import container from '@/utils/container';
 
 declare global {
-  export interface ReportClasses { }
+    export interface ReportClasses { }
 
 	type ReportType = keyof ReportClasses;
 
 	namespace NodeJS {
-	  export interface Global {
-	    report: typeof report
-	  }
+	    export interface Global {
+	        report: typeof report
+	    }
 	}
 }
 
 export default ReportManager;
 export class ReportManager {
-  currentReport: ReportType;
+    currentReport: ReportType;
 
-  setCurrentReport(reportType?: ReportType) {
-    this.currentReport = reportType;
-  }
-
-  visualizeCurrentReport() {
-    if (this.currentReport) {
-      // @todo We need to register a list of reports somewhere.
-      const report = container.get(this.currentReport);
-      report.visualize();
-      return;
+    setCurrentReport(reportType?: ReportType) {
+        this.currentReport = reportType;
     }
 
-    const visual = new RoomVisual();
+    visualizeCurrentReport() {
+        if (this.currentReport) {
+            // @todo We need to register a list of reports somewhere.
+            const report = container.get(this.currentReport);
+            report.visualize();
+            return;
+        }
 
-    visual.text('Type `report()` in console to get information...', 1, 48, {
-      align: 'left',
-    });
-  }
+        const visual = new RoomVisual();
+
+        visual.text('Type `report()` in console to get information...', 1, 48, {
+            align: 'left',
+        });
+    }
 }
 
 function report(reportType: ReportType = 'HelpReport') {
-  container.get('ReportManager').setCurrentReport(reportType);
+    container.get('ReportManager').setCurrentReport(reportType);
 }
 
 globalThis.report = report;

@@ -57,32 +57,32 @@ import './manager.military';
 import './manager.source';
 
 declare global {
-  export interface RawMemory {
-    _parsed: Memory
-  }
-  export interface Global {
-    Memory: Memory
-    Profiler: typeof Profiler
-  }
+    export interface RawMemory {
+        _parsed: Memory
+    }
+    export interface Global {
+        Memory: Memory
+        Profiler: typeof Profiler
+    }
 
-  export interface Global {
-    Memory: Memory
-    Profiler: typeof Profiler
+    export interface Global {
+        Memory: Memory
+        Profiler: typeof Profiler
 
-  }
+    }
 
-  // const _: typeof _;
+    // const _: typeof _;
 }
 
 export interface DeprecatedRoomMemory extends RoomMemory {
-  bays: unknown
-  minerals: unknown
-  remoteHarvesting: unknown
-  roomPlan: unknown
-  sources: unknown
-  spawns: unknown
-  structureCache: unknown
-  inactiveStructures: unknown
+    bays: unknown
+    minerals: unknown
+    remoteHarvesting: unknown
+    roomPlan: unknown
+    sources: unknown
+    spawns: unknown
+    structureCache: unknown
+    inactiveStructures: unknown
 }
 
 console.log('new global reset');
@@ -97,372 +97,372 @@ containerSetup(container);
 
 const globalResetCallback = hivemind.settings.get('onGlobalReset');
 if (globalResetCallback) {
-  globalResetCallback();
+    globalResetCallback();
 }
 
 balancer.init();
 
 class BotKernel {
-  lastTime: number = 0;
-  lastMemory: Memory = {} as Memory; ;
+    lastTime: number = 0;
+    lastMemory: Memory = {} as Memory; ;
 
-  roomStatus: RoomStatus;
+    roomStatus: RoomStatus;
 
-  constructor() {
-    this.roomStatus = container.get('RoomStatus');
-  }
-
-  /**
-   * Runs main game loop.
-   */
-  runTick() {
-    this.useMemoryFromHeap();
-
-    hivemind.segmentMemory.manage();
-
-    if (hivemind.migrateData()) {
-      return;
+    constructor() {
+        this.roomStatus = container.get('RoomStatus');
     }
 
-    hivemind.onTickStart();
+    /**
+     * Runs main game loop.
+     */
+    runTick() {
+        this.useMemoryFromHeap();
 
-    this.cleanup();
+        hivemind.segmentMemory.manage();
 
-    hivemind.runProcess('init', InitProcess, {
-      priority: PROCESS_PRIORITY_ALWAYS,
-    });
+        if (hivemind.migrateData()) {
+            return;
+        }
 
-    const onTickCallback = hivemind.settings.get('onTick');
-    if (onTickCallback) {
-      onTickCallback();
+        hivemind.onTickStart();
+
+        this.cleanup();
+
+        hivemind.runProcess('init', InitProcess, {
+            priority: PROCESS_PRIORITY_ALWAYS,
+        });
+
+        const onTickCallback = hivemind.settings.get('onTick');
+        if (onTickCallback) {
+            onTickCallback();
+        }
+
+        hivemind.runProcess('creeps', CreepsProcess, {
+            priority: PROCESS_PRIORITY_ALWAYS,
+        });
+
+        hivemind.runProcess('rooms', RoomsProcess, {
+            priority: PROCESS_PRIORITY_ALWAYS,
+        });
+        hivemind.runProcess('strategy.scout', ScoutProcess, {
+            interval: hivemind.settings.get('scoutProcessInterval'),
+            priority: PROCESS_PRIORITY_LOW,
+            requireSegments: true,
+        });
+
+        const interShardMemory = interShard.getLocalMemory();
+        const shardHasRooms = interShardMemory.info && (interShardMemory?.info?.ownedRooms || 0) > 0;
+        const shardHasEstablishedRooms = shardHasRooms && (interShardMemory?.info?.maxRoomLevel || 0) > 3;
+
+        if (shardHasEstablishedRooms) {
+            // @todo This process could be split up - decisions about when and where to expand can be executed at low priority. But management of actual expansions is high priority.
+            hivemind.runProcess('strategy.expand', ExpandProcess, {
+                interval: Memory.hivemind.canExpand ? 5 : 50,
+                priority: PROCESS_PRIORITY_HIGH,
+            });
+        }
+
+        if (shardHasRooms) {
+            hivemind.runProcess('strategy.remote_mining', RemoteMiningProcess, {
+                interval: _.size(Game.myRooms) === 1 ? 20 : 100,
+            });
+
+            hivemind.runProcess('player-intel', PlayerIntelProcess, {
+                interval: 100,
+                requireSegments: true,
+            });
+
+            hivemind.runProcess('cleanup', CleanupProcess, {
+                interval: 100,
+                priority: PROCESS_PRIORITY_LOW,
+                requireSegments: true,
+            });
+        }
+
+        if (shardHasEstablishedRooms) {
+            hivemind.runProcess('strategy.power_mining', PowerMiningProcess, {
+                interval: hivemind.settings.get('powerMiningCheckInterval'),
+            });
+
+            hivemind.runProcess('strategy.deposit_mining', DepositMiningProcess, {
+                interval: 100,
+            });
+
+            hivemind.runProcess('strategy.reclaim', ReclaimProcess, {
+                interval: 100,
+                priority: PROCESS_PRIORITY_LOW,
+            });
+        }
+
+        hivemind.runProcess('strategy.inter_shard', InterShardProcess, {
+            interval: 100,
+            priority: PROCESS_PRIORITY_LOW,
+        });
+
+        if (shardHasEstablishedRooms) {
+            hivemind.runProcess('empire.trade', TradeProcess, {
+                interval: 20,
+                priority: PROCESS_PRIORITY_LOW,
+            });
+            hivemind.runProcess('empire.resources', ResourcesProcess, {
+                interval: 5,
+            });
+        }
+
+        hivemind.runProcess('empire.report', ReportProcess, {
+            interval: 100,
+        });
+        hivemind.runProcess('empire.power_creeps.manage', ManagePowerCreepsProcess, {
+            interval: hivemind.settings.get('powerCreepUpgradeCheckInterval'),
+        });
+        hivemind.runProcess('empire.power_creeps.spawn', SpawnPowerCreepsProcess, {
+            interval: 100,
+        });
+        hivemind.runProcess('map-visuals', MapVisualsProcess, {
+            priority: PROCESS_PRIORITY_ALWAYS,
+        });
+        hivemind.runProcess('allies', AlliesProcess, {
+            priority: PROCESS_PRIORITY_ALWAYS,
+        });
+
+        this.showDebug();
+        this.recordStats();
     }
 
-    hivemind.runProcess('creeps', CreepsProcess, {
-      priority: PROCESS_PRIORITY_ALWAYS,
-    });
+    useMemoryFromHeap() {
+        if (this.lastTime && this.lastMemory && Game.time === this.lastTime + 1) {
+            if ((globalThis as unknown as any)?.Memory) {
+                delete (globalThis as unknown as any).Memory;
+            }
+            (globalThis as unknown as any).Memory = this.lastMemory;
+            RawMemory._parsed = this.lastMemory;
+        }
+        else {
+            // Force parsing of Memory.
 
-    hivemind.runProcess('rooms', RoomsProcess, {
-      priority: PROCESS_PRIORITY_ALWAYS,
-    });
-    hivemind.runProcess('strategy.scout', ScoutProcess, {
-      interval: hivemind.settings.get('scoutProcessInterval'),
-      priority: PROCESS_PRIORITY_LOW,
-      requireSegments: true,
-    });
+            Memory.rooms;
+            this.lastMemory = RawMemory._parsed;
+            clearHeapMemory();
+            hivemind.log('memory').debug('Force-parsed memory.');
+        }
 
-    const interShardMemory = interShard.getLocalMemory();
-    const shardHasRooms = interShardMemory.info && (interShardMemory?.info?.ownedRooms || 0) > 0;
-    const shardHasEstablishedRooms = shardHasRooms && (interShardMemory?.info?.maxRoomLevel || 0) > 3;
-
-    if (shardHasEstablishedRooms) {
-      // @todo This process could be split up - decisions about when and where to expand can be executed at low priority. But management of actual expansions is high priority.
-      hivemind.runProcess('strategy.expand', ExpandProcess, {
-        interval: Memory.hivemind.canExpand ? 5 : 50,
-        priority: PROCESS_PRIORITY_HIGH,
-      });
+        this.lastTime = Game.time;
     }
 
-    if (shardHasRooms) {
-      hivemind.runProcess('strategy.remote_mining', RemoteMiningProcess, {
-        interval: _.size(Game.myRooms) === 1 ? 20 : 100,
-      });
+    /**
+     * Saves CPU stats for the current tick to memory.
+     */
+    recordStats() {
+        if (Game.time % 10 === 0 && Game.cpu.bucket < 9800) {
+            hivemind.log('main').info('Bucket:', Game.cpu.bucket);
+        }
 
-      hivemind.runProcess('player-intel', PlayerIntelProcess, {
-        interval: 100,
-        requireSegments: true,
-      });
+        const time = Game.cpu.getUsed();
 
-      hivemind.runProcess('cleanup', CleanupProcess, {
-        interval: 100,
-        priority: PROCESS_PRIORITY_LOW,
-        requireSegments: true,
-      });
+        if (time > Game.cpu.limit * 1.2) {
+            hivemind.log('cpu').info('High CPU:', `${time}/${Game.cpu.limit}`);
+        }
+
+        stats.recordStat('cpu_total', time);
+        stats.recordStat('bucket', Game.cpu.bucket);
+        stats.recordStat('creeps', _.size(Game.creeps));
     }
 
-    if (shardHasEstablishedRooms) {
-      hivemind.runProcess('strategy.power_mining', PowerMiningProcess, {
-        interval: hivemind.settings.get('powerMiningCheckInterval'),
-      });
-
-      hivemind.runProcess('strategy.deposit_mining', DepositMiningProcess, {
-        interval: 100,
-      });
-
-      hivemind.runProcess('strategy.reclaim', ReclaimProcess, {
-        interval: 100,
-        priority: PROCESS_PRIORITY_LOW,
-      });
-    }
-
-    hivemind.runProcess('strategy.inter_shard', InterShardProcess, {
-      interval: 100,
-      priority: PROCESS_PRIORITY_LOW,
-    });
-
-    if (shardHasEstablishedRooms) {
-      hivemind.runProcess('empire.trade', TradeProcess, {
-        interval: 20,
-        priority: PROCESS_PRIORITY_LOW,
-      });
-      hivemind.runProcess('empire.resources', ResourcesProcess, {
-        interval: 5,
-      });
-    }
-
-    hivemind.runProcess('empire.report', ReportProcess, {
-      interval: 100,
-    });
-    hivemind.runProcess('empire.power_creeps.manage', ManagePowerCreepsProcess, {
-      interval: hivemind.settings.get('powerCreepUpgradeCheckInterval'),
-    });
-    hivemind.runProcess('empire.power_creeps.spawn', SpawnPowerCreepsProcess, {
-      interval: 100,
-    });
-    hivemind.runProcess('map-visuals', MapVisualsProcess, {
-      priority: PROCESS_PRIORITY_ALWAYS,
-    });
-    hivemind.runProcess('allies', AlliesProcess, {
-      priority: PROCESS_PRIORITY_ALWAYS,
-    });
-
-    this.showDebug();
-    this.recordStats();
-  }
-
-  useMemoryFromHeap() {
-    if (this.lastTime && this.lastMemory && Game.time === this.lastTime + 1) {
-      if ((globalThis as unknown as any)?.Memory) {
-        delete (globalThis as unknown as any).Memory;
-      }
-      (globalThis as unknown as any).Memory = this.lastMemory;
-      RawMemory._parsed = this.lastMemory;
-    }
-    else {
-      // Force parsing of Memory.
-
-      Memory.rooms;
-      this.lastMemory = RawMemory._parsed;
-      clearHeapMemory();
-      hivemind.log('memory').debug('Force-parsed memory.');
-    }
-
-    this.lastTime = Game.time;
-  }
-
-  /**
-   * Saves CPU stats for the current tick to memory.
-   */
-  recordStats() {
-    if (Game.time % 10 === 0 && Game.cpu.bucket < 9800) {
-      hivemind.log('main').info('Bucket:', Game.cpu.bucket);
-    }
-
-    const time = Game.cpu.getUsed();
-
-    if (time > Game.cpu.limit * 1.2) {
-      hivemind.log('cpu').info('High CPU:', `${time}/${Game.cpu.limit}`);
-    }
-
-    stats.recordStat('cpu_total', time);
-    stats.recordStat('bucket', Game.cpu.bucket);
-    stats.recordStat('creeps', _.size(Game.creeps));
-  }
-
-  /**
-   * Periodically deletes unused data from memory.
-   */
-  cleanup() {
+    /**
+     * Periodically deletes unused data from memory.
+     */
+    cleanup() {
     // Periodically clean creep memory.
-    if (Game.time % 320 === 7) {
-      for (const name in Memory.creeps) {
-        if (!Game.creeps[name]) {
-          delete Memory.creeps[name];
+        if (Game.time % 320 === 7) {
+            for (const name in Memory.creeps) {
+                if (!Game.creeps[name]) {
+                    delete Memory.creeps[name];
+                }
+            }
         }
-      }
-    }
 
-    // Periodically clean flag memory.
-    if (Game.time % 1000 === 725) {
-      for (const flagName in Memory.flags) {
-        if (!Game.flags[flagName]) {
-          delete Memory.flags[flagName];
+        // Periodically clean flag memory.
+        if (Game.time % 1000 === 725) {
+            for (const flagName in Memory.flags) {
+                if (!Game.flags[flagName]) {
+                    delete Memory.flags[flagName];
+                }
+            }
         }
-      }
-    }
 
-    // Check if memory is getting too bloated.
-    const usedMemory = RawMemory.get().length;
-    if (Game.time % 7836 === 0 || usedMemory > 2_000_000) {
-      const currentScoutDistance = Memory.hivemind.maxScoutDistance || 7;
-      if (usedMemory > 1_800_000 && currentScoutDistance > 2) {
-        Memory.hivemind.maxScoutDistance = currentScoutDistance - 1;
-        for (const roomName of this.roomStatus.getAllKnownRooms()) {
-          if (this.roomStatus.getDistanceToOrigin(roomName) > Memory.hivemind.maxScoutDistance) {
-            delete Memory.rooms[roomName];
-            this.roomStatus.deleteRoom(roomName);
-          }
+        // Check if memory is getting too bloated.
+        const usedMemory = RawMemory.get().length;
+        if (Game.time % 7836 === 0 || usedMemory > 2_000_000) {
+            const currentScoutDistance = Memory.hivemind.maxScoutDistance || 7;
+            if (usedMemory > 1_800_000 && currentScoutDistance > 2) {
+                Memory.hivemind.maxScoutDistance = currentScoutDistance - 1;
+                for (const roomName of this.roomStatus.getAllKnownRooms()) {
+                    if (this.roomStatus.getDistanceToOrigin(roomName) > Memory.hivemind.maxScoutDistance) {
+                        delete Memory.rooms[roomName];
+                        this.roomStatus.deleteRoom(roomName);
+                    }
+                }
+            }
+            else if (usedMemory < 1_500_000 && currentScoutDistance < 10) {
+                Memory.hivemind.maxScoutDistance = currentScoutDistance + 1;
+            }
         }
-      }
-      else if (usedMemory < 1_500_000 && currentScoutDistance < 10) {
-        Memory.hivemind.maxScoutDistance = currentScoutDistance + 1;
-      }
+
+        // Periodically clean old room memory.
+        if (Game.time % 3738 === 2100 && hivemind.segmentMemory.isReady()) {
+            this.cleanupRoomMemory();
+        }
+
+        // Periodically clean old squad memory.
+        if (Game.time % 548 === 3) {
+            this.cleanupSquadMemory();
+        }
+
+        // Periodically garbage collect in caches.
+        if (Game.time % 253 === 0) {
+            cache.collectGarbage();
+            cache.collectGarbage(Memory);
+        }
+
+        // Periodically clear old trade routes.
+        if (Game.time % 453 === 0) {
+            this.cleanupTradeRoutes();
+        }
+
+        // Periodically clean nav mesh memory.
+        if (Game.time % 5432 === 0) {
+            container.get('NavMesh').cleanMemory();
+        }
+
+        // Periodically clean memory that is no longer needed.
+        if (Game.time % 1234 === 56) {
+            _.each(Memory.rooms, (roomMemory: DeprecatedRoomMemory) => {
+                delete roomMemory.bays;
+                delete roomMemory.minerals;
+                delete roomMemory.remoteHarvesting;
+                delete roomMemory.roomPlan;
+                delete roomMemory.sources;
+                delete roomMemory.spawns;
+                delete roomMemory.structureCache;
+                delete roomMemory.inactiveStructures;
+            });
+        }
+
+        if (Game.time % 3625 === 0 && hivemind.segmentMemory.isReady()) {
+            this.cleanupSegmentMemory();
+        }
     }
 
-    // Periodically clean old room memory.
-    if (Game.time % 3738 === 2100 && hivemind.segmentMemory.isReady()) {
-      this.cleanupRoomMemory();
+    cleanupRoomMemory() {
+        let count = 0;
+        _.each(Memory.rooms, (memory, roomName) => {
+            if (getRoomIntel(roomName).getAge() > 100_000) {
+                delete Memory.rooms[roomName];
+                count++;
+            }
+
+            if (memory.observeTargets && !Game.rooms[roomName]?.observer) {
+                delete memory.observeTargets;
+            }
+        });
+
+        if (count > 0) {
+            hivemind.log('main').debug('Pruned old memory for', count, 'rooms.');
+        }
     }
 
-    // Periodically clean old squad memory.
-    if (Game.time % 548 === 3) {
-      this.cleanupSquadMemory();
+    cleanupSquadMemory() {
+        _.each(Memory.squads, (memory, squadName) => {
+            // Only delete if squad can't be spawned.
+            if (memory.spawnRoom && Game.rooms[memory.spawnRoom]) {
+                return;
+            }
+
+            // Don't delete inter-shard squad that can't have a spawn room.
+            if (squadName === 'interShardExpansion') {
+                return;
+            }
+
+            // Only delete if there are no creeps belonging to this squad.
+            if (_.size(_.filter(Game.creeps, (creep: Creep) => creep.memory.squadName === squadName)) > 0) {
+                return;
+            }
+
+            delete Memory.squads[squadName];
+        });
     }
 
-    // Periodically garbage collect in caches.
-    if (Game.time % 253 === 0) {
-      cache.collectGarbage();
-      cache.collectGarbage(Memory);
+    cleanupTradeRoutes() {
+        for (const routeName in Memory.tradeRoutes) {
+            const route = Memory.tradeRoutes[routeName];
+            if (route.active) {
+                continue;
+            }
+
+            if (_.some(Game.creepsByRole?.mule ?? [], (creep: MuleCreep) => creep.memory.route === routeName)) {
+                continue;
+            }
+
+            delete Memory.tradeRoutes[routeName];
+        }
     }
 
-    // Periodically clear old trade routes.
-    if (Game.time % 453 === 0) {
-      this.cleanupTradeRoutes();
-    }
-
-    // Periodically clean nav mesh memory.
-    if (Game.time % 5432 === 0) {
-      container.get('NavMesh').cleanMemory();
-    }
-
-    // Periodically clean memory that is no longer needed.
-    if (Game.time % 1234 === 56) {
-      _.each(Memory.rooms, (roomMemory: DeprecatedRoomMemory) => {
-        delete roomMemory.bays;
-        delete roomMemory.minerals;
-        delete roomMemory.remoteHarvesting;
-        delete roomMemory.roomPlan;
-        delete roomMemory.sources;
-        delete roomMemory.spawns;
-        delete roomMemory.structureCache;
-        delete roomMemory.inactiveStructures;
-      });
-    }
-
-    if (Game.time % 3625 == 0 && hivemind.segmentMemory.isReady()) {
-      this.cleanupSegmentMemory();
-    }
-  }
-
-  cleanupRoomMemory() {
-    let count = 0;
-    _.each(Memory.rooms, (memory, roomName) => {
-      if (getRoomIntel(roomName).getAge() > 100_000) {
-        delete Memory.rooms[roomName];
-        count++;
-      }
-
-      if (memory.observeTargets && !Game.rooms[roomName]?.observer) {
-        delete memory.observeTargets;
-      }
-    });
-
-    if (count > 0) {
-      hivemind.log('main').debug('Pruned old memory for', count, 'rooms.');
-    }
-  }
-
-  cleanupSquadMemory() {
-    _.each(Memory.squads, (memory, squadName) => {
-      // Only delete if squad can't be spawned.
-      if (memory.spawnRoom && Game.rooms[memory.spawnRoom]) {
-        return;
-      }
-
-      // Don't delete inter-shard squad that can't have a spawn room.
-      if (squadName === 'interShardExpansion') {
-        return;
-      }
-
-      // Only delete if there are no creeps belonging to this squad.
-      if (_.size(_.filter(Game.creeps, (creep: Creep) => creep.memory.squadName === squadName)) > 0) {
-        return;
-      }
-
-      delete Memory.squads[squadName];
-    });
-  }
-
-  cleanupTradeRoutes() {
-    for (const routeName in Memory.tradeRoutes) {
-      const route = Memory.tradeRoutes[routeName];
-      if (route.active) {
-        continue;
-      }
-
-      if (_.some(Game.creepsByRole?.mule ?? [], (creep: MuleCreep) => creep.memory.route === routeName)) {
-        continue;
-      }
-
-      delete Memory.tradeRoutes[routeName];
-    }
-  }
-
-  cleanupSegmentMemory() {
+    cleanupSegmentMemory() {
     // Clean old entries from remote path manager from segment memory.
-    hivemind.segmentMemory.each<RemotePathMemory>('remotePath:', (key, memory) => {
-      if (Game.time - (memory.generated || 0) > 10_000) {
-        hivemind.segmentMemory.delete(key);
-      }
-    });
+        hivemind.segmentMemory.each<RemotePathMemory>('remotePath:', (key, memory) => {
+            if (Game.time - (memory.generated || 0) > 10_000) {
+                hivemind.segmentMemory.delete(key);
+            }
+        });
 
-    // Periodically clean old room intel from segment memory.
-    hivemind.segmentMemory.each<RoomIntelMemory>('intel:', (key, memory) => {
-      if (Game.time - (memory.lastScan || 0) > 100_000) {
-        hivemind.segmentMemory.delete(key);
-      }
-    });
+        // Periodically clean old room intel from segment memory.
+        hivemind.segmentMemory.each<RoomIntelMemory>('intel:', (key, memory) => {
+            if (Game.time - (memory.lastScan || 0) > 100_000) {
+                hivemind.segmentMemory.delete(key);
+            }
+        });
 
-    // Periodically clean old player intel from segment memory.
-    hivemind.segmentMemory.each<PlayerIntelMemory>('u-intel:', (key, memory) => {
-      if (Game.time - (memory.lastSeen || 0) > 100_000) {
-        hivemind.segmentMemory.delete(key);
-      }
-    });
+        // Periodically clean old player intel from segment memory.
+        hivemind.segmentMemory.each<PlayerIntelMemory>('u-intel:', (key, memory) => {
+            if (Game.time - (memory.lastSeen || 0) > 100_000) {
+                hivemind.segmentMemory.delete(key);
+            }
+        });
 
-    // Periodically clean old room planner from segment memory.
-    hivemind.segmentMemory.each<RoomPlannerMemory>('planner:', (key, memory) => {
-      const roomName = key.slice(8);
-      const isMyRoom = Game.rooms[roomName] && Game.rooms[roomName].isMine();
-      if (!isMyRoom || Game.time - (memory.lastRun || 0) > 10_000) {
-        hivemind.segmentMemory.delete(key);
-      }
-    });
+        // Periodically clean old room planner from segment memory.
+        hivemind.segmentMemory.each<RoomPlannerMemory>('planner:', (key, memory) => {
+            const roomName = key.slice(8);
+            const isMyRoom = Game.rooms[roomName] && Game.rooms[roomName].isMine();
+            if (!isMyRoom || Game.time - (memory.lastRun || 0) > 10_000) {
+                hivemind.segmentMemory.delete(key);
+            }
+        });
 
-    // Periodically clean old room plans from segment memory.
-    hivemind.segmentMemory.each('room-plan:', (key) => {
-      const roomName = key.slice(10);
-      const isMyRoom = Game.rooms[roomName] && Game.rooms[roomName].isMine();
-      if (!isMyRoom) {
-        hivemind.segmentMemory.delete(key);
-      }
-    });
-  }
-
-  /**
-   *
-   */
-  showDebug() {
-    const reportManager = container.get('ReportManager');
-    reportManager.visualizeCurrentReport();
-    const shouldShowDebug = Memory.hivemind?.showProcessDebug ?? 0;
-    if ((shouldShowDebug) > 0) {
-      Memory.hivemind.showProcessDebug!--;
-      hivemind.drawProcessDebug();
+        // Periodically clean old room plans from segment memory.
+        hivemind.segmentMemory.each('room-plan:', (key) => {
+            const roomName = key.slice(10);
+            const isMyRoom = Game.rooms[roomName] && Game.rooms[roomName].isMine();
+            if (!isMyRoom) {
+                hivemind.segmentMemory.delete(key);
+            }
+        });
     }
-  }
+
+    /**
+     *
+     */
+    showDebug() {
+        const reportManager = container.get('ReportManager');
+        reportManager.visualizeCurrentReport();
+        const shouldShowDebug = Memory.hivemind?.showProcessDebug ?? 0;
+        if ((shouldShowDebug) > 0) {
+            Memory.hivemind.showProcessDebug--;
+            hivemind.drawProcessDebug();
+        }
+    }
 };
 
 const kernel = new BotKernel();
 export const loop = ErrorMapper.wrapLoop(() => {
-  kernel.runTick();
+    kernel.runTick();
 });

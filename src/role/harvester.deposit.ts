@@ -11,157 +11,157 @@ import { getResourcesIn } from '@/utils/store';
 import Role from 'role/role';
 
 declare global {
-  export interface DepositHarvesterCreep extends Creep {
-    memory: DepositHarvesterCreepMemory
-    heapMemory: DepositHarvesterCreepHeapMemory
-  }
+    export interface DepositHarvesterCreep extends Creep {
+        memory: DepositHarvesterCreepMemory
+        heapMemory: DepositHarvesterCreepHeapMemory
+    }
 
-  export interface DepositHarvesterCreepMemory extends CreepMemory {
-    role: 'harvester.deposit'
-    targetPos: string
-    origin: string
-    delivering?: boolean
-  }
+    export interface DepositHarvesterCreepMemory extends CreepMemory {
+        role: 'harvester.deposit'
+        targetPos: string
+        origin: string
+        delivering?: boolean
+    }
 
-  export interface DepositHarvesterCreepHeapMemory extends CreepHeapMemory {
-    returnTravelTime?: number
-  }
+    export interface DepositHarvesterCreepHeapMemory extends CreepHeapMemory {
+        returnTravelTime?: number
+    }
 }
 
 export default DepositHarvesterRole;
 export class DepositHarvesterRole extends Role {
-  constructor() {
-    super();
+    constructor() {
+        super();
 
-    // Deposit harvesters have high priority because they need to harvest in the same tick.
-    this.stopAt = 1000;
-    this.throttleAt = 3000;
-  }
+        // Deposit harvesters have high priority because they need to harvest in the same tick.
+        this.stopAt = 1000;
+        this.throttleAt = 3000;
+    }
 
-  /**
-   * Makes a creep act like a power harvester.
-   *
-   * @param {Creep} creep
-   *   The creep to run logic for.
-   */
-  run(creep: DepositHarvesterCreep) {
+    /**
+     * Makes a creep act like a power harvester.
+     *
+     * @param {Creep} creep
+     *   The creep to run logic for.
+     */
+    run(creep: DepositHarvesterCreep) {
     // @todo Return / suicide when TTL gets low.
     // @todo transfer to adjacent creeps to send only one home?
 
-    const targetPosition = deserializePosition(creep.memory.targetPos);
-    if (creep.memory.delivering && creep.store.getUsedCapacity() === 0) {
-      if (creep.ticksToLive <= 2.5 * this.getReturnTravelTime(creep)) {
-        // Round trip plus harvesting is not realistic with this little time.
-        // @todo Go to a spawn to recycle if possible.
-        creep.suicide();
-        return;
-      }
+        const targetPosition = deserializePosition(creep.memory.targetPos);
+        if (creep.memory.delivering && creep.store.getUsedCapacity() === 0) {
+            if (creep.ticksToLive <= 2.5 * this.getReturnTravelTime(creep)) {
+                // Round trip plus harvesting is not realistic with this little time.
+                // @todo Go to a spawn to recycle if possible.
+                creep.suicide();
+                return;
+            }
 
-      this.setDelivering(creep, false);
-    }
-    else if (!creep.memory.delivering && creep.store.getUsedCapacity() > creep.store.getCapacity() * 0.95) {
-      this.setDelivering(creep, true);
-    }
-    else if (!creep.memory.delivering && creep.pos.roomName == targetPosition.roomName && creep.pos.getRangeTo(targetPosition) < 3 && creep.ticksToLive <= 1.1 * this.getReturnTravelTime(creep)) {
-      this.setDelivering(creep, true);
-    }
+            this.setDelivering(creep, false);
+        }
+        else if (!creep.memory.delivering && creep.store.getUsedCapacity() > creep.store.getCapacity() * 0.95) {
+            this.setDelivering(creep, true);
+        }
+        else if (!creep.memory.delivering && creep.pos.roomName == targetPosition.roomName && creep.pos.getRangeTo(targetPosition) < 3 && creep.ticksToLive <= 1.1 * this.getReturnTravelTime(creep)) {
+            this.setDelivering(creep, true);
+        }
 
-    if (creep.memory.delivering) {
-      this.performDeliver(creep);
-      return;
-    }
+        if (creep.memory.delivering) {
+            this.performDeliver(creep);
+            return;
+        }
 
-    this.performDepositHarvesting(creep);
-  }
-
-  setDelivering(creep: DepositHarvesterCreep, delivering: boolean) {
-    creep.memory.delivering = delivering;
-  }
-
-  getReturnTravelTime(creep: DepositHarvesterCreep): number {
-    if (creep.heapMemory.returnTravelTime) {
-      return creep.heapMemory.returnTravelTime;
+        this.performDepositHarvesting(creep);
     }
 
-    creep.heapMemory.returnTravelTime = cache.inHeap(`returnTravel:${creep.memory.targetPos}:${creep.memory.origin}`, 10_000, () => {
-      const mesh = new NavMesh();
-      const targetPosition = deserializePosition(creep.memory.targetPos);
-      const path = mesh.findPath(targetPosition, new RoomPosition(25, 25, creep.memory.origin));
-      if (path.incomplete) {
-        creep.heapMemory.returnTravelTime = Game.map.getRoomLinearDistance(creep.pos.roomName, creep.memory.origin) * 75;
-        return creep.heapMemory.returnTravelTime || 0;
-      }
+    setDelivering(creep: DepositHarvesterCreep, delivering: boolean) {
+        creep.memory.delivering = delivering;
+    }
 
-      const previousWaypoint = targetPosition;
-      let total = 0;
-      for (const waypoint of path.path) {
-        const subPath = PathFinder.search(previousWaypoint, waypoint, {
-          maxRooms: 3,
-          roomCallback: roomName => getCostMatrix(roomName),
+    getReturnTravelTime(creep: DepositHarvesterCreep): number {
+        if (creep.heapMemory.returnTravelTime) {
+            return creep.heapMemory.returnTravelTime;
+        }
+
+        creep.heapMemory.returnTravelTime = cache.inHeap(`returnTravel:${creep.memory.targetPos}:${creep.memory.origin}`, 10_000, () => {
+            const mesh = new NavMesh();
+            const targetPosition = deserializePosition(creep.memory.targetPos);
+            const path = mesh.findPath(targetPosition, new RoomPosition(25, 25, creep.memory.origin));
+            if (path.incomplete) {
+                creep.heapMemory.returnTravelTime = Game.map.getRoomLinearDistance(creep.pos.roomName, creep.memory.origin) * 75;
+                return creep.heapMemory.returnTravelTime || 0;
+            }
+
+            const previousWaypoint = targetPosition;
+            let total = 0;
+            for (const waypoint of path.path) {
+                const subPath = PathFinder.search(previousWaypoint, waypoint, {
+                    maxRooms: 3,
+                    roomCallback: roomName => getCostMatrix(roomName),
+                });
+
+                total += subPath.incomplete ? 75 : subPath.path.length;
+            }
+
+            return total;
         });
 
-        total += subPath.incomplete ? 75 : subPath.path.length;
-      }
-
-      return total;
-    });
-
-    return creep.heapMemory.returnTravelTime || 0;
-  }
-
-  performDeliver(creep: DepositHarvesterCreep) {
-    const origin = creep.memory.origin;
-    if (!Game.rooms[origin] || !Game.rooms[origin].isMine()) {
-      // @todo Choose a new room close by and deliver.
-      return;
+        return creep.heapMemory.returnTravelTime || 0;
     }
 
-    const targetPosition = Game.rooms[origin].getStorageLocation();
-    if (creep.interRoomTravel(targetPosition)) {
-      return;
-    }
-    if (creep.pos.roomName != targetPosition.roomName) {
-      return;
-    }
+    performDeliver(creep: DepositHarvesterCreep) {
+        const origin = creep.memory.origin;
+        if (!Game.rooms[origin] || !Game.rooms[origin].isMine()) {
+            // @todo Choose a new room close by and deliver.
+            return;
+        }
 
-    let resourceType: ResourceConstant;
-    for (const contentType of getResourcesIn(creep.store)) {
-      if (creep.store.getUsedCapacity(contentType) > 0) {
-        resourceType = contentType;
-        break;
-      }
-    }
+        const targetPosition = Game.rooms[origin].getStorageLocation();
+        if (creep.interRoomTravel(targetPosition)) {
+            return;
+        }
+        if (creep.pos.roomName != targetPosition.roomName) {
+            return;
+        }
 
-    const target = creep.room.getBestStorageTarget(creep.store.getUsedCapacity(), resourceType);
-    if (!target) {
-      // Drop resources on the ground.
-      creep.dropAny();
-      return;
-    }
+        let resourceType: ResourceConstant;
+        for (const contentType of getResourcesIn(creep.store)) {
+            if (creep.store.getUsedCapacity(contentType) > 0) {
+                resourceType = contentType;
+                break;
+            }
+        }
 
-    creep.whenInRange(1, target, () => {
-      creep.transferAny(target);
-    });
-  }
+        const target = creep.room.getBestStorageTarget(creep.store.getUsedCapacity(), resourceType);
+        if (!target) {
+            // Drop resources on the ground.
+            creep.dropAny();
+            return;
+        }
 
-  performDepositHarvesting(creep: DepositHarvesterCreep) {
-    const targetPosition = deserializePosition(creep.memory.targetPos);
-    if (creep.interRoomTravel(targetPosition)) {
-      return;
-    }
-    if (creep.pos.roomName != targetPosition.roomName) {
-      return;
+        creep.whenInRange(1, target, () => {
+            creep.transferAny(target);
+        });
     }
 
-    const deposits = targetPosition.lookFor(LOOK_DEPOSITS);
+    performDepositHarvesting(creep: DepositHarvesterCreep) {
+        const targetPosition = deserializePosition(creep.memory.targetPos);
+        if (creep.interRoomTravel(targetPosition)) {
+            return;
+        }
+        if (creep.pos.roomName != targetPosition.roomName) {
+            return;
+        }
 
-    if (deposits.length === 0) {
-      this.setDelivering(creep, true);
-      return;
+        const deposits = targetPosition.lookFor(LOOK_DEPOSITS);
+
+        if (deposits.length === 0) {
+            this.setDelivering(creep, true);
+            return;
+        }
+
+        creep.whenInRange(1, deposits[0], () => {
+            creep.harvest(deposits[0]);
+        });
     }
-
-    creep.whenInRange(1, deposits[0], () => {
-      creep.harvest(deposits[0]);
-    });
-  }
 }

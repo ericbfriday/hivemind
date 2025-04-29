@@ -14,35 +14,35 @@ import TowerDestination from '@/dispatcher/resource-destination/tower';
 import WorkerCreepDestination from '@/dispatcher/resource-destination/worker-creep';
 
 declare global {
-  export interface ResourceDestinationTask extends Task {
-    resourceType: ResourceConstant
-    amount: number
-  }
+    export interface ResourceDestinationTask extends Task {
+        resourceType: ResourceConstant
+        amount: number
+    }
 
-  export interface ResourceDestinationContext {
-    resourceType?: string
-    ignoreStoreContent?: boolean
-    creep: Creep
-  }
+    export interface ResourceDestinationContext {
+        resourceType?: string
+        ignoreStoreContent?: boolean
+        creep: Creep
+    }
 }
 
 export class ResourceDestinationDispatcher extends Dispatcher<ResourceDestinationTask, ResourceDestinationContext> {
-  constructor(readonly room: Room) {
-    super();
-    this.addProvider(new BayDestination(room));
-    this.addProvider(new ContainerDestination(room));
-    this.addProvider(new DropDestination(room));
-    this.addProvider(new FactoryDestination(room));
-    this.addProvider(new LabDestination(room));
-    this.addProvider(new LinkDestination(room));
-    this.addProvider(new NukerDestination(room));
-    this.addProvider(new PowerSpawnDestination(room));
-    this.addProvider(new SpawnDestination(room));
-    this.addProvider(new StorageDestination(room));
-    this.addProvider(new TerminalDestination(room));
-    this.addProvider(new TowerDestination(room));
-    this.addProvider(new WorkerCreepDestination(room));
-  }
+    constructor(readonly room: Room) {
+        super();
+        this.addProvider(new BayDestination(room));
+        this.addProvider(new ContainerDestination(room));
+        this.addProvider(new DropDestination(room));
+        this.addProvider(new FactoryDestination(room));
+        this.addProvider(new LabDestination(room));
+        this.addProvider(new LinkDestination(room));
+        this.addProvider(new NukerDestination(room));
+        this.addProvider(new PowerSpawnDestination(room));
+        this.addProvider(new SpawnDestination(room));
+        this.addProvider(new StorageDestination(room));
+        this.addProvider(new TerminalDestination(room));
+        this.addProvider(new TowerDestination(room));
+        this.addProvider(new WorkerCreepDestination(room));
+    }
 }
 
 export default ResourceDestinationDispatcher;

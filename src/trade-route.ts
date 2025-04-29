@@ -1,98 +1,94 @@
-declare global {
-  export interface Memory {
+export interface Memory {
     tradeRoutes: Record<string, TradeRouteMemory>
-  }
+}
 
-  namespace NodeJS {
-    export interface Global {
-      TradeRoute: typeof TradeRoute
-    }
-  }
+export interface Global {
+    TradeRoute: typeof TradeRoute
 }
 
 export interface TradeRouteMemory {
-  origin?: string
-  target?: string
-  active?: boolean
-  roomPath?: string[]
-  resourceType?: ResourceConstant
-  travelLength?: number
-  travelLengthCalculated?: number
+    origin?: string
+    target?: string
+    active?: boolean
+    roomPath?: string[]
+    resourceType?: ResourceConstant
+    travelLength?: number
+    travelLengthCalculated?: number
 };
 
 export default TradeRoute;
 export class TradeRoute {
-  memory: TradeRouteMemory;
+    memory: TradeRouteMemory;
 
-  constructor(name: string) {
-    if (!Memory.tradeRoutes) {
-      Memory.tradeRoutes = {};
+    constructor(name: string) {
+        if (!Memory.tradeRoutes) {
+            Memory.tradeRoutes = {};
+        }
+        if (!Memory.tradeRoutes[name]) {
+            Memory.tradeRoutes[name] = {};
+        }
+
+        this.memory = Memory.tradeRoutes[name];
     }
-    if (!Memory.tradeRoutes[name]) {
-      Memory.tradeRoutes[name] = {};
+
+    setOrigin(roomName: string) {
+        this.memory.origin = roomName;
     }
 
-    this.memory = Memory.tradeRoutes[name];
-  }
-
-  setOrigin(roomName: string) {
-    this.memory.origin = roomName;
-  }
-
-  getOrigin() {
-    return this.memory.origin;
-  }
-
-  setTarget(roomName: string) {
-    this.memory.target = roomName;
-  }
-
-  getTarget() {
-    return this.memory.target;
-  }
-
-  setActive(active: boolean) {
-    this.memory.active = active;
-  }
-
-  isActive() {
-    return this.memory.active;
-  }
-
-  setPath(path: string[]) {
-    this.memory.roomPath = path;
-  }
-
-  getPath() {
-    return this.memory.roomPath;
-  }
-
-  getReversePath() {
-    if (!this.memory.roomPath) {
-      return null;
+    getOrigin() {
+        return this.memory.origin;
     }
-    return [...this.memory.roomPath.slice(0, -1).reverse(), this.getOrigin()];
-  }
 
-  setResourceType(resourceType: ResourceConstant) {
-    this.memory.resourceType = resourceType;
-  }
+    setTarget(roomName: string) {
+        this.memory.target = roomName;
+    }
 
-  getResourceType() {
-    return this.memory.resourceType;
-  }
+    getTarget() {
+        return this.memory.target;
+    }
 
-  setTravelLength(length: number) {
-    this.memory.travelLength = length;
-    this.memory.travelLengthCalculated = Game.time;
-  }
+    setActive(active: boolean) {
+        this.memory.active = active;
+    }
 
-  getTravelLength() {
-    return this.memory.travelLength;
-  }
+    isActive() {
+        return this.memory.active;
+    }
 
-  hasTravelLength() {
-    return this.memory.travelLength && (Game.time - (this.memory.travelLengthCalculated || 0) < 10_000);
-  }
+    setPath(path: string[]) {
+        this.memory.roomPath = path;
+    }
+
+    getPath() {
+        return this.memory.roomPath;
+    }
+
+    getReversePath() {
+        if (!this.memory.roomPath) {
+            return null;
+        }
+        return [...this.memory.roomPath.slice(0, -1).reverse(), this.getOrigin()];
+    }
+
+    setResourceType(resourceType: ResourceConstant) {
+        this.memory.resourceType = resourceType;
+    }
+
+    getResourceType() {
+        return this.memory.resourceType;
+    }
+
+    setTravelLength(length: number) {
+        this.memory.travelLength = length;
+        this.memory.travelLengthCalculated = Game.time;
+    }
+
+    getTravelLength() {
+        return this.memory.travelLength;
+    }
+
+    hasTravelLength() {
+        return this.memory.travelLength && (Game.time - (this.memory.travelLengthCalculated || 0) < 10_000);
+    }
 }
 globalThis.TradeRoute = TradeRoute;

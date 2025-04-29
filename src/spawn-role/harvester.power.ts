@@ -8,183 +8,183 @@ import NavMesh from '@/utils/nav-mesh';
 import _ from 'lodash';
 
 export interface PowerHarvesterSpawnOption extends SpawnOption {
-  targetRoom: string
-  isHealer: boolean
+    targetRoom: string
+    isHealer: boolean
 }
 
 export default PowerHarvesterSpawnRole;
 export class PowerHarvesterSpawnRole extends SpawnRole {
-  /**
-   * Adds power harvester spawn options for the given room.
-   *
-   * @param {Room} room
-   *   The room to add spawn options for.
-   */
-  getSpawnOptions(room: Room): PowerHarvesterSpawnOption[] {
-    if (!hivemind.settings.get('enablePowerMining')) {
-      return [];
+    /**
+     * Adds power harvester spawn options for the given room.
+     *
+     * @param {Room} room
+     *   The room to add spawn options for.
+     */
+    getSpawnOptions(room: Room): PowerHarvesterSpawnOption[] {
+        if (!hivemind.settings.get('enablePowerMining')) {
+            return [];
+        }
+
+        return this.cacheEmptySpawnOptionsFor(room, 100, () => {
+            if (!Memory.strategy || !Memory.strategy.power || !Memory.strategy.power.rooms) {
+                return [];
+            }
+
+            const options: PowerHarvesterSpawnOption[] = [];
+            _.each(Memory.strategy.power.rooms, (info, roomName) => {
+                if (!info.isActive) {
+                    return;
+                }
+                if (!info.spawnRooms[room.name]) {
+                    return;
+                }
+
+                this.addOptionsForTarget(info, roomName, room, options);
+            });
+
+            return options;
+        });
     }
 
-    return this.cacheEmptySpawnOptionsFor(room, 100, () => {
-      if (!Memory.strategy || !Memory.strategy.power || !Memory.strategy.power.rooms) {
-        return [];
-      }
-
-      const options: PowerHarvesterSpawnOption[] = [];
-      _.each(Memory.strategy.power.rooms, (info, roomName) => {
-        if (!info.isActive) {
-          return;
-        }
-        if (!info.spawnRooms[room.name]) {
-          return;
-        }
-
-        this.addOptionsForTarget(info, roomName, room, options);
-      });
-
-      return options;
-    });
-  }
-
-  addOptionsForTarget(info: PowerTargetRoom, roomName: string, sourceRoom: Room, options: PowerHarvesterSpawnOption[]) {
+    addOptionsForTarget(info: PowerTargetRoom, roomName: string, sourceRoom: Room, options: PowerHarvesterSpawnOption[]) {
     // We're assigned to spawn creeps for this power gathering operation!
-    const activePowerHarvesters = _.filter(Game.creepsByRole['harvester.power'] || [], (creep: Creep) => {
-      if (creep.memory.isHealer) {
-        return false;
-      }
-      if (creep.memory.sourceRoom !== sourceRoom.name) {
-        return false;
-      }
-      if (creep.memory.targetRoom !== roomName) {
-        return false;
-      }
+        const activePowerHarvesters = _.filter(Game.creepsByRole['harvester.power'] || [], (creep: Creep) => {
+            if (creep.memory.isHealer) {
+                return false;
+            }
+            if (creep.memory.sourceRoom !== sourceRoom.name) {
+                return false;
+            }
+            if (creep.memory.targetRoom !== roomName) {
+                return false;
+            }
 
-      const travelTime = this.getTravelTime(creep.memory.sourceRoom, creep.memory.targetRoom) || info.spawnRooms[sourceRoom.name].distance * 50;
-      if ((creep.ticksToLive || CREEP_LIFE_TIME) < (CREEP_SPAWN_TIME * MAX_CREEP_SIZE) + travelTime) {
-        return false;
-      }
+            const travelTime = this.getTravelTime(creep.memory.sourceRoom, creep.memory.targetRoom) || info.spawnRooms[sourceRoom.name].distance * 50;
+            if ((creep.ticksToLive || CREEP_LIFE_TIME) < (CREEP_SPAWN_TIME * MAX_CREEP_SIZE) + travelTime) {
+                return false;
+            }
 
-      return true;
-    });
-    const activePowerHealers = _.filter(Game.creepsByRole['harvester.power'] || [], (creep: Creep) => {
-      if (!creep.memory.isHealer) {
-        return false;
-      }
-      if (creep.memory.sourceRoom !== sourceRoom.name) {
-        return false;
-      }
-      if (creep.memory.targetRoom !== roomName) {
-        return false;
-      }
+            return true;
+        });
+        const activePowerHealers = _.filter(Game.creepsByRole['harvester.power'] || [], (creep: Creep) => {
+            if (!creep.memory.isHealer) {
+                return false;
+            }
+            if (creep.memory.sourceRoom !== sourceRoom.name) {
+                return false;
+            }
+            if (creep.memory.targetRoom !== roomName) {
+                return false;
+            }
 
-      const travelTime = this.getTravelTime(creep.memory.sourceRoom, creep.memory.targetRoom) || info.spawnRooms[sourceRoom.name].distance * 50;
-      if ((creep.ticksToLive || CREEP_LIFE_TIME) < (CREEP_SPAWN_TIME * MAX_CREEP_SIZE) + travelTime) {
-        return false;
-      }
+            const travelTime = this.getTravelTime(creep.memory.sourceRoom, creep.memory.targetRoom) || info.spawnRooms[sourceRoom.name].distance * 50;
+            if ((creep.ticksToLive || CREEP_LIFE_TIME) < (CREEP_SPAWN_TIME * MAX_CREEP_SIZE) + travelTime) {
+                return false;
+            }
 
-      return true;
-    });
+            return true;
+        });
 
-    // Spawn attackers before healers.
-    const currentDps = _.reduce(
-      activePowerHarvesters,
-      (total, creep) => total + ((creep as Creep).getActiveBodyparts(ATTACK) * ATTACK_POWER),
-      0,
-    );
-    const currentHps = _.reduce(
-      activePowerHealers,
-      (total, creep) => total + ((creep as Creep).getActiveBodyparts(HEAL) * HEAL_POWER),
-      0,
-    );
+        // Spawn attackers before healers.
+        const currentDps = _.reduce(
+            activePowerHarvesters,
+            (total, creep) => total + ((creep as Creep).getActiveBodyparts(ATTACK) * ATTACK_POWER),
+            0,
+        );
+        const currentHps = _.reduce(
+            activePowerHealers,
+            (total, creep) => total + ((creep as Creep).getActiveBodyparts(HEAL) * HEAL_POWER),
+            0,
+        );
 
-    // @todo Determine realistic time until we crack open the power bank.
-    // Then we can stop spawning attackers and spawn haulers instead.
-    const timeToKill = info.hits / info.dps;
-    const expectedDps = info.dps;
-    const expectedHps = expectedDps * POWER_BANK_HIT_BACK;
-    const dpsRatio = currentDps / expectedDps;
-    const hpsRatio = expectedHps ? currentHps / expectedHps : 1;
+        // @todo Determine realistic time until we crack open the power bank.
+        // Then we can stop spawning attackers and spawn haulers instead.
+        const timeToKill = info.hits / info.dps;
+        const expectedDps = info.dps;
+        const expectedHps = expectedDps * POWER_BANK_HIT_BACK;
+        const dpsRatio = currentDps / expectedDps;
+        const hpsRatio = expectedHps ? currentHps / expectedHps : 1;
 
-    if (currentDps < expectedDps && dpsRatio <= hpsRatio && timeToKill > 0 && activePowerHarvesters.length < info.freeTiles) {
-      options.push({
-        priority: hivemind.settings.get('powerMineCreepPriority'),
-        weight: 1,
-        targetRoom: roomName,
-        isHealer: false,
-      });
+        if (currentDps < expectedDps && dpsRatio <= hpsRatio && timeToKill > 0 && activePowerHarvesters.length < info.freeTiles) {
+            options.push({
+                priority: hivemind.settings.get('powerMineCreepPriority'),
+                weight: 1,
+                targetRoom: roomName,
+                isHealer: false,
+            });
+        }
+
+        // Also spawn healers.
+        if (currentHps < expectedHps && dpsRatio > hpsRatio && timeToKill > 0) {
+            options.push({
+                priority: hivemind.settings.get('powerMineCreepPriority'),
+                weight: 1,
+                targetRoom: roomName,
+                isHealer: true,
+            });
+        }
     }
 
-    // Also spawn healers.
-    if (currentHps < expectedHps && dpsRatio > hpsRatio && timeToKill > 0) {
-      options.push({
-        priority: hivemind.settings.get('powerMineCreepPriority'),
-        weight: 1,
-        targetRoom: roomName,
-        isHealer: true,
-      });
-    }
-  }
+    getTravelTime(sourceRoom: string, targetRoom: string): number {
+        const info = Memory.strategy.power.rooms[targetRoom];
+        if (!info) {
+            return null;
+        }
+        if (!hivemind.segmentMemory.isReady()) {
+            return null;
+        }
+        if (!Game.rooms[sourceRoom]) {
+            return null;
+        }
+        if (!Game.rooms[sourceRoom].isMine()) {
+            return null;
+        }
 
-  getTravelTime(sourceRoom: string, targetRoom: string): number {
-    const info = Memory.strategy.power.rooms[targetRoom];
-    if (!info) {
-      return null;
-    }
-    if (!hivemind.segmentMemory.isReady()) {
-      return null;
-    }
-    if (!Game.rooms[sourceRoom]) {
-      return null;
-    }
-    if (!Game.rooms[sourceRoom].isMine()) {
-      return null;
+        const sourcePos = Game.rooms[sourceRoom].roomPlanner.getRoomCenter();
+        const targetPos = new RoomPosition(25, 25, targetRoom);
+
+        const mesh = new NavMesh();
+        return mesh.estimateTravelTime(sourcePos, targetPos);
     }
 
-    const sourcePos = Game.rooms[sourceRoom].roomPlanner.getRoomCenter();
-    const targetPos = new RoomPosition(25, 25, targetRoom);
+    /**
+     * Gets the body of a creep to be spawned.
+     *
+     * @param {Room} room
+     *   The room to add spawn options for.
+     * @param {object} option
+     *   The spawn option for which to generate the body.
+     *
+     * @return {string[]}
+     *   A list of body parts the new creep should consist of.
+     */
+    getCreepBody(room: Room, option: PowerHarvesterSpawnOption): BodyPartConstant[] {
+        const functionalPart = option.isHealer ? HEAL : ATTACK;
 
-    const mesh = new NavMesh();
-    return mesh.estimateTravelTime(sourcePos, targetPos);
-  }
+        return (new BodyBuilder())
+            .setWeights({ [functionalPart]: 1 })
+            .setMoveBufferRatio(1)
+            .setEnergyLimit(Math.min(room.energyCapacityAvailable, Math.max(room.energyCapacityAvailable * 0.9, room.energyAvailable)))
+            .build();
+    }
 
-  /**
-   * Gets the body of a creep to be spawned.
-   *
-   * @param {Room} room
-   *   The room to add spawn options for.
-   * @param {object} option
-   *   The spawn option for which to generate the body.
-   *
-   * @return {string[]}
-   *   A list of body parts the new creep should consist of.
-   */
-  getCreepBody(room: Room, option: PowerHarvesterSpawnOption): BodyPartConstant[] {
-    const functionalPart = option.isHealer ? HEAL : ATTACK;
-
-    return (new BodyBuilder())
-      .setWeights({ [functionalPart]: 1 })
-      .setMoveBufferRatio(1)
-      .setEnergyLimit(Math.min(room.energyCapacityAvailable, Math.max(room.energyCapacityAvailable * 0.9, room.energyAvailable)))
-      .build();
-  }
-
-  /**
-   * Gets memory for a new creep.
-   *
-   * @param {Room} room
-   *   The room to add spawn options for.
-   * @param {object} option
-   *   The spawn option for which to generate the body.
-   *
-   * @return {object}
-   *   The boost compound to use keyed by body part type.
-   */
-  getCreepMemory(room: Room, option: PowerHarvesterSpawnOption): CreepMemory {
-    return {
-      sourceRoom: room.name,
-      targetRoom: option.targetRoom,
-      isHealer: option.isHealer,
-      disableNotifications: true,
-    };
-  }
+    /**
+     * Gets memory for a new creep.
+     *
+     * @param {Room} room
+     *   The room to add spawn options for.
+     * @param {object} option
+     *   The spawn option for which to generate the body.
+     *
+     * @return {object}
+     *   The boost compound to use keyed by body part type.
+     */
+    getCreepMemory(room: Room, option: PowerHarvesterSpawnOption): CreepMemory {
+        return {
+            sourceRoom: room.name,
+            targetRoom: option.targetRoom,
+            isHealer: option.isHealer,
+            disableNotifications: true,
+        };
+    }
 }

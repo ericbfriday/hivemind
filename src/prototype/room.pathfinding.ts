@@ -5,9 +5,9 @@ import { getRoomIntel } from '@/room-intel';
 import _ from 'lodash';
 
 declare global {
-  export interface Room {
-    calculateRoomPath: (roomName: string, options?: { allowDanger?: boolean, maxPathLength?: number }) => string[] | null
-  }
+    export interface Room {
+        calculateRoomPath: (roomName: string, options?: { allowDanger?: boolean, maxPathLength?: number }) => string[] | null
+    }
 }
 
 /**
@@ -23,106 +23,106 @@ declare global {
  *   An array of room names a creep needs to move throught to reach targetRoom.
  */
 Room.prototype.calculateRoomPath = function (targetRoom: string, options) {
-  const roomName = this.name;
+    const roomName = this.name;
 
-  if (!options) {
-    options = {};
-  }
-
-  const openList = {};
-  const closedList = {};
-  const allowDanger = options.allowDanger;
-  const maxPathLength = options.maxPathLength;
-
-  openList[roomName] = {
-    range: 0,
-    dist: Game.map.getRoomLinearDistance(roomName, targetRoom),
-    origin: roomName,
-    path: [],
-  };
-
-  // A* from here to targetRoom.
-  // @todo Avoid unsafe rooms.
-  // @todo Some rooms' obstacles prevent moving from one exit to another,
-  // but we can deduce that from the cost matrixes we store.
-  let finalPath;
-  while (_.size(openList) > 0) {
-    let minDist;
-    let nextRoom;
-    let cost = 1;
-    _.each(openList, (info: any, rName) => {
-      if (!minDist || info.range + info.dist < minDist) {
-        minDist = info.range + info.dist;
-        nextRoom = rName;
-      }
-    });
-
-    if (!nextRoom) {
-      break;
+    if (!options) {
+        options = {};
     }
 
-    const info = openList[nextRoom];
-    delete openList[nextRoom];
-    closedList[nextRoom] = true;
+    const openList = {};
+    const closedList = {};
+    const allowDanger = options.allowDanger;
+    const maxPathLength = options.maxPathLength;
 
-    // We're done if we reached targetRoom.
-    if (nextRoom === targetRoom) {
-      finalPath = info.path;
-      break;
-    }
+    openList[roomName] = {
+        range: 0,
+        dist: Game.map.getRoomLinearDistance(roomName, targetRoom),
+        origin: roomName,
+        path: [],
+    };
 
-    if (maxPathLength && info.path.length >= maxPathLength) {
-      // Don't add more exits if max path length has been reached.
-      continue;
-    }
+    // A* from here to targetRoom.
+    // @todo Avoid unsafe rooms.
+    // @todo Some rooms' obstacles prevent moving from one exit to another,
+    // but we can deduce that from the cost matrixes we store.
+    let finalPath;
+    while (_.size(openList) > 0) {
+        let minDist;
+        let nextRoom;
+        let cost = 1;
+        _.each(openList, (info: any, rName) => {
+            if (!minDist || info.range + info.dist < minDist) {
+                minDist = info.range + info.dist;
+                nextRoom = rName;
+            }
+        });
 
-    // Add unhandled adjacent rooms to open list.
-    const exits: string[] = hivemind.segmentMemory.isReady() ? _.values(getRoomIntel(nextRoom).getExits()) : _.values(Game.map.describeExits(nextRoom));
+        if (!nextRoom) {
+            break;
+        }
 
-    for (const exit of exits) {
-      if (openList[exit] || closedList[exit]) {
-        continue;
-      }
+        const info = openList[nextRoom];
+        delete openList[nextRoom];
+        closedList[nextRoom] = true;
 
-      if (hivemind.segmentMemory.isReady()) {
-        const exitIntel = getRoomIntel(exit);
-        if (exitIntel.isOwned()) {
-          if (!allowDanger) {
+        // We're done if we reached targetRoom.
+        if (nextRoom === targetRoom) {
+            finalPath = info.path;
+            break;
+        }
+
+        if (maxPathLength && info.path.length >= maxPathLength) {
+            // Don't add more exits if max path length has been reached.
             continue;
-          }
-
-          cost *= 5;
-        }
-        else if (exitIntel.isClaimed()) {
-          cost *= 1.5;
         }
 
-        if (_.size(exitIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) {
-          // Allow pathing through source keeper rooms since we can safely avoid them most of the time.
-          cost *= 2;
+        // Add unhandled adjacent rooms to open list.
+        const exits: string[] = hivemind.segmentMemory.isReady() ? _.values(getRoomIntel(nextRoom).getExits()) : _.values(Game.map.describeExits(nextRoom));
+
+        for (const exit of exits) {
+            if (openList[exit] || closedList[exit]) {
+                continue;
+            }
+
+            if (hivemind.segmentMemory.isReady()) {
+                const exitIntel = getRoomIntel(exit);
+                if (exitIntel.isOwned()) {
+                    if (!allowDanger) {
+                        continue;
+                    }
+
+                    cost *= 5;
+                }
+                else if (exitIntel.isClaimed()) {
+                    cost *= 1.5;
+                }
+
+                if (_.size(exitIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) {
+                    // Allow pathing through source keeper rooms since we can safely avoid them most of the time.
+                    cost *= 2;
+                }
+            }
+
+            const distance = Game.map.getRoomLinearDistance(exit, targetRoom);
+            if (distance > 20) {
+                continue;
+            }
+
+            const path = [];
+            for (const step of info.path) {
+                path.push(step);
+            }
+
+            path.push(exit);
+
+            openList[exit] = {
+                range: info.range + cost,
+                dist: distance,
+                origin: info.origin,
+                path,
+            };
         }
-      }
-
-      const distance = Game.map.getRoomLinearDistance(exit, targetRoom);
-      if (distance > 20) {
-        continue;
-      }
-
-      const path = [];
-      for (const step of info.path) {
-        path.push(step);
-      }
-
-      path.push(exit);
-
-      openList[exit] = {
-        range: info.range + cost,
-        dist: distance,
-        origin: info.origin,
-        path,
-      };
     }
-  }
 
-  return finalPath;
+    return finalPath;
 };

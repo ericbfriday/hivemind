@@ -3,71 +3,71 @@ import settings from '../../settings-manager';
 import StructureDestination from './structure';
 
 export interface PowerSpawnDestinationTask extends StructureDestinationTask {
-  type: 'powerSpawn'
-  target: Id<StructurePowerSpawn>
+    type: 'powerSpawn'
+    target: Id<StructurePowerSpawn>
 }
 
 export default PowerSpawnDestination;
 export class PowerSpawnDestination extends StructureDestination<PowerSpawnDestinationTask> {
-  constructor(readonly room: Room) {
-    super(room);
-  }
-
-  getType(): 'powerSpawn' {
-    return 'powerSpawn';
-  }
-
-  getHighestPriority() {
-    return 3;
-  }
-
-  getTasks(context?: ResourceDestinationContext): PowerSpawnDestinationTask[] {
-    if (this.room.isEvacuating()) {
-      return [];
+    constructor(readonly room: Room) {
+        super(room);
     }
 
-    return this.cacheEmptyTaskListFor(context?.resourceType || '', 25, () => {
-      if (!balancer.maySpendEnergyOnPowerProcessing()) {
-        return [];
-      }
-
-      const options: PowerSpawnDestinationTask[] = [];
-      this.addResourceTask(RESOURCE_POWER, 0.9, options, context!);
-
-      if (this.room.getEffectiveAvailableEnergy() >= settings.get('minEnergyForPowerProcessing')) {
-        this.addResourceTask(RESOURCE_ENERGY, 0.2, options, context!);
-      }
-
-      return options;
-    });
-  }
-
-  addResourceTask(resourceType: RESOURCE_ENERGY | RESOURCE_POWER, minFreeLevel: number, options: PowerSpawnDestinationTask[], context: ResourceDestinationContext) {
-    const powerSpawn = this.room.powerSpawn;
-    if (!powerSpawn) {
-      return;
+    getType(): 'powerSpawn' {
+        return 'powerSpawn';
     }
 
-    const freeCapacity = powerSpawn.store.getFreeCapacity(resourceType);
-    const capacity = powerSpawn.store.getCapacity(resourceType);
-    if (freeCapacity < capacity * minFreeLevel) {
-      return;
-    }
-    if (context.resourceType && context.resourceType !== resourceType) {
-      return;
+    getHighestPriority() {
+        return 3;
     }
 
-    const option: PowerSpawnDestinationTask = {
-      type: this.getType(),
-      priority: 3,
-      weight: freeCapacity / capacity,
-      resourceType,
-      amount: freeCapacity,
-      target: powerSpawn.id,
-    };
+    getTasks(context?: ResourceDestinationContext): PowerSpawnDestinationTask[] {
+        if (this.room.isEvacuating()) {
+            return [];
+        }
 
-    option.priority -= this.room.getCreepsWithOrder(this.getType(), powerSpawn.id).length * 2;
+        return this.cacheEmptyTaskListFor(context?.resourceType || '', 25, () => {
+            if (!balancer.maySpendEnergyOnPowerProcessing()) {
+                return [];
+            }
 
-    options.push(option);
-  }
+            const options: PowerSpawnDestinationTask[] = [];
+            this.addResourceTask(RESOURCE_POWER, 0.9, options, context);
+
+            if (this.room.getEffectiveAvailableEnergy() >= settings.get('minEnergyForPowerProcessing')) {
+                this.addResourceTask(RESOURCE_ENERGY, 0.2, options, context);
+            }
+
+            return options;
+        });
+    }
+
+    addResourceTask(resourceType: RESOURCE_ENERGY | RESOURCE_POWER, minFreeLevel: number, options: PowerSpawnDestinationTask[], context: ResourceDestinationContext) {
+        const powerSpawn = this.room.powerSpawn;
+        if (!powerSpawn) {
+            return;
+        }
+
+        const freeCapacity = powerSpawn.store.getFreeCapacity(resourceType);
+        const capacity = powerSpawn.store.getCapacity(resourceType);
+        if (freeCapacity < capacity * minFreeLevel) {
+            return;
+        }
+        if (context.resourceType && context.resourceType !== resourceType) {
+            return;
+        }
+
+        const option: PowerSpawnDestinationTask = {
+            type: this.getType(),
+            priority: 3,
+            weight: freeCapacity / capacity,
+            resourceType,
+            amount: freeCapacity,
+            target: powerSpawn.id,
+        };
+
+        option.priority -= this.room.getCreepsWithOrder(this.getType(), powerSpawn.id).length * 2;
+
+        options.push(option);
+    }
 }

@@ -14,7 +14,6 @@ declare global {
   }
 }
 
-export default Process implements ProcessInterface;
 export class Process implements ProcessInterface {
   public readonly id: string;
   protected parameters: ProcessParameters;
@@ -47,3 +46,5 @@ export class Process implements ProcessInterface {
     console.error(`Trying to run a process \`${this.id}\` without implemented functionality.`);
   }
 }
+
+export default Process;

@@ -11,31 +11,31 @@ import StorageSource from '@/dispatcher/resource-source/storage';
 import ScoreContainerSource from './score-container';
 
 declare global {
-  export interface ResourceSourceTask extends Task {
-    resourceType: ResourceConstant
-    amount?: number
-  }
+    export interface ResourceSourceTask extends Task {
+        resourceType: ResourceConstant
+        amount?: number
+    }
 
-  export interface ResourceSourceContext {
-    resourceType?: ResourceConstant
-    creep: Creep
-  }
+    export interface ResourceSourceContext {
+        resourceType?: ResourceConstant
+        creep: Creep
+    }
 }
 
 export default ResourceSourceDispatcher;
 export class ResourceSourceDispatcher extends Dispatcher<ResourceSourceTask, ResourceSourceContext> {
-  constructor(readonly room: Room) {
-    super();
-    this.addProvider(new ContainerSource(room));
-    this.addProvider(new DropSource(room));
-    this.addProvider(new FactorySource(room));
-    this.addProvider(new GraveSource(room));
-    this.addProvider(new LabSource(room));
-    this.addProvider(new LinkSource(room));
-    this.addProvider(new OverfullExtensionSource(room));
-    if (Game.shard.name === 'shardSeason') {
-      this.addProvider(new ScoreContainerSource(room));
+    constructor(readonly room: Room) {
+        super();
+        this.addProvider(new ContainerSource(room));
+        this.addProvider(new DropSource(room));
+        this.addProvider(new FactorySource(room));
+        this.addProvider(new GraveSource(room));
+        this.addProvider(new LabSource(room));
+        this.addProvider(new LinkSource(room));
+        this.addProvider(new OverfullExtensionSource(room));
+        if (Game.shard.name === 'shardSeason') {
+            this.addProvider(new ScoreContainerSource(room));
+        }
+        this.addProvider(new StorageSource(room));
     }
-    this.addProvider(new StorageSource(room));
-  }
 }

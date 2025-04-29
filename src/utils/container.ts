@@ -1,40 +1,40 @@
 import type { DependencyInjectionContainer } from '../container-factory';
 
 export interface Global {
-  container: typeof container
+    container: typeof container
 }
 
 export type ContainerConstructors = {
-  [key in keyof DependencyInjectionContainer]: (c: Container) => DependencyInjectionContainer[key];
+    [key in keyof DependencyInjectionContainer]: (c: Container) => DependencyInjectionContainer[key];
 };
 
 export class Container {
-  services: DependencyInjectionContainer;
-  constructors: ContainerConstructors;
+    services: DependencyInjectionContainer;
+    constructors: ContainerConstructors;
 
-  constructor() {
-    this.services = {} as DependencyInjectionContainer;
-    this.constructors = {} as ContainerConstructors;
-  }
-
-  get<T extends keyof DependencyInjectionContainer>(key: T): DependencyInjectionContainer[T] {
-    if (this.services[key]) {
-      return this.services[key];
-    }
-    if (!this.constructors[key]) {
-      throw new Error(`Invalid service "${key}" requested`);
+    constructor() {
+        this.services = {} as DependencyInjectionContainer;
+        this.constructors = {} as ContainerConstructors;
     }
 
-    const instance = this.constructors[key](this);
-    this.services[key] = instance;
-    return instance;
-  }
+    get<T extends keyof DependencyInjectionContainer>(key: T): DependencyInjectionContainer[T] {
+        if (this.services[key]) {
+            return this.services[key];
+        }
+        if (!this.constructors[key]) {
+            throw new Error(`Invalid service "${key}" requested`);
+        }
 
-  set<T extends keyof DependencyInjectionContainer>(key: T, generator: (c: Container) => DependencyInjectionContainer[T]) {
+        const instance = this.constructors[key](this);
+        this.services[key] = instance;
+        return instance;
+    }
+
+    set<T extends keyof DependencyInjectionContainer>(key: T, generator: (c: Container) => DependencyInjectionContainer[T]) {
     // @todo Find out if we can get rid of this ugly typecast.
-    this.constructors[key] = generator as typeof this.constructors[T];
-    delete this.services[key];
-  }
+        this.constructors[key] = generator as typeof this.constructors[T];
+        delete this.services[key];
+    }
 }
 
 const container = new Container();

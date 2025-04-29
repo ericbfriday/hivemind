@@ -1,8 +1,7 @@
 import type { Container } from './utils/container';
 import ResourceLevelManager from '@/room/resource-level-manager';
-import brawlerSpawnRole from '@/spawn-role/brawler';
 import BrawlerSpawnRole from '@/spawn-role/brawler';
-import builderSpawnRole from '@/spawn-role/builder';
+import BuilderSpawnRole from '@/spawn-role/builder';
 import dismantlerSpawnRole from '@/spawn-role/dismantler';
 import harvesterSpawnRole from '@/spawn-role/harvester';
 import depositHarvesterSpawnRole from '@/spawn-role/harvester.deposit';
@@ -16,8 +15,8 @@ import remoteMiningSpawnRole from '@/spawn-role/remote-mining';
 import roomDefenseSpawnRole from '@/spawn-role/room-defense';
 import scoutSpawnRole from '@/spawn-role/scout';
 import squadSpawnRole from '@/spawn-role/squad';
-import transporterSpawnRole from '@/spawn-role/transporter';
 
+import transporterSpawnRole from '@/spawn-role/transporter';
 import upgraderSpawnRole from '@/spawn-role/upgrader';
 import CombatManager from './creep/combat-manager';
 import TrafficManager from './creep/traffic-manager';
@@ -39,72 +38,72 @@ import SpawnRole from './spawn-role/spawn-role';
 import NavMesh from './utils/nav-mesh';
 
 export interface DependencyInjectionContainer {
-  CombatManager: CombatManager
-  HelpReport: HelpReport
-  FunnelManager: FunnelManager
-  LabManager: LabManager
-  NavMesh: NavMesh
-  PlayerIntelManager: PlayerIntelManager
-  ProcessReport: ProcessReport
-  ReclaimManager: ReclaimManager
-  RemoteMinePrioritizer: RemoteMinePrioritizer
-  ReportManager: ReportManager
-  ResourceLevelManager: ResourceLevelManager
-  ResourcesReport: ResourcesReport
-  RolesReport: RolesReport
-  RoomsReport: RoomsReport
-  RoomStatus: RoomStatus
-  SpawnManager: SpawnManager
-  TradeRouteManager: TradeRouteManager
-  TrafficManager: TrafficManager
+    CombatManager: CombatManager
+    HelpReport: HelpReport
+    FunnelManager: FunnelManager
+    LabManager: LabManager
+    NavMesh: NavMesh
+    PlayerIntelManager: PlayerIntelManager
+    ProcessReport: ProcessReport
+    ReclaimManager: ReclaimManager
+    RemoteMinePrioritizer: RemoteMinePrioritizer
+    ReportManager: ReportManager
+    ResourceLevelManager: ResourceLevelManager
+    ResourcesReport: ResourcesReport
+    RolesReport: RolesReport
+    RoomsReport: RoomsReport
+    RoomStatus: RoomStatus
+    SpawnManager: SpawnManager
+    TradeRouteManager: TradeRouteManager
+    TrafficManager: TrafficManager
 }
 
 const spawnClasses = {
-  'brawler': brawlerSpawnRole,
-  'builder': builderSpawnRole,
-  'dismantler': dismantlerSpawnRole,
-  'harvester': harvesterSpawnRole,
-  'harvester.deposit': depositHarvesterSpawnRole,
-  'harvester.minerals': mineralHarvesterSpawnRole,
-  'harvester.power': powerHarvesterSpawnRole,
-  'hauler.power': powerHaulerSpawnRole,
-  'helper': helperSpawnRole,
-  'mule': muleSpawnRole,
-  'reclaim': reclaimSpawnRole,
-  'remote-mine': remoteMiningSpawnRole,
-  '@/room-defense': roomDefenseSpawnRole,
-  'scout': scoutSpawnRole,
-  'squad': squadSpawnRole,
-  'transporter': transporterSpawnRole,
-  'upgrader': upgraderSpawnRole,
+    'brawler': BrawlerSpawnRole,
+    'builder': BuilderSpawnRole,
+    'dismantler': dismantlerSpawnRole,
+    'harvester': harvesterSpawnRole,
+    'harvester.deposit': depositHarvesterSpawnRole,
+    'harvester.minerals': mineralHarvesterSpawnRole,
+    'harvester.power': powerHarvesterSpawnRole,
+    'hauler.power': powerHaulerSpawnRole,
+    'helper': helperSpawnRole,
+    'mule': muleSpawnRole,
+    'reclaim': reclaimSpawnRole,
+    'remote-mine': remoteMiningSpawnRole,
+    '@/room-defense': roomDefenseSpawnRole,
+    'scout': scoutSpawnRole,
+    'squad': squadSpawnRole,
+    'transporter': transporterSpawnRole,
+    'upgrader': upgraderSpawnRole,
 };
 
 function containerFactory(container: Container) {
-  container.set('CombatManager', () => new CombatManager());
-  container.set('HelpReport', () => new HelpReport());
-  container.set('FunnelManager', () => new FunnelManager());
-  container.set('LabManager', () => new LabManager());
-  container.set('NavMesh', () => new NavMesh());
-  container.set('PlayerIntelManager', () => new PlayerIntelManager());
-  container.set('ProcessReport', () => new ProcessReport());
-  container.set('ReclaimManager', () => new ReclaimManager());
-  container.set('RemoteMinePrioritizer', () => new RemoteMinePrioritizer());
-  container.set('ReportManager', () => new ReportManager());
-  container.set('ResourceLevelManager', () => new ResourceLevelManager());
-  container.set('ResourcesReport', () => new ResourcesReport());
-  container.set('RolesReport', () => new RolesReport());
-  container.set('RoomsReport', c => new RoomsReport(c.get('FunnelManager')));
-  container.set('RoomStatus', () => new RoomStatus());
-  container.set('SpawnManager', () => {
-    const spawnManager = new SpawnManager();
-    for (const roleName in spawnClasses) {
-      spawnManager.registerSpawnRole(roleName, new spawnClasses[roleName]());
-    }
+    container.set('CombatManager', () => new CombatManager());
+    container.set('HelpReport', () => new HelpReport());
+    container.set('FunnelManager', () => new FunnelManager());
+    container.set('LabManager', () => new LabManager());
+    container.set('NavMesh', () => new NavMesh());
+    container.set('PlayerIntelManager', () => new PlayerIntelManager());
+    container.set('ProcessReport', () => new ProcessReport());
+    container.set('ReclaimManager', () => new ReclaimManager());
+    container.set('RemoteMinePrioritizer', () => new RemoteMinePrioritizer());
+    container.set('ReportManager', () => new ReportManager());
+    container.set('ResourceLevelManager', () => new ResourceLevelManager());
+    container.set('ResourcesReport', () => new ResourcesReport());
+    container.set('RolesReport', () => new RolesReport());
+    container.set('RoomsReport', c => new RoomsReport(c.get('FunnelManager')));
+    container.set('RoomStatus', () => new RoomStatus());
+    container.set('SpawnManager', () => {
+        const spawnManager = new SpawnManager();
+        for (const roleName in spawnClasses) {
+            spawnManager.registerSpawnRole(roleName, new spawnClasses[roleName]());
+        }
 
-    return spawnManager;
-  });
-  container.set('TradeRouteManager', c => new TradeRouteManager(c.get('ResourceLevelManager')));
-  container.set('TrafficManager', () => new TrafficManager());
+        return spawnManager;
+    });
+    container.set('TradeRouteManager', c => new TradeRouteManager(c.get('ResourceLevelManager')));
+    container.set('TrafficManager', () => new TrafficManager());
 }
 
 export default containerFactory;

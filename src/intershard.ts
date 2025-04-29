@@ -1,124 +1,130 @@
+import _ from "lodash";
 /* global InterShardMemory */
 
-import {encodePosition} from 'utils/serialization';
+import { encodePosition } from "utils/serialization";
 
 declare global {
-	interface Memory {
-		interShardReplacement: any;
-	}
+  interface Memory {
+    interShardReplacement: any;
+  }
 
-	interface ShardMemory {
-		portals?: Record<string, Record<string, {
-			dest: string;
-			scouted?: number;
-		}>>;
-	}
+  interface ShardMemory {
+    portals?: Record<
+      string,
+      Record<
+        string,
+        {
+          dest: string;
+          scouted?: number;
+        }
+      >
+    >;
+  }
 
-	namespace NodeJS {
-		interface Global {
-			interShard: typeof interShard;
-		}
-	}
+  namespace NodeJS {
+    interface Global {
+      interShard: typeof interShard;
+    }
+  }
 }
 
 const interShard = {
-	/**
-	 * Gets the memory object for the current shard.
-	 *
-	 * @return {object}
-	 *   This shard's inter-shard memory.
-	 */
-	getLocalMemory(): ShardMemory {
-		if (typeof InterShardMemory === 'undefined') {
-			// Create mock intershard memory object.
-			if (!Memory.interShardReplacement) Memory.interShardReplacement = {};
+  /**
+   * Gets the memory object for the current shard.
+   *
+   * @return {object}
+   *   This shard's inter-shard memory.
+   */
+  getLocalMemory(): ShardMemory {
+    if (typeof InterShardMemory === "undefined") {
+      // Create mock intershard memory object.
+      if (!Memory.interShardReplacement) Memory.interShardReplacement = {};
 
-			this._memory = Memory.interShardReplacement;
-			return this._memory;
-		}
+      this._memory = Memory.interShardReplacement;
+      return this._memory;
+    }
 
-		if (!this._memory || Game.time !== this._memoryAge) {
-			this._memory = JSON.parse(InterShardMemory.getLocal()) || {};
-			this._memoryAge = Game.time;
-		}
+    if (!this._memory || Game.time !== this._memoryAge) {
+      this._memory = JSON.parse(InterShardMemory.getLocal()) || {};
+      this._memoryAge = Game.time;
+    }
 
-		return this._memory;
-	},
+    return this._memory;
+  },
 
-	/**
-	 * Writes the memory object for the current shard.
-	 *
-	 * This should only be called at the end of the current tick when no more
-	 * changes are expected.
-	 */
-	writeLocalMemory() {
-		// @todo Only serialize memory once per tick.
-		if (!this._memory) return;
-		if (typeof InterShardMemory === 'undefined') return;
+  /**
+   * Writes the memory object for the current shard.
+   *
+   * This should only be called at the end of the current tick when no more
+   * changes are expected.
+   */
+  writeLocalMemory() {
+    // @todo Only serialize memory once per tick.
+    if (!this._memory) return;
+    if (typeof InterShardMemory === "undefined") return;
 
-		InterShardMemory.setLocal(JSON.stringify(this._memory));
-	},
+    InterShardMemory.setLocal(JSON.stringify(this._memory));
+  },
 
-	/**
-	 * Gets the memory object for another shard.
-	 *
-	 * @param {String} shardName
-	 *   The name of the shard for which memory is requested.
-	 *
-	 * @return {object}
-	 *   The shard's inter-shard memory.
-	 */
-	getRemoteMemory(shardName): ShardMemory {
-		if (typeof InterShardMemory === 'undefined') return {};
+  /**
+   * Gets the memory object for another shard.
+   *
+   * @param {String} shardName
+   *   The name of the shard for which memory is requested.
+   *
+   * @return {object}
+   *   The shard's inter-shard memory.
+   */
+  getRemoteMemory(shardName): ShardMemory {
+    if (typeof InterShardMemory === "undefined") return {};
 
-		return JSON.parse(InterShardMemory.getRemote(shardName)) || {};
-	},
+    return JSON.parse(InterShardMemory.getRemote(shardName)) || {};
+  },
 
-	/**
-	 * Registers a portal in intershard memory.
-	 *
-	 * @param {StructurePortal} portal
-	 *   The portal to register.
-	 */
-	registerPortal(portal: StructurePortal) {
-		if (!('shard' in portal.destination)) return;
+  /**
+   * Registers a portal in intershard memory.
+   *
+   * @param {StructurePortal} portal
+   *   The portal to register.
+   */
+  registerPortal(portal: StructurePortal) {
+    if (!("shard" in portal.destination)) return;
 
-		const memory = this.getLocalMemory();
-		const targetShard = portal.destination.shard;
+    const memory = this.getLocalMemory();
+    const targetShard = portal.destination.shard;
 
-		if (!memory.portals) memory.portals = {};
-		if (!memory.portals[targetShard]) memory.portals[targetShard] = {};
-		const pos = encodePosition(portal.pos);
-		if (!memory.portals[targetShard][pos]) {
-			memory.portals[targetShard][pos] = {};
-		}
+    if (!memory.portals) memory.portals = {};
+    if (!memory.portals[targetShard]) memory.portals[targetShard] = {};
+    const pos = encodePosition(portal.pos);
+    if (!memory.portals[targetShard][pos]) {
+      memory.portals[targetShard][pos] = {};
+    }
 
-		memory.portals[targetShard][pos].dest = portal.destination.room;
+    memory.portals[targetShard][pos].dest = portal.destination.room;
 
-		this.writeLocalMemory();
-	},
+    getTotalOwnedRooms(): number {
+      const ownedRooms = {
+        [Game.shard.name]: Game.myRooms.length,
+      }
 
-	getTotalOwnedRooms(): number {
-		const ownedRooms = {
-			[Game.shard.name]: Game.myRooms.length,
-		}
+      this.addAdjacentOwnedRooms(ownedRooms, this.getLocalMemory());
 
-		this.addAdjacentOwnedRooms(ownedRooms, this.getLocalMemory());
+      return _.sum(_.values(ownedRooms));
+    },
 
-		return _.sum(_.values(ownedRooms));
-	},
+    addAdjacentOwnedRooms(ownedRooms: Record<string, number>, memory: ShardMemory) {
+      if (!memory.portals) return;
 
-	addAdjacentOwnedRooms(ownedRooms: Record<string, number>, memory: ShardMemory) {
-		if (!memory.portals) return;
+      for (const shardName of _.keys(memory.portals)) {
+        if (typeof ownedRooms[shardName] !== 'undefined') continue;
 
-		for (const shardName of _.keys(memory.portals)) {
-			if (typeof ownedRooms[shardName] !== 'undefined') continue;
-
-			const shardMemory = this.getRemoteMemory(shardName);
-			ownedRooms[shardName] = shardMemory.info?.ownedRooms || 0;
-			this.addAdjacentOwnedRooms(ownedRooms, shardMemory);
-		}
-	},
+        const shardMemory = this.getRemoteMemory(shardName);
+        ownedRooms[shardName] = shardMemory.info?.ownedRooms || 0;
+        this.addAdjacentOwnedRooms(ownedRooms, shardMemory);
+      }
+    },
+    this.writeLocalMemory();
+  },
 };
 
 export default interShard;

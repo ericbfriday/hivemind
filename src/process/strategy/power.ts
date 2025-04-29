@@ -1,3 +1,4 @@
+import _ from "lodash";
 /* global RoomPosition CREEP_SPAWN_TIME MAX_CREEP_SIZE ATTACK_POWER
 CONTROLLER_STRUCTURES STRUCTURE_POWER_SPAWN */
 
@@ -22,7 +23,7 @@ declare global {
 		maxAttackers?: number;
 		neededDps?: number;
 		dps?: number;
-		spawnRooms?: Record<string, {room: string; distance: number}>;
+		spawnRooms?: Record<string, { room: string; distance: number }>;
 	}
 }
 
@@ -44,7 +45,7 @@ export default class PowerMiningProcess extends Process {
 		}
 
 		if (!Memory.strategy.power) {
-			Memory.strategy.power = {rooms: {}};
+			Memory.strategy.power = { rooms: {} };
 		}
 	}
 
@@ -56,7 +57,7 @@ export default class PowerMiningProcess extends Process {
 	 */
 	shouldRun(): boolean {
 		if (!super.shouldRun()) return false;
-		if (!hivemind.settings.get('enablePowerMining')) return false;
+		if (!hivemind.settings.get("enablePowerMining")) return false;
 
 		return true;
 	}
@@ -69,7 +70,7 @@ export default class PowerMiningProcess extends Process {
 		const memory = Memory.strategy.power;
 		this.mesh = new NavMesh();
 
-		const totalStoredPower = _.sum(Game.myRooms, (room: Room) => room.getCurrentResourceAmount(RESOURCE_POWER));
+		const totalStoredPower = _.sumBy(Game.myRooms, (room: Room) => room.getCurrentResourceAmount(RESOURCE_POWER));
 		const rcl8RoomCount = _.filter(Game.myRooms, (room: Room) => room.controller.level >= 8).length;
 		const storedPowerLevel = totalStoredPower / Math.min(rcl8RoomCount, 1);
 		const maxDistance = Math.ceil(hivemind.settings.get('maxRangeForPowerMining') / (totalStoredPower < 50_000 ? 1 : 2));
@@ -95,7 +96,7 @@ export default class PowerMiningProcess extends Process {
 			timeRemaining -= CREEP_SPAWN_TIME * MAX_CREEP_SIZE;
 
 			// Substract extra time until spawns are ready to generate our creeps.
-			timeRemaining -= CREEP_SPAWN_TIME * MAX_CREEP_SIZE * 2 / 3;
+			timeRemaining -= (CREEP_SPAWN_TIME * MAX_CREEP_SIZE * 2) / 3;
 
 			if (timeRemaining <= 0) {
 				delete memory.rooms[roomName];
@@ -103,18 +104,18 @@ export default class PowerMiningProcess extends Process {
 			}
 
 			// Disregard rooms the user doesn't want harvested.
-			const roomFilter = hivemind.settings.get('powerMineRoomFilter');
+			const roomFilter = hivemind.settings.get("powerMineRoomFilter");
 			if (roomFilter && !roomFilter(roomName)) return;
 
 			// Skip if this doesn't need harvesting anymore.
 			if (info.amount <= 0 || info.hits <= 0) return;
 
 			// Skip if low amount.
-			if (info.amount < hivemind.settings.get('powerBankMinAmount')) return;
+			if (info.amount < hivemind.settings.get("powerBankMinAmount")) return;
 
 			const dps = info.hits / timeRemaining;
 			const partsPerDPS = 2 / ATTACK_POWER;
-			const numberCreeps = Math.ceil(dps * partsPerDPS / MAX_CREEP_SIZE);
+			const numberCreeps = Math.ceil((dps * partsPerDPS) / MAX_CREEP_SIZE);
 
 			if (numberCreeps > Math.min(5, info.freeTiles)) {
 				// We can't attack with enough creeps.
@@ -122,13 +123,15 @@ export default class PowerMiningProcess extends Process {
 				return;
 			}
 
-			const potentialSpawns = this.getPotentialSpawnRoomsForHarvesting(roomName, maxDistance);
+			const potentialSpawns =
+				this.getPotentialSpawnRoomsForHarvesting(roomName);
 
 			// Substract travel time until all attackers could be there.
 			let maxAttackers = 0;
 			let travelTime = 0;
 			let failed = true;
-			const neededRooms: Record<string, {room: string; distance: number}> = {};
+			const neededRooms: Record<string, { room: string; distance: number }> =
+				{};
 			let finalDps = 0;
 			for (const spawnInfo of potentialSpawns) {
 				maxAttackers += 2;
@@ -137,7 +140,9 @@ export default class PowerMiningProcess extends Process {
 
 				const neededDps = info.hits / (timeRemaining - travelTime);
 				// @todo Needed Dps multiplier is this high because currently creeps can only attack every 2 ticks.
-				const numberCreeps = Math.ceil(neededDps * 1.2 * partsPerDPS / MAX_CREEP_SIZE);
+				const numberCreeps = Math.ceil(
+					(neededDps * 1.2 * partsPerDPS) / MAX_CREEP_SIZE,
+				);
 
 				if (numberCreeps > Math.min(6, info.freeTiles)) {
 					// Would need too many creeps at this distance.
@@ -162,7 +167,7 @@ export default class PowerMiningProcess extends Process {
 			info.maxAttackers = maxAttackers;
 			info.isActive = true;
 			info.neededDps = finalDps;
-			info.dps = maxAttackers * MAX_CREEP_SIZE / partsPerDPS;
+			info.dps = (maxAttackers * MAX_CREEP_SIZE) / partsPerDPS;
 
 			// @todo Record neededRooms and maxAttackers.
 			// @todo Calculate number of transporters needed in the end.
@@ -172,20 +177,27 @@ export default class PowerMiningProcess extends Process {
 		});
 	}
 
-	getPotentialSpawnRoomsForHarvesting(roomName: string, maxDistance: number): Array<{room: string; distance: number}> {
+	getPotentialSpawnRoomsForHarvesting(roomName: string): Array<{ room: string; distance: number }> {
 		// Determine which rooms need to spawn creeps.
-		let potentialSpawns: Array<{room: string; distance: number}> = [];
+		let potentialSpawns: Array<{ room: string; distance: number }> = [];
 		for (const room of Game.myRooms) {
 			if (room.isFullOnPower()) continue;
 			if (room.getEffectiveAvailableEnergy() < hivemind.settings.get('minEnergyForPowerHarvesting')) continue;
 			if (room.controller.level < hivemind.settings.get('minRclForPowerMining')) continue;
-			if (Game.map.getRoomLinearDistance(roomName, room.name) > maxDistance) continue;
+			if (Game.map.getRoomLinearDistance(roomName, room.name) > hivemind.settings.get('maxRangeForPowerMining')) continue;
 
 			// @todo Use actual position of power cache.
 			const roomRoute = this.mesh.findPath(new RoomPosition(25, 25, room.name), new RoomPosition(25, 25, roomName));
-			if (roomRoute.incomplete || roomRoute.path.length > 2 * maxDistance) continue;
+			if (roomRoute.incomplete || roomRoute.path.length > 2 * hivemind.settings.get("maxRangeForPowerMining")) continue;
 
-			hivemind.log('strategy').debug('Could spawn creeps in', room.name, 'with distance', roomRoute.path.length);
+			hivemind
+				.log("strategy")
+				.debug(
+					"Could spawn creeps in",
+					room.name,
+					"with distance",
+					roomRoute.path.length,
+				);
 
 			potentialSpawns.push({
 				room: room.name,
@@ -193,7 +205,7 @@ export default class PowerMiningProcess extends Process {
 			});
 		}
 
-		potentialSpawns = _.sortBy(potentialSpawns, 'distance');
+		potentialSpawns = _.sortBy(potentialSpawns, "distance");
 
 		return potentialSpawns;
 	}
@@ -206,10 +218,19 @@ export default class PowerMiningProcess extends Process {
 	 *   Scout information and calculated values for this harvesting effort.
 	 */
 	logHarvestIntent(roomName, info) {
-		hivemind.log('strategy').info('Gathering ' + (info.amount || 'N/A') + ' power from room ' + roomName + '.');
+		hivemind
+			.log("strategy")
+			.info(
+				"Gathering " +
+				(info.amount || "N/A") +
+				" power from room " +
+				roomName +
+				".",
+			);
 
 		if (!Memory.strategy || !Memory.strategy.reports) return;
-		if (!Memory.strategy.reports.data.power) Memory.strategy.reports.data.power = [];
+		if (!Memory.strategy.reports.data.power)
+			Memory.strategy.reports.data.power = [];
 		const memory = Memory.strategy.reports.data.power;
 
 		memory.push({

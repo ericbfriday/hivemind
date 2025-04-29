@@ -1,9 +1,10 @@
+import _ from "lodash";
 /* global ConstructionSite OBSTACLE_OBJECT_TYPES */
 
 declare global {
-	interface ConstructionSite {
-		isWalkable: () => boolean;
-	}
+  interface ConstructionSite {
+    isWalkable: () => boolean;
+  }
 }
 
 /**
@@ -12,11 +13,13 @@ declare global {
  * @return {boolean}
  *   True if a creep can move onto this construction site.
  */
-ConstructionSite.prototype.isWalkable = function (this: ConstructionSite): boolean {
-	if (!this.my) return true;
-	if (_.includes(OBSTACLE_OBJECT_TYPES, this.structureType)) return false;
+ConstructionSite.prototype.isWalkable = function (
+  this: ConstructionSite,
+): boolean {
+  if (!this.my) return true;
+  if (_.includes(OBSTACLE_OBJECT_TYPES, this.structureType)) return false;
 
-	return true;
+  return true;
 };
 
 export {};

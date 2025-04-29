@@ -1,29 +1,33 @@
+import _ from "lodash";
 interface Coord {
-	x: number;
-	y: number;
+  x: number;
+  y: number;
 }
 
 declare global {
-	namespace NodeJS {
-		interface Global {
-			packId: <T extends _HasId>(id: Id<T>) => string;
-			unpackId: <T extends _HasId>(packedId: string) => Id<T>;
-			packIdList: <T extends _HasId>(ids: Array<Id<T>>) => string;
-			unpackIdList: <T extends _HasId>(packedIds: string) => Array<Id<T>>;
-			packCoord: (coord: Coord) => string;
-			unpackCoord: (char: string) => Coord;
-			unpackCoordAsPos: (char: string, roomName: string) => RoomPosition;
-			packCoordList: (coords: Coord[]) => string;
-			unpackCoordList: (chars: string) => Coord[];
-			unpackCoordListAsPosList: (chars: string, roomName: string) => RoomPosition[];
-			packPos: (pos: RoomPosition) => string;
-			unpackPos: (chars: string) => RoomPosition;
-			packPosList: (positions: RoomPosition[]) => string;
-			unpackPosList: (chars: string) => RoomPosition[];
-			packRoomName: (roomName: string) => string;
-			unpackRoomName: (packed: string) => string;
-		}
-	}
+  namespace NodeJS {
+    interface Global {
+      packId: <T extends _HasId>(id: Id<T>) => string;
+      unpackId: <T extends _HasId>(packedId: string) => Id<T>;
+      packIdList: <T extends _HasId>(ids: Array<Id<T>>) => string;
+      unpackIdList: <T extends _HasId>(packedIds: string) => Array<Id<T>>;
+      packCoord: (coord: Coord) => string;
+      unpackCoord: (char: string) => Coord;
+      unpackCoordAsPos: (char: string, roomName: string) => RoomPosition;
+      packCoordList: (coords: Coord[]) => string;
+      unpackCoordList: (chars: string) => Coord[];
+      unpackCoordListAsPosList: (
+        chars: string,
+        roomName: string,
+      ) => RoomPosition[];
+      packPos: (pos: RoomPosition) => string;
+      unpackPos: (chars: string) => RoomPosition;
+      packPosList: (positions: RoomPosition[]) => string;
+      unpackPosList: (chars: string) => RoomPosition[];
+      packRoomName: (roomName: string) => string;
+      unpackRoomName: (packed: string) => string;
+    }
+  }
 }
 
 /**
@@ -65,8 +69,8 @@ declare global {
  */
 
 const PERMACACHE: {
-	_packedRoomNames?: Record<string, string>;
-	_unpackedRoomNames?: Record<string, string>;
+  _packedRoomNames?: Record<string, string>;
+  _unpackedRoomNames?: Record<string, string>;
 } = {}; // Create a permanent cache for immutable items such as room names
 
 /**
@@ -75,12 +79,14 @@ const PERMACACHE: {
  * Benchmarking: average of 500ns to execute on shard2 public server, reduce stringified size by 75%
  */
 function packId<T extends _HasId>(id: Id<T>): string {
-	return String.fromCharCode(Number.parseInt(id.slice(0, 4), 16))
-		+ String.fromCharCode(Number.parseInt(id.slice(4, 8), 16))
-		+ String.fromCharCode(Number.parseInt(id.slice(8, 12), 16))
-		+ String.fromCharCode(Number.parseInt(id.slice(12, 16), 16))
-		+ String.fromCharCode(Number.parseInt(id.slice(16, 20), 16))
-		+ String.fromCharCode(Number.parseInt(id.slice(20, 24), 16));
+  return (
+    String.fromCharCode(Number.parseInt(id.slice(0, 4), 16)) +
+    String.fromCharCode(Number.parseInt(id.slice(4, 8), 16)) +
+    String.fromCharCode(Number.parseInt(id.slice(8, 12), 16)) +
+    String.fromCharCode(Number.parseInt(id.slice(12, 16), 16)) +
+    String.fromCharCode(Number.parseInt(id.slice(16, 20), 16)) +
+    String.fromCharCode(Number.parseInt(id.slice(20, 24), 16))
+  );
 }
 
 /**
@@ -89,15 +95,15 @@ function packId<T extends _HasId>(id: Id<T>): string {
  * Benchmarking: average of 1.3us to execute on shard2 public server
  */
 function unpackId<T extends _HasId>(packedId: string): Id<T> {
-	let id = '';
-	let current;
-	for (let i = 0; i < 6; ++i) {
-		current = packedId.charCodeAt(i);
-		id += (current >>> 8).toString(16).padStart(2, '0'); // String.padStart() requires es2017+ target
-		id += (current & 0xFF).toString(16).padStart(2, '0');
-	}
+  let id = "";
+  let current;
+  for (let i = 0; i < 6; ++i) {
+    current = packedId.charCodeAt(i);
+    id += (current >>> 8).toString(16).padStart(2, "0"); // String.padStart() requires es2017+ target
+    id += (current & 0xff).toString(16).padStart(2, "0");
+  }
 
-	return id as Id<T>;
+  return id as Id<T>;
 }
 
 /**
@@ -107,12 +113,12 @@ function unpackId<T extends _HasId>(packedId: string): Id<T> {
  * Benchmarking: average of 500ns per id to execute on shard2 public server, reduce stringified size by 81%
  */
 function packIdList<T extends _HasId>(ids: Array<Id<T>>): string {
-	let string = '';
-	for (const id of ids) {
-		string += packId(id);
-	}
+  let string = "";
+  for (const id of ids) {
+    string += packId(id);
+  }
 
-	return string;
+  return string;
 }
 
 /**
@@ -121,12 +127,12 @@ function packIdList<T extends _HasId>(ids: Array<Id<T>>): string {
  * Benchmarking: average of 1.2us per id to execute on shard2 public server.
  */
 function unpackIdList<T extends _HasId>(packedIds: string): Array<Id<T>> {
-	const ids: Array<Id<T>> = [];
-	for (let i = 0; i < packedIds.length; i += 6) {
-		ids.push(unpackId(packedIds.slice(i, i + 6)));
-	}
+  const ids: Array<Id<T>> = [];
+  for (let i = 0; i < packedIds.length; i += 6) {
+    ids.push(unpackId(packedIds.slice(i, i + 6)));
+  }
 
-	return ids;
+  return ids;
 }
 
 /**
@@ -137,7 +143,7 @@ function unpackIdList<T extends _HasId>(packedIds: string): Array<Id<T>> {
  * Benchmarking: average of 150ns to execute on shard2 public server, reduce stringified size by 80%
  */
 function packCoord(coord: Coord): string {
-	return String.fromCharCode(((coord.x << 6) | coord.y) + 65);
+  return String.fromCharCode(((coord.x << 6) | coord.y) + 65);
 }
 
 /**
@@ -146,11 +152,11 @@ function packCoord(coord: Coord): string {
  * Benchmarking: average of 60ns-100ns to execute on shard2 public server
  */
 function unpackCoord(char: string): Coord {
-	const xShiftedSixOrY = char.charCodeAt(0) - 65;
-	return {
-		x: (xShiftedSixOrY & 0b1111_1100_0000) >>> 6,
-		y: (xShiftedSixOrY & 0b0000_0011_1111),
-	};
+  const xShiftedSixOrY = char.charCodeAt(0) - 65;
+  return {
+    x: (xShiftedSixOrY & 0b1111_1100_0000) >>> 6,
+    y: xShiftedSixOrY & 0b0000_0011_1111,
+  };
 }
 
 /**
@@ -159,8 +165,8 @@ function unpackCoord(char: string): Coord {
  * Benchmarking: average of 500ns to execute on shard2 public server
  */
 function unpackCoordAsPos(packedCoord: string, roomName: string): RoomPosition {
-	const coord = unpackCoord(packedCoord);
-	return new RoomPosition(coord.x, coord.y, roomName);
+  const coord = unpackCoord(packedCoord);
+  return new RoomPosition(coord.x, coord.y, roomName);
 }
 
 /**
@@ -170,12 +176,12 @@ function unpackCoordAsPos(packedCoord: string, roomName: string): RoomPosition {
  * Benchmarking: average of 120ns per coord to execute on shard2 public server, reduce stringified size by 94%
  */
 function packCoordList(coords: Coord[]): string {
-	let string = '';
-	for (const coord of coords) {
-		string += String.fromCharCode(((coord.x << 6) | coord.y) + 65);
-	}
+  let string = "";
+  for (const coord of coords) {
+    string += String.fromCharCode(((coord.x << 6) | coord.y) + 65);
+  }
 
-	return string;
+  return string;
 }
 
 /**
@@ -184,17 +190,17 @@ function packCoordList(coords: Coord[]): string {
  * Benchmarking: average of 100ns per coord to execute on shard2 public server
  */
 function unpackCoordList(chars: string): Coord[] {
-	const coords: Coord[] = [];
-	let xShiftedSixOrY;
-	for (let i = 0; i < chars.length; ++i) {
-		xShiftedSixOrY = chars.charCodeAt(i) - 65;
-		coords.push({
-			x: (xShiftedSixOrY & 0b1111_1100_0000) >>> 6,
-			y: (xShiftedSixOrY & 0b0000_0011_1111),
-		});
-	}
+  const coords: Coord[] = [];
+  let xShiftedSixOrY;
+  for (let i = 0; i < chars.length; ++i) {
+    xShiftedSixOrY = chars.charCodeAt(i) - 65;
+    coords.push({
+      x: (xShiftedSixOrY & 0b1111_1100_0000) >>> 6,
+      y: xShiftedSixOrY & 0b0000_0011_1111,
+    });
+  }
 
-	return coords;
+  return coords;
 }
 
 /**
@@ -202,16 +208,19 @@ function unpackCoordList(chars: string): Coord[] {
  *
  * Benchmarking: average of 500ns per coord to execute on shard2 public server
  */
-function unpackCoordListAsPosList(packedCoords: string, roomName: string): RoomPosition[] {
-	const positions: RoomPosition[] = [];
-	let coord: Coord;
-	for (const packedCoord of packedCoords) {
-		// Each coord is saved as a single character; unpack each and insert the room name to get the positions list
-		coord = unpackCoord(packedCoord);
-		positions.push(new RoomPosition(coord.x, coord.y, roomName));
-	}
+function unpackCoordListAsPosList(
+  packedCoords: string,
+  roomName: string,
+): RoomPosition[] {
+  const positions: RoomPosition[] = [];
+  let coord: Coord;
+  for (const packedCoord of packedCoords) {
+    // Each coord is saved as a single character; unpack each and insert the room name to get the positions list
+    coord = unpackCoord(packedCoord);
+    positions.push(new RoomPosition(coord.x, coord.y, roomName));
+  }
 
-	return positions;
+  return positions;
 }
 
 PERMACACHE._packedRoomNames = PERMACACHE._packedRoomNames || {};
@@ -221,69 +230,67 @@ PERMACACHE._unpackedRoomNames = PERMACACHE._unpackedRoomNames || {};
  * Packs a roomName as a single utf-16 character. Character values are stored on permacache.
  */
 function packRoomName(roomName: string): string {
-	if (PERMACACHE._packedRoomNames[roomName] === undefined) {
-		const coordinateRegex = /(E|W)(\d+)(N|S)(\d+)/g;
-		const match = coordinateRegex.exec(roomName);
-		const xDir = match[1];
-		const x = Number(match[2]);
-		const yDir = match[3];
-		const y = Number(match[4]);
-		let quadrant;
-		if (xDir === 'W') {
-			quadrant = yDir === 'N' ? 0 : 1;
-		}
-		else if (yDir === 'N') {
-			quadrant = 2;
-		}
-		else {
-			quadrant = 3;
-		}
+  if (PERMACACHE._packedRoomNames[roomName] === undefined) {
+    const coordinateRegex = /(E|W)(\d+)(N|S)(\d+)/g;
+    const match = coordinateRegex.exec(roomName);
+    const xDir = match[1];
+    const x = Number(match[2]);
+    const yDir = match[3];
+    const y = Number(match[4]);
+    let quadrant;
+    if (xDir === "W") {
+      quadrant = yDir === "N" ? 0 : 1;
+    } else if (yDir === "N") {
+      quadrant = 2;
+    } else {
+      quadrant = 3;
+    }
 
-		// Y is 6 bits, x is 6 bits, quadrant is 2 bits
-		const number = ((quadrant << 13) | ((x * 90) + y)) + 65;
-		const char = String.fromCharCode(number);
-		PERMACACHE._packedRoomNames[roomName] = char;
-		PERMACACHE._unpackedRoomNames[char] = roomName;
-	}
+    // Y is 6 bits, x is 6 bits, quadrant is 2 bits
+    const number = ((quadrant << 13) | (x * 90 + y)) + 65;
+    const char = String.fromCharCode(number);
+    PERMACACHE._packedRoomNames[roomName] = char;
+    PERMACACHE._unpackedRoomNames[char] = roomName;
+  }
 
-	return PERMACACHE._packedRoomNames[roomName];
+  return PERMACACHE._packedRoomNames[roomName];
 }
 
 /**
  * Packs a roomName as a single utf-16 character. Character values are stored on permacache.
  */
 function unpackRoomName(char: string): string {
-	if (PERMACACHE._unpackedRoomNames[char] === undefined) {
-		const number = char.charCodeAt(0) - 65;
-		const coords = (number & 0b001_1111_1111_1111);
-		const {q, x, y} = {
-			q: (number & 0b110_0000_0000_0000) >>> 13,
-			x: Math.floor(coords / 90),
-			y: coords % 90,
-		};
-		let roomName: string;
-		switch (q) {
-			case 0:
-				roomName = `W${x}N${y}`;
-				break;
-			case 1:
-				roomName = `W${x}S${y}`;
-				break;
-			case 2:
-				roomName = `E${x}N${y}`;
-				break;
-			case 3:
-				roomName = `E${x}S${y}`;
-				break;
-			default:
-				roomName = 'ERROR';
-		}
+  if (PERMACACHE._unpackedRoomNames[char] === undefined) {
+    const number = char.charCodeAt(0) - 65;
+    const coords = number & 0b001_1111_1111_1111;
+    const { q, x, y } = {
+      q: (number & 0b110_0000_0000_0000) >>> 13,
+      x: Math.floor(coords / 90),
+      y: coords % 90,
+    };
+    let roomName: string;
+    switch (q) {
+      case 0:
+        roomName = `W${x}N${y}`;
+        break;
+      case 1:
+        roomName = `W${x}S${y}`;
+        break;
+      case 2:
+        roomName = `E${x}N${y}`;
+        break;
+      case 3:
+        roomName = `E${x}S${y}`;
+        break;
+      default:
+        roomName = "ERROR";
+    }
 
-		PERMACACHE._packedRoomNames[roomName] = char;
-		PERMACACHE._unpackedRoomNames[char] = roomName;
-	}
+    PERMACACHE._packedRoomNames[roomName] = char;
+    PERMACACHE._unpackedRoomNames[char] = roomName;
+  }
 
-	return PERMACACHE._unpackedRoomNames[char];
+  return PERMACACHE._unpackedRoomNames[char];
 }
 
 /**
@@ -294,7 +301,7 @@ function unpackRoomName(char: string): string {
  * Benchmarking: average of 150ns to execute on shard2 public server, reduce stringified size by 90%
  */
 function packPos(pos: RoomPosition): string {
-	return packCoord(pos) + packRoomName(pos.roomName);
+  return packCoord(pos) + packRoomName(pos.roomName);
 }
 
 /**
@@ -303,8 +310,8 @@ function packPos(pos: RoomPosition): string {
  * Benchmarking: average of 600ns to execute on shard2 public server.
  */
 function unpackPos(chars: string): RoomPosition {
-	const {x, y} = unpackCoord(chars[0]);
-	return new RoomPosition(x, y, unpackRoomName(chars[1]));
+  const { x, y } = unpackCoord(chars[0]);
+  return new RoomPosition(x, y, unpackRoomName(chars[1]));
 }
 
 /**
@@ -314,12 +321,12 @@ function unpackPos(chars: string): RoomPosition {
  * Benchmarking: average of 150ns per position to execute on shard2 public server, reduce stringified size by 95%
  */
 function packPosList(posList: RoomPosition[]): string {
-	let string = '';
-	for (const element of posList) {
-		string += packPos(element);
-	}
+  let string = "";
+  for (const element of posList) {
+    string += packPos(element);
+  }
 
-	return string;
+  return string;
 }
 
 /**
@@ -328,32 +335,32 @@ function packPosList(posList: RoomPosition[]): string {
  * Benchmarking: average of 1.5us per position to execute on shard2 public server.
  */
 function unpackPosList(chars: string): RoomPosition[] {
-	const posList: RoomPosition[] = [];
-	for (let i = 0; i < chars.length; i += 2) {
-		posList.push(unpackPos(chars.slice(i, i + 2)));
-	}
+  const posList: RoomPosition[] = [];
+  for (let i = 0; i < chars.length; i += 2) {
+    posList.push(unpackPos(chars.slice(i, i + 2)));
+  }
 
-	return posList;
+  return posList;
 }
 
 // Export everything
 export {
-	packId,
-	unpackId,
-	packIdList,
-	unpackIdList,
-	packCoord,
-	unpackCoord,
-	unpackCoordAsPos,
-	packCoordList,
-	unpackCoordList,
-	unpackCoordListAsPosList,
-	packPos,
-	unpackPos,
-	packPosList,
-	unpackPosList,
-	packRoomName,
-	unpackRoomName,
+  packId,
+  unpackId,
+  packIdList,
+  unpackIdList,
+  packCoord,
+  unpackCoord,
+  unpackCoordAsPos,
+  packCoordList,
+  unpackCoordList,
+  unpackCoordListAsPosList,
+  packPos,
+  unpackPos,
+  packPosList,
+  unpackPosList,
+  packRoomName,
+  unpackRoomName,
 };
 
 // Useful to register these functions on global to use with console

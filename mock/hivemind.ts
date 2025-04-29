@@ -1,11 +1,12 @@
+import _ from "lodash";
 const MockHivemind = function () {};
 
 MockHivemind.prototype.log = function () {
-	return {
-		debug() {},
-		info() {},
-		error() {},
-	};
+  return {
+    debug() {},
+    info() {},
+    error() {},
+  };
 };
 
 export default MockHivemind;

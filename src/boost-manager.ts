@@ -126,7 +126,7 @@ export default class BoostManager {
     const targetLab = this.getBestLabForBoosting(creep);
     if (!targetLab) {
       // Wait around until labs are ready.
-      creep.whenInRange(5, creep.room.controller, () => {});
+      creep.whenInRange(5, creep.room.controller, () => { });
       return true;
     }
 
@@ -174,7 +174,7 @@ export default class BoostManager {
         const requestedBoosts = this.getAllRequestedBoosts();
         if (
           (storage.store[RESOURCE_ENERGY] || 0) +
-            (terminal.store[RESOURCE_ENERGY] || 0) <
+          (terminal.store[RESOURCE_ENERGY] || 0) <
           2500
         )
           return boosts;
@@ -194,7 +194,7 @@ export default class BoostManager {
                 available:
                   Math.floor(
                     this.room.getCurrentResourceAmount(resourceType) /
-                      LAB_BOOST_MINERAL,
+                    LAB_BOOST_MINERAL,
                   ) - (requestedBoosts[resourceType] || 0),
               };
             });
@@ -292,7 +292,7 @@ export default class BoostManager {
 
   private getNumberOfPartsToBoost(labId: Id<StructureLab>): number {
     const resourceType = this.getRequiredBoostType(labId);
-    return _.sum(this.memory.creeps, (boosts, creepName) => {
+    return _.sumBy(this.memory.creeps, (boosts, creepName) => {
       if (Game.creeps[creepName]?.room?.name !== this.room.name) return 0;
 
       return boosts[resourceType] || 0;
@@ -344,8 +344,8 @@ export default class BoostManager {
         3 *
         Math.min(
           lab.store.getUsedCapacity(resourceType) /
-            LAB_BOOST_MINERAL /
-            boosts[resourceType],
+          LAB_BOOST_MINERAL /
+          boosts[resourceType],
           1,
         );
 
@@ -383,7 +383,7 @@ export default class BoostManager {
           (lab.mineralType && lab.mineralType !== resourceType
             ? lab.store.getUsedCapacity(lab.mineralType)
             : 0) /
-            LAB_MINERAL_CAPACITY;
+          LAB_MINERAL_CAPACITY;
         const energyScore = lab.store.energy / LAB_ENERGY_CAPACITY;
 
         if (!best || bestScore < fullnessScore + energyScore) {

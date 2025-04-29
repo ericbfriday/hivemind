@@ -23,7 +23,7 @@ declare global {
     targetRoom: string;
   }
 
-  interface PowerHarvesterCreepHeapMemory extends CreepHeapMemory {}
+  interface PowerHarvesterCreepHeapMemory extends CreepHeapMemory { }
 }
 
 export default class PowerHarvesterRole extends Role {
@@ -96,7 +96,7 @@ export default class PowerHarvesterRole extends Role {
 
     // @todo Move out of the way (use flee), but escort haulers back home.
     const center = new RoomPosition(25, 25, creep.pos.roomName);
-    creep.whenInRange(5, center, () => {});
+    creep.whenInRange(5, center, () => { });
   }
 
   attackNearby(creep: PowerHarvesterCreep) {
@@ -107,7 +107,7 @@ export default class PowerHarvesterRole extends Role {
     });
     if (targets.length === 0) return;
 
-    const highestValue = _.max(
+    const highestValue = _.maxBy(
       targets,
       (c) => c.getDamageCapacity(1) + c.getHealCapacity(1) * 2,
     );
@@ -134,7 +134,7 @@ export default class PowerHarvesterRole extends Role {
     if (targets.length === 0) return;
 
     // @todo Only chase each enemy with 1 power harvester max.
-    const highestValue = _.max(
+    const highestValue = _.maxBy(
       targets,
       (c) =>
         c.getDamageCapacity(1) +
@@ -165,7 +165,7 @@ export default class PowerHarvesterRole extends Role {
       // @todo Find most wounded in range 1, failing that, look further away.
 
       if (damagedCreep) {
-        creep.whenInRange(1, damagedCreep, () => {});
+        creep.whenInRange(1, damagedCreep, () => { });
 
         if (creep.heal(damagedCreep) === OK) {
           damagedCreep.incHealing =
@@ -176,7 +176,7 @@ export default class PowerHarvesterRole extends Role {
             (damagedCreep.incHealing || 0) +
             creep.getActiveBodyparts(HEAL) * RANGED_HEAL_POWER;
         }
-      } else creep.whenInRange(5, powerBank, () => {});
+      } else creep.whenInRange(5, powerBank, () => { });
     } else {
       creep.whenInRange(1, powerBank, () => {
         if (creep.hits >= creep.hitsMax * 0.7 || POWER_BANK_HIT_BACK === 0) {

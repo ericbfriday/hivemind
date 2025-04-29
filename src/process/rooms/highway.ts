@@ -97,10 +97,10 @@ export default class HighwayRoomProcess extends Process {
   }
 
   detectDirection(creeps: Creep[]): TOP | BOTTOM | LEFT | RIGHT {
-    const minX = _.min(creeps, (c) => c.pos.x);
-    const maxX = _.max(creeps, (c) => c.pos.x);
-    const minY = _.min(creeps, (c) => c.pos.y);
-    const maxY = _.max(creeps, (c) => c.pos.y);
+    const minX = _.minBy(creeps, (c) => c.pos.x);
+    const maxX = _.maxBy(creeps, (c) => c.pos.x);
+    const minY = _.minBy(creeps, (c) => c.pos.y);
+    const maxY = _.maxBy(creeps, (c) => c.pos.y);
 
     const first = creeps[0].id;
     const last = creeps[creeps.length - 1].id;

@@ -80,7 +80,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
       creep.memory.sourceRoom === room.name
       && (creep.spawning || creep.ticksToLive > haulerSpawnTime),
     );
-    const currentCarryParts = _.sum(_.map(currentHaulers, creep => creep.getActiveBodyparts(CARRY)));
+    const currentCarryParts = _.sumBy(_.map(currentHaulers, creep => creep.getActiveBodyparts(CARRY)));
 
     if (currentCarryParts >= currentlyNeededCarryParts) return;
 
@@ -176,7 +176,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 
     const currentlyNeededWorkParts = this.getNeededWorkParts(room);
     const currentBuilders = _.filter(Game.creepsByRole['builder.mines'], creep => creep.memory.sourceRoom === room.name);
-    const currentWorkParts = _.sum(_.map(currentBuilders, creep => creep.getActiveBodyparts(WORK)));
+    const currentWorkParts = _.sumBy(_.map(currentBuilders, creep => creep.getActiveBodyparts(WORK)));
 
     if (currentWorkParts >= currentlyNeededWorkParts) return;
 
@@ -273,7 +273,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
         const effectiveLifetime = CREEP_CLAIM_LIFE_TIME - pathLength;
         const maxAdditionalReservation = (claimPartCount - 1) * effectiveLifetime;
         const remainingReservation = roomMemory.lastClaim.value + (roomMemory.lastClaim.time - Game.time);
-        const extraReservation = _.sum(claimers, creep => Math.min(creep.ticksToLive || CREEP_CLAIM_LIFE_TIME, pathLength + claimerSpawnTime) * creep.getActiveBodyparts(CLAIM));
+        const extraReservation = _.sumBy(claimers, creep => Math.min(creep.ticksToLive || CREEP_CLAIM_LIFE_TIME, pathLength + claimerSpawnTime) * creep.getActiveBodyparts(CLAIM));
         const reservationAtArrival = remainingReservation - claimerSpawnTime - pathLength + extraReservation;
         if (reservationAtArrival + maxAdditionalReservation > CONTROLLER_RESERVE_MAX) continue;
       }
@@ -321,7 +321,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
     if (!operation) return;
 
     const paths = operation.getPaths();
-    const travelTime = _.min(_.map(paths, path => path.travelTime ?? 500));
+    const travelTime = _.minBy(_.map(paths, path => path.travelTime ?? 500));
     if (!travelTime) return;
 
     const option: SkKillerSpawnOption = {
@@ -437,7 +437,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
       operation.hasContainer(targetPos) || room.controller.level > 5
         ? 0.9
         : (BUILD_POWER + HARVEST_POWER) / BUILD_POWER;
-    const workParts = _.sum(harvesters, (creep) =>
+    const workParts = _.sumBy(harvesters, (creep) =>
       creep.getActiveBodyparts(WORK),
     );
     if (

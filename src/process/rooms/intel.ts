@@ -73,7 +73,7 @@ export default class RoomIntelProcess extends Process {
             if (creep.isDangerous()) {
               if (
                 creep.owner.username === "Source Keeper" &&
-                _.min(
+                _.minBy(
                   _.map(
                     this.room.structuresByType[STRUCTURE_KEEPER_LAIR],
                     (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos),

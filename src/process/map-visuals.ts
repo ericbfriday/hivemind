@@ -125,7 +125,7 @@ export default class MapVisualsProcess extends Process {
       "expansionScoreCutoff",
       5000,
       () =>
-        _.max(
+        _.maxBy(
           _.map(
             this.roomStatus.getPotentialExpansionTargets(),
             (roomName: string) => {

@@ -14,7 +14,7 @@ export default class placeTowersStep {
     protected roomPlan: RoomPlan,
     protected placementManager: PlacementManager,
     protected safetyMatrix: CostMatrix,
-  ) {}
+  ) { }
 
   /**
    * Places towers so exits are well covered.
@@ -34,7 +34,7 @@ export default class placeTowersStep {
       while (
         newTowers.length < this.roomPlan.remainingStructureCount("tower")
       ) {
-        const info = _.max(positions, "score");
+        const info = _.maxBy(positions, "score");
         if (!info || typeof info === "number" || info.score < 0) break;
 
         info.score = -1;
@@ -87,7 +87,7 @@ export default class placeTowersStep {
     const safety = roomIntel.calculateAdjacentRoomSafety();
     const positions: ScoredTowerPosition[] = [];
 
-    const allDirectionsSafe = _.sum(safety.directions) === 4;
+    const allDirectionsSafe = _.sumBy(safety.directions) === 4;
     if (allDirectionsSafe) return positions;
 
     for (let x = 1; x < 49; x++) {
@@ -188,7 +188,7 @@ export default class placeTowersStep {
     return (
       1 -
       (effectiveRange - TOWER_OPTIMAL_RANGE) /
-        (TOWER_FALLOFF_RANGE - TOWER_OPTIMAL_RANGE)
+      (TOWER_FALLOFF_RANGE - TOWER_OPTIMAL_RANGE)
     );
   }
 }

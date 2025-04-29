@@ -16,7 +16,7 @@ declare global {
     delivering?: boolean;
   }
 
-  interface HelperCreepHeapMemory extends CreepHeapMemory {}
+  interface HelperCreepHeapMemory extends CreepHeapMemory { }
 }
 
 export default class HelperRole extends Role {
@@ -110,7 +110,7 @@ export default class HelperRole extends Role {
           if (
             storage &&
             storage.store.getUsedCapacity() + creep.store.getUsedCapacity() <
-              storage.store.getCapacity()
+            storage.store.getCapacity()
           ) {
             target = storage;
           }
@@ -227,11 +227,11 @@ export default class HelperRole extends Role {
     // Get energy to fill labs when needed.
     const boostManager = creep.room.boostManager;
     const labs = boostManager.getBoostLabs();
-    const totalNeededEnergy = _.sum(labs, (lab) =>
+    const totalNeededEnergy = _.sumBy(labs, (lab) =>
       Math.min(
         lab.store.getFreeCapacity(RESOURCE_ENERGY),
         boostManager.getRequiredEnergyAmount(lab.id) -
-          lab.store.getUsedCapacity(RESOURCE_ENERGY),
+        lab.store.getUsedCapacity(RESOURCE_ENERGY),
       ),
     );
     const target = creep.room.getBestStorageSource(RESOURCE_ENERGY);
@@ -289,7 +289,7 @@ export default class HelperRole extends Role {
         creep.store.getFreeCapacity(resourceType),
         target.store.getUsedCapacity(resourceType),
         lab.store.getFreeCapacity(resourceType) -
-          creep.store.getUsedCapacity(resourceType),
+        creep.store.getUsedCapacity(resourceType),
       );
       if (amount > 0) {
         creep.whenInRange(1, target, () => {

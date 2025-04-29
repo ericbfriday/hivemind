@@ -158,7 +158,7 @@ export default class InterShardProcess extends Process {
     this.addShardData(Game.shard.name, this.memory);
 
     // Based on collected information, assign CPU to each shard.
-    const totalCpu = _.sum(Game.cpu.shardLimits);
+    const totalCpu = _.sum(Game.cpu.shardLimits as any as number[]);
     const newLimits = {};
     _.each(this._shardData, (data, shardName) => {
       if (shardName === "total") return;
@@ -252,7 +252,7 @@ export default class InterShardProcess extends Process {
    */
   redistributeExtraCPU(newLimits: Record<string, number>) {
     const extraCpu = newLimits["shard3"] - 20;
-    const otherShardsTotal = _.sum(_.values(newLimits)) - newLimits["shard3"];
+    const otherShardsTotal = _.sumBy(_.values(newLimits)) - newLimits["shard3"];
 
     _.each(newLimits, (limit, shardName) => {
       if (shardName === "shard3") {
@@ -268,7 +268,7 @@ export default class InterShardProcess extends Process {
 
   clampLimits(cpuLimits: Record<string, number>) {
     // Make sure sum of CPU limits is less than 300.
-    const totalCpu = _.sum(_.values(cpuLimits));
+    const totalCpu = _.sumBy(_.values(cpuLimits));
     if (totalCpu <= 300) return;
 
     let excessCpu = totalCpu - 300;
@@ -317,7 +317,7 @@ export default class InterShardProcess extends Process {
       if (
         this.memory.info.interShardExpansion.start &&
         Game.time - this.memory.info.interShardExpansion.start <
-          50 * CREEP_LIFE_TIME
+        50 * CREEP_LIFE_TIME
       )
         return;
 
@@ -351,8 +351,8 @@ export default class InterShardProcess extends Process {
       .log("strategy")
       .notify(
         "💀 Intershard expansion to " +
-          this.memory.info.interShardExpansion.room +
-          " has failed. A new target will be chosen soon.",
+        this.memory.info.interShardExpansion.room +
+        " has failed. A new target will be chosen soon.",
       );
 
     this.removeIntershardExpansionRequest();

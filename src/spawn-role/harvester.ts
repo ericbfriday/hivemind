@@ -49,7 +49,7 @@ export default class HarvesterSpawnRole extends SpawnRole {
       Game.spawns,
       (spawn) => spawn.room.name === source.room.name,
     );
-    const minSpawnDistance = _.min(
+    const minSpawnDistance = _.minBy(
       _.map(spawns, (spawn) => spawn.pos.getRangeTo(source.pos)),
     );
     const activeHarvesters = _.filter(
@@ -99,7 +99,7 @@ export default class HarvesterSpawnRole extends SpawnRole {
       Game.spawns,
       (spawn) => spawn.room.name === source.room.name,
     );
-    const minSpawnDistance = _.min(
+    const minSpawnDistance = _.minBy(
       _.map(spawns, (spawn) => spawn.pos.getRangeTo(source.pos)),
     );
     const maxParts = this.getMaxWorkParts(source);

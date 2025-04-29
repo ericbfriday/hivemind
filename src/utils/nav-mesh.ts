@@ -435,7 +435,7 @@ export default class NavMesh {
     if (_.size(portals) === 0) return undefined;
 
     return _.map(portals, (portal) => {
-      const pos = _.min(portal.positions, (pos) =>
+      const pos = _.minBy(portal.positions, (pos) =>
         pos.getRangeTo(
           Math.round(portal.totalX / portal.positions.length),
           Math.round(portal.totalY / portal.positions.length),

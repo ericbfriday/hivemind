@@ -109,7 +109,7 @@ const interShard = {
 
       this.addAdjacentOwnedRooms(ownedRooms, this.getLocalMemory());
 
-      return _.sum(_.values(ownedRooms));
+      return _.sumBy(_.values(ownedRooms));
     },
 
     addAdjacentOwnedRooms(ownedRooms: Record<string, number>, memory: ShardMemory) {

@@ -361,7 +361,7 @@ export default class RemoteBuilderRole extends Role {
       );
 
       if (lowRamparts.length > 0) {
-        this.creep.memory.repairTarget = _.min(lowRamparts, "hits").id;
+        this.creep.memory.repairTarget = _.minBy(lowRamparts, "hits").id;
       }
     }
   }

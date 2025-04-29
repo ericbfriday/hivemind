@@ -54,7 +54,7 @@ export default class SpawnPowerCreepsProcess extends Process {
       return true;
     });
 
-    const bestRoom = _.max(roomsWithoutPC, (room) => {
+    const bestRoom = _.maxBy(roomsWithoutPC, (room) => {
       return this.roomStatus.getExpansionScore(room.name) || 0;
     });
 

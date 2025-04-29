@@ -89,7 +89,7 @@ export default class BodyBuilder {
   }
 
   private normalizeWeights(weights: BodyWeights): BodyWeights {
-    const total = _.sum(
+    const total = _.sumBy(
       _.filter(weights, (weight, partType) => weight > 0 && partType !== MOVE),
     );
 
@@ -126,7 +126,7 @@ export default class BodyBuilder {
 
     partCounts[MOVE] = Math.ceil(
       this.getTotalGeneratedFatigue(partCounts, MOVE) /
-        this.getMovePartStrength(),
+      this.getMovePartStrength(),
     );
     currentSize += partCounts[MOVE];
     currentCost += partCounts[MOVE] * BODYPART_COST[MOVE];
@@ -279,7 +279,7 @@ export default class BodyBuilder {
     moveParts: number,
   ): BodyPartConstant[] {
     const moveStrength = this.getMovePartStrength();
-    let totalFatigue = _.sum(body, (part) => this.getGeneratedFatigue(part));
+    let totalFatigue = _.sumBy(body, (part) => this.getGeneratedFatigue(part));
     let totalMovePower = moveParts * moveStrength;
 
     const newBody: BodyPartConstant[] = [];

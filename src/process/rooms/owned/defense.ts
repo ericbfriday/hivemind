@@ -135,7 +135,7 @@ export default class RoomDefenseProcess extends Process {
     );
     if (damagedTargets.length === 0) return false;
 
-    const bestTarget = _.min(
+    const bestTarget = _.minBy(
       damagedTargets,
       (creep) =>
         creep.hits /
@@ -188,7 +188,7 @@ export default class RoomDefenseProcess extends Process {
     );
     if (availableRamparts.size === 0) return false;
 
-    const prioritizedRampart = _.min(
+    const prioritizedRampart = _.minBy(
       [...availableRamparts],
       (rampart) =>
         rampart.hits /

@@ -139,7 +139,7 @@ export default class SpawnManager {
       (option: SpawnOption) => {
         if (!option.preferClosestSpawn) return true;
 
-        const closestSpawn = _.min(spawns, (spawn) =>
+        const closestSpawn = _.minBy(spawns, (spawn) =>
           spawn.pos.getRangeTo(option.preferClosestSpawn),
         );
         // Only spawn once preferred spawn is ready.
@@ -158,7 +158,7 @@ export default class SpawnManager {
 
     let spawn = _.sample(availableSpawns);
     if (option.preferClosestSpawn) {
-      const closestSpawn = _.min(spawns, (spawn) =>
+      const closestSpawn = _.minBy(spawns, (spawn) =>
         spawn.pos.getRangeTo(option.preferClosestSpawn),
       );
       // Only spawn once preferred spawn is ready.
@@ -177,7 +177,7 @@ export default class SpawnManager {
         const role = this.roles[option.role];
         const body = role.getCreepBody(room, option);
 
-        const creepCost = _.sum(body, (part) => BODYPART_COST[part]);
+        const creepCost = _.sumBy(body, (part) => BODYPART_COST[part]);
         room.visual.text(
           room.energyAvailable + "/" + creepCost,
           spawn.pos.x + 0.05,
@@ -277,7 +277,7 @@ export default class SpawnManager {
           result,
         );
 
-      const bodyCost = _.sum(body, (part) => BODYPART_COST[part]);
+      const bodyCost = _.sumBy(body, (part) => BODYPART_COST[part]);
       hivemind
         .log("creeps", room.name)
         .error(

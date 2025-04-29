@@ -313,9 +313,9 @@ export default class RoomDefenseSpawnRole extends SpawnRole {
 
       highest = Math.max(
         highest,
-        _.max(
+        _.maxBy(
           _.map(room.enemyCreeps[userName], (creep) =>
-            _.max(
+            _.maxBy(
               _.map(creep.body, (part) => {
                 if (!part.boost || typeof part.boost !== "string") return 0;
 

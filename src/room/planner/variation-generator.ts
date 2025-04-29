@@ -18,7 +18,7 @@ export default class VariationGenerator {
     protected readonly roomName: string,
     protected wallDistanceMatrix: CostMatrix,
     protected exitDistanceMatrix: CostMatrix,
-  ) {}
+  ) { }
 
   generateVariations() {
     if (this.variations) return;
@@ -136,7 +136,7 @@ export default class VariationGenerator {
     cy = Math.floor(cy / count);
 
     // Find closest position with distance from walls around there.
-    const roomCenter = _.min(potentialCorePositions, (p) =>
+    const roomCenter = _.minBy(potentialCorePositions, (p) =>
       p.getRangeTo(cx, cy),
     );
     if (!roomCenter || typeof roomCenter === "number") {
@@ -172,7 +172,7 @@ export default class VariationGenerator {
       if (
         !bestOptions[subDivision] ||
         bestOptions[subDivision].distance <
-          this.wallDistanceMatrix.get(position.x, position.y)
+        this.wallDistanceMatrix.get(position.x, position.y)
       ) {
         bestOptions[subDivision] = {
           distance: this.wallDistanceMatrix.get(position.x, position.y),

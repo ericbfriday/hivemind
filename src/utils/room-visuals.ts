@@ -7,7 +7,7 @@ interface TableDefinition {
 
 function drawTable(table: TableDefinition, visual: RoomVisual) {
   const columnWidths = getColumnWidths(table.data);
-  const totalWidth = _.sum(columnWidths);
+  const totalWidth = _.sumBy(columnWidths);
   const totalHeight = table.data.length;
 
   const top = table.top + 0.8;
@@ -38,7 +38,7 @@ function getColumnWidths(tableData: string[][]): number[] {
   const widths: number[] = [];
   for (let i = 0; i < tableData[0].length; i++) {
     const width =
-      _.max(_.map(tableData, (row) => row[i]?.length ?? 0)) * 0.4 + 0.5;
+      _.maxBy(_.map(tableData, (row) => row[i]?.length ?? 0)) * 0.4 + 0.5;
     widths.push(width);
   }
 

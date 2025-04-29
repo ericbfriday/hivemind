@@ -3,7 +3,7 @@ import RoomPlan from "room/planner/room-plan";
 import { getRoomIntel } from "room-intel";
 
 export default class RoomPlanScorer {
-  constructor(protected readonly roomName: string) {}
+  constructor(protected readonly roomName: string) { }
 
   getScore(
     plan: RoomPlan,
@@ -21,7 +21,7 @@ export default class RoomPlanScorer {
     // @todo Score unprotected structures.
     // @todo Score susceptibility to nukes.
 
-    score.total = _.sum(score);
+    score.total = _.sumBy(score);
 
     return score;
   }
@@ -109,7 +109,7 @@ export default class RoomPlanScorer {
     return (
       1 -
       (effectiveRange - TOWER_OPTIMAL_RANGE) /
-        (TOWER_FALLOFF_RANGE - TOWER_OPTIMAL_RANGE)
+      (TOWER_FALLOFF_RANGE - TOWER_OPTIMAL_RANGE)
     );
   }
 
@@ -139,7 +139,7 @@ export default class RoomPlanScorer {
     );
     total -=
       0.003 *
-      _.sum(
+      _.sumBy(
         _.map(plan.getPositions("harvester"), (harvestPosition) =>
           this.getPathLength(harvestPosition, spawnGoals, matrix),
         ),
@@ -167,7 +167,7 @@ export default class RoomPlanScorer {
       _.sample(plan.getPositions(STRUCTURE_STORAGE));
     total -=
       0.005 *
-      _.sum(
+      _.sumBy(
         _.map(plan.getPositions("bay_center"), (bayPosition) =>
           this.getPathLength(bayPosition, roomCenter, matrix),
         ),
@@ -176,7 +176,7 @@ export default class RoomPlanScorer {
     // Collection travel time from harvest position to storage.
     total -=
       0.001 *
-      _.sum(
+      _.sumBy(
         _.map(plan.getPositions("harvester"), (harvestPosition) =>
           this.getPathLength(harvestPosition, roomCenter, matrix),
         ),
@@ -190,7 +190,7 @@ export default class RoomPlanScorer {
     // Refill/empty travel time from storage to labs.
     total -=
       0.001 *
-      _.sum(
+      _.sumBy(
         _.map(plan.getPositions("lab"), (harvestPosition) =>
           this.getPathLength(harvestPosition, roomCenter, matrix),
         ),
@@ -199,7 +199,7 @@ export default class RoomPlanScorer {
     // Refill travel time from storage to towers.
     total -=
       0.001 *
-      _.sum(
+      _.sumBy(
         _.map(plan.getPositions("tower"), (towerPosition) =>
           this.getPathLength(towerPosition, roomCenter, matrix),
         ),

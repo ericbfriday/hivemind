@@ -35,14 +35,14 @@ export default class ManagePowerCreepsProcess extends Process {
   run() {
     if (!hivemind.settings.get("automaticallyUpgradePowerCreeps")) return;
 
-    const usedGpl = _.sum(_.map(Game.powerCreeps, (creep) => creep.level + 1));
+    const usedGpl = _.sumBy(_.map(Game.powerCreeps, (creep) => creep.level + 1));
     if (usedGpl >= Game.gpl.level) return;
 
     hivemind
       .log("creeps")
       .info("Unused power creep levels:", Game.gpl.level - usedGpl);
 
-    const creepToUpgrade = _.min(
+    const creepToUpgrade = _.minBy(
       this.getUpgradeablePowerCreeps(),
       (creep) => creep.level,
     );

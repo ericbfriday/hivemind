@@ -97,7 +97,7 @@ export default class RelayHaulerRole extends Role {
 
     if (scoredPositions.length === 0) return;
 
-    const bestPosition = _.max(scoredPositions, "energy");
+    const bestPosition = _.maxBy(scoredPositions, "energy");
 
     if (bestPosition?.position) {
       creep.memory.source = encodePosition(bestPosition.position);
@@ -113,7 +113,7 @@ export default class RelayHaulerRole extends Role {
     const path = operation.getPaths()[targetPos];
 
     const currentEnergy = operation.getEnergyForPickup(targetPos);
-    const maxHarvesterLifetime = _.max(
+    const maxHarvesterLifetime = _.maxBy(
       _.filter(
         Game.creepsByRole["harvester.remote"],
         (creep: RemoteHarvesterCreep) => creep.memory.source === targetPos,
@@ -131,7 +131,7 @@ export default class RelayHaulerRole extends Role {
       ? (projectedIncomeDuration * sourceMaxEnergy) / ENERGY_REGEN_TIME
       : 0;
 
-    const queuedHaulerCapacity = _.sum(
+    const queuedHaulerCapacity = _.sumBy(
       _.filter(
         Game.creepsByRole["hauler.relay"],
         (creep: RelayHaulerCreep) =>
@@ -139,7 +139,7 @@ export default class RelayHaulerRole extends Role {
       ),
       (creep: Creep) => creep.store.getFreeCapacity(RESOURCE_ENERGY),
     );
-    const queuedBuilderCapacity = _.sum(
+    const queuedBuilderCapacity = _.sumBy(
       _.filter(
         Game.creepsByRole["builder.mines"],
         (creep: MineBuilderCreep) =>

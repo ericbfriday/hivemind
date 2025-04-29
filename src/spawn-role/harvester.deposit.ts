@@ -99,7 +99,7 @@ export default class DepositHarvesterSpawnRole extends SpawnRole {
         targetPos,
         // We use the closest spawn room as supposed origin, because that will
         // make delivery faster.
-        origin: _.min(strategyInfo.spawnRooms, (r) => r.distance).room,
+        origin: _.minBy(strategyInfo.spawnRooms, (r) => r.distance).room,
       });
     }
   }

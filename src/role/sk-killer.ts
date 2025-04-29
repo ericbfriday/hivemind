@@ -67,7 +67,7 @@ export default class RemoteHarvesterRole extends Role {
 
     if (!creep.hasCachedPath()) {
       const paths = creep.operation.getPaths();
-      const path = _.min(
+      const path = _.minBy(
         _.filter(paths, (path) => path.accessible),
         (path) => path.travelTime ?? 500,
       );
@@ -112,10 +112,10 @@ export default class RemoteHarvesterRole extends Role {
 
         if (
           creep.owner.username === 'Source Keeper'
-          && _.min(_.map(room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos))) <= 5
+          && _.minBy(_.map(room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos))) as number <= 5
         ) {
-          const closestLair = _.min(room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos));
-          const closestResource = _.min([...room.sources, ...room.minerals], (s: Source | Mineral) => s.pos.getRangeTo(closestLair.pos));
+          const closestLair = _.minBy(room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos));
+          const closestResource = _.minBy([...room.sources, ...room.minerals], (s: Source | Mineral) => s.pos.getRangeTo(closestLair.pos));
           // @todo Only ignore mineral source keepers if we're not
           // mining that mineral.
           if (closestResource instanceof Mineral) continue;
@@ -157,7 +157,7 @@ export default class RemoteHarvesterRole extends Role {
     }
 
     // If there's no current target, move to SK lair with soonest respawn.
-    const nextLair = _.min(room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.ticksToSpawn);
+    const nextLair = _.minBy(room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.ticksToSpawn);
     creep.whenInRange(1, nextLair, () => {
       // Stand around menacingly.
     });
@@ -170,7 +170,7 @@ export default class RemoteHarvesterRole extends Role {
       if (target) return target;
     }
 
-    const target = _.min(sourceKeepers, (c) => c.pos.getRangeTo(creep.pos));
+    const target = _.minBy(sourceKeepers, (c) => c.pos.getRangeTo(creep.pos));
     creep.heapMemory.targetCreep = target.id;
 
     return target;

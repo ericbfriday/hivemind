@@ -173,7 +173,7 @@ export default class ScoutRole extends Role {
 
   getBestScoutOption(creep: ScoutCreep) {
     const startTime = Game.cpu.getUsed();
-    const candidates = _.sortByAll(
+    const candidates = _.sortBy(
       this.getScoutableRoomsForCreep(creep),
       (info: ScoutTarget) => -info.scoutPriority,
       (info: ScoutTarget) => {

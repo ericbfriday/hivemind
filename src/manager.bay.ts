@@ -189,7 +189,7 @@ export default class Bay {
     const needsRefill = this.getStructuresNeedingRefill();
     if (needsRefill.length === 0) return false;
 
-    const target = _.min(needsRefill, (extension) =>
+    const target = _.minBy(needsRefill, (extension) =>
       (bayStructures as string[]).indexOf(extension.structureType),
     );
 

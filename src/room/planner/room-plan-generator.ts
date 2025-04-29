@@ -69,19 +69,19 @@ export default class RoomPlanGenerator {
 
     this.variationBuilder = Memory.rooms[this.roomName]?.isStripmine
       ? new StripmineRoomVariationBuilder(
-          this.roomName,
-          this.currentVariation,
-          variationInfo,
-          this.wallMatrix,
-          this.exitMatrix,
-        )
+        this.roomName,
+        this.currentVariation,
+        variationInfo,
+        this.wallMatrix,
+        this.exitMatrix,
+      )
       : new RoomVariationBuilder(
-          this.roomName,
-          this.currentVariation,
-          variationInfo,
-          this.wallMatrix,
-          this.exitMatrix,
-        );
+        this.roomName,
+        this.currentVariation,
+        variationInfo,
+        this.wallMatrix,
+        this.exitMatrix,
+      );
   }
 
   generateVariation() {
@@ -119,7 +119,7 @@ export default class RoomPlanGenerator {
 
   getRoomPlan(): RoomPlan {
     // @todo Get room plan with highest score.
-    const best = _.max(this.results, "score.total");
+    const best = _.maxBy(this.results, "score.total");
 
     if (best) return best.plan;
 

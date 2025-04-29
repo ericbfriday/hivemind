@@ -434,7 +434,7 @@ export default class ScoutProcess extends Process {
       (room) => Game.map.getRoomLinearDistance(room.name, roomName),
     );
     if (distancesToRoom.length > 0) {
-      const distanceToNextRoom = _.min(distancesToRoom);
+      const distanceToNextRoom = _.minBy(distancesToRoom);
       const minDist = hivemind.settings.get("expansionMinRoomDistance");
       const maxDist = hivemind.settings.get("expansionMaxRoomDistance");
       if (distanceToNextRoom < minDist) {

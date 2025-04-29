@@ -192,7 +192,7 @@ function outputProfilerData() {
   let output = "";
 
   // get function name max length
-  const longestName = _.max(data, (d) => d.name.length).name.length + 2;
+  const longestName = _.maxBy(data, (d) => d.name.length).name.length + 2;
 
   //// Header line
   output += _.padRight("Function", longestName);

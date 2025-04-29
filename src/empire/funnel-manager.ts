@@ -49,11 +49,11 @@ export default class FunnelManager {
         || (!hasRCL6 && hasRCL7)
       ) {
         // Funnel to best RCL 7 room.
-        funneledRooms.push(_.max(roomsAtLevel[7], room => this.getFunnelRoomScore(room)).name);
+        funneledRooms.push(_.maxBy(roomsAtLevel[7], room => this.getFunnelRoomScore(room)).name);
       }
       else if (hasRCL6) {
         // Funnel to best RCL 6 or 7 room.
-        funneledRooms.push(_.max([
+        funneledRooms.push(_.maxBy([
           ...(roomsAtLevel[6] ?? []),
           ...(roomsAtLevel[7] ?? []),
         ], room => this.getFunnelRoomScore(room)).name);

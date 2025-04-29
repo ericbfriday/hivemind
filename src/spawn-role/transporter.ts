@@ -53,7 +53,7 @@ export default class TransporterSpawnRole extends SpawnRole {
         else if (!room.storage && !room.terminal) {
           const spawns = _.filter(Game.spawns, spawn => spawn.room.name === room.name);
           const sources = room.sources;
-          const minSpawnDistance = _.min(_.map(spawns, spawn => _.min(_.map(sources, source => spawn.pos.getRangeTo(source.pos)))));
+          const minSpawnDistance = _.minBy(_.map(spawns, spawn => _.minBy(_.map(sources, source => spawn.pos.getRangeTo(source.pos)))));
           if (minSpawnDistance < 5) {
             option.priority--;
             option.weight = 0;
@@ -149,7 +149,7 @@ export default class TransporterSpawnRole extends SpawnRole {
     if (room.memory.controllerLink) {
       maxTransporters -=
         1 +
-        _.sum(room.sources, (source: Source) =>
+        _.sumBy(room.sources, (source: Source) =>
           source.getNearbyLink() ? 1 : 0,
         );
     }
@@ -168,7 +168,7 @@ export default class TransporterSpawnRole extends SpawnRole {
   getExtraUpgraderTransporters(room: Room): number {
     // Add extra transporters if there's a lot of upgrading happening.
     // @todo Take into account boosts.
-    const upgraderWorkParts = _.sum(room.creepsByRole.upgrader, (creep) =>
+    const upgraderWorkParts = _.sumBy(room.creepsByRole.upgrader, (creep) =>
       creep.getActiveBodyparts(WORK),
     );
     const refillPathLength = cache.inHeap(

@@ -63,7 +63,7 @@ export default class CombatManager {
       creep.whenInRange(targetRange, targetPosition, () => { });
     }
 
-    const newPosition = _.max(scoredPositions, "score");
+    const newPosition = _.maxBy(scoredPositions, "score");
     if (!creep.pos.isEqualTo(newPosition))
       creep.move(creep.pos.getDirectionTo(newPosition.pos));
 
@@ -98,7 +98,7 @@ export default class CombatManager {
         creep.whenInRange(targetRange, target, () => { });
       }
 
-      const newPosition = _.max(scoredPositions, "score");
+      const newPosition = _.maxBy(scoredPositions, "score");
       if (!creep.pos.isEqualTo(newPosition))
         creep.move(creep.pos.getDirectionTo(newPosition.pos));
 
@@ -188,7 +188,7 @@ export default class CombatManager {
         (c.my || hivemind.relations.isAlly(c.owner.username)),
     });
 
-    const target = _.max(targets, (c) =>
+    const target = _.maxBy(targets, (c) =>
       Math.min(
         c.hitsMax - c.hits,
         // @todo Factor in boosts.

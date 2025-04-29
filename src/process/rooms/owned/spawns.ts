@@ -148,7 +148,7 @@ export default class ManageSpawnsProcess extends Process {
         waiting: 0,
         history: [],
       };
-      const totalTicks = memory.ticks + _.sum(memory.history, (h) => h.ticks);
+      const totalTicks = memory.ticks + _.sumBy(memory.history, (h) => h.ticks);
       const spawningTicks = _.reduce(
         memory.history,
         (total, h: any) => total + h.spawning,

@@ -47,7 +47,7 @@ export default class ContainerDestination extends StructureDestination<Container
     if (!container) return;
 
     // @todo Take into account boosts.
-    const upgraderWorkParts = _.sum(this.room.creepsByRole.upgrader, (creep) =>
+    const upgraderWorkParts = _.sumBy(this.room.creepsByRole.upgrader, (creep) =>
       creep.getActiveBodyparts(WORK),
     );
     const refillPathLength = cache.inHeap(
@@ -74,7 +74,7 @@ export default class ContainerDestination extends StructureDestination<Container
     const totalNeededEnergy =
       container.store.getFreeCapacity() +
       usedEnergyUntilArrival -
-      _.sum(otherDeliveringCreeps, (c) =>
+      _.sumBy(otherDeliveringCreeps, (c) =>
         c.store.getUsedCapacity(RESOURCE_ENERGY),
       );
 
@@ -123,7 +123,7 @@ export default class ContainerDestination extends StructureDestination<Container
       return false;
 
     // @todo Take into account boosts.
-    const upgraderWorkParts = _.sum(this.room.creepsByRole.upgrader, (creep) =>
+    const upgraderWorkParts = _.sumBy(this.room.creepsByRole.upgrader, (creep) =>
       creep.getActiveBodyparts(WORK),
     );
     const refillPathLength = context.creep.pos.getRangeTo(structure.pos);
@@ -136,7 +136,7 @@ export default class ContainerDestination extends StructureDestination<Container
     const totalNeededEnergy =
       structure.store.getFreeCapacity() +
       usedEnergyUntilArrival -
-      _.sum(otherDeliveringCreeps, (c) => {
+      _.sumBy(otherDeliveringCreeps, (c) => {
         if (c.id === context.creep.id) return 0;
         if (c.pos.getRangeTo(structure.pos) > refillPathLength) return 0;
 

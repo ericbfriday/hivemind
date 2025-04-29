@@ -60,8 +60,8 @@ export default class MineBuilderRole extends Role {
         creep.whenInRange(
           3,
           creep.room.storage ||
-            creep.room.terminal ||
-            creep.room.getStorageLocation(),
+          creep.room.terminal ||
+          creep.room.getStorageLocation(),
           () => {
             // Wait until there's something to do.
             this.determineTargetSource(creep);
@@ -115,7 +115,7 @@ export default class MineBuilderRole extends Role {
 
     if (scoredPositions.length === 0) return;
 
-    const bestPosition = _.max(
+    const bestPosition = _.maxBy(
       _.filter(scoredPositions, (p) => p.work > 0),
       "work",
     );
@@ -179,7 +179,7 @@ export default class MineBuilderRole extends Role {
       creep.pos.getRangeTo(container) < 10 &&
       creep.store.getUsedCapacity() < creep.store.getCapacity() * 0.5 &&
       container.store.getUsedCapacity(RESOURCE_ENERGY) >
-        container.store.getCapacity() * 0.1
+      container.store.getCapacity() * 0.1
     ) {
       // If we're close to source container, make sure we fill up before
       // returning home.
@@ -207,7 +207,7 @@ export default class MineBuilderRole extends Role {
         });
       } else {
         // Wait for energy to become available.
-        creep.whenInRange(5, creep.room.getStorageLocation(), () => {});
+        creep.whenInRange(5, creep.room.getStorageLocation(), () => { });
       }
 
       return;
@@ -240,7 +240,7 @@ export default class MineBuilderRole extends Role {
     ) {
       if (_.size(creep.room.creepsByRole.skKiller) > 0) {
         // We wait for SK killer to clean up.
-        creep.whenInRange(6, sourcePosition, () => {});
+        creep.whenInRange(6, sourcePosition, () => { });
       } else {
         // Too dangerous, return home.
         this.setReturning(creep, true);

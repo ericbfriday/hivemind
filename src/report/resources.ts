@@ -320,9 +320,9 @@ export default class ResourcesReport {
   }
 
   getHighestResourceAmountOfRow(): number {
-    return _.max(
+    return _.maxBy(
       _.map(resourcesToReport, (resourceRow) =>
-        _.sum(
+        _.sumBy(
           resourceRow.resources,
           (resourceInfo) =>
             this.getResourceAmount(resourceInfo.resourceType) /

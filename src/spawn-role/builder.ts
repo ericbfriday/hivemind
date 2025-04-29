@@ -167,7 +167,7 @@ export default class BuilderSpawnRole extends SpawnRole {
           !room.roomPlanner?.isPlannedLocation(s.pos, "rampart.ramp"),
       );
 
-      return _.min(ramparts, "hits").hits;
+      return _.minBy(ramparts, "hits").hits;
     });
   }
 

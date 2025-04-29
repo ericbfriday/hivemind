@@ -15,7 +15,7 @@ declare global {
     role: "guardian";
   }
 
-  interface GuardianCreepHeapMemory extends CreepHeapMemory {}
+  interface GuardianCreepHeapMemory extends CreepHeapMemory { }
 }
 
 const filterEnemyCreeps = (c: Creep) =>
@@ -40,7 +40,7 @@ export default class GuardianRole extends Role {
     const rampart = this.getBestRampartToCover(creep);
     if (!rampart) return;
 
-    creep.whenInRange(0, rampart, () => {});
+    creep.whenInRange(0, rampart, () => { });
     this.setAlternatePositions(creep);
     this.attackTargetsInRange(creep);
   }
@@ -76,7 +76,7 @@ export default class GuardianRole extends Role {
 
     const ramparts: StructureRampart[] = [];
     for (const target of targets) {
-      const closestRampart = _.min(
+      const closestRampart = _.minBy(
         _.filter(creep.room.myStructuresByType[STRUCTURE_RAMPART], (s) => {
           if (!creep.room.roomPlanner.isPlannedLocation(s.pos, "rampart"))
             return false;
@@ -95,7 +95,7 @@ export default class GuardianRole extends Role {
       if (!ramparts.includes(closestRampart)) ramparts.push(closestRampart);
     }
 
-    return _.min(
+    return _.minBy(
       ramparts,
       (s: StructureRampart) =>
         s.pos.getRangeTo(creep.pos) / 2 +
@@ -117,7 +117,7 @@ export default class GuardianRole extends Role {
       });
       if (targets.length === 0) return;
 
-      let target = _.max(targets, "militaryPriority");
+      let target = _.maxBy(targets, "militaryPriority");
       if (!target || typeof target === "number") {
         if (
           targets.length > 2 ||
@@ -138,7 +138,7 @@ export default class GuardianRole extends Role {
       });
       if (targets.length === 0) return;
 
-      let target = _.max(targets, "militaryPriority");
+      let target = _.maxBy(targets, "militaryPriority");
       if (!target || typeof target === "number") target = _.sample(targets);
       creep.attack(target);
     }

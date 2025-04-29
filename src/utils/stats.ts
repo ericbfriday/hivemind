@@ -55,7 +55,7 @@ const stats = {
     }
 
     if (memory[multiplier].currentValues.length >= increment) {
-      let avg = _.sum(memory[multiplier].currentValues);
+      let avg = _.sumBy(memory[multiplier].currentValues);
       avg /= memory[multiplier].currentValues.length;
 
       stats.saveStatValue(memory, multiplier * increment, avg);

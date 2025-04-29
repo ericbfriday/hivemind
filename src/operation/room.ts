@@ -1,8 +1,9 @@
-import Operation from 'operation/operation';
+import _ from "lodash";
+import Operation from "operation/operation";
 
 export default class RoomOperation extends Operation {
-	constructor(name) {
-		super(name);
-		this.memory.type = 'room';
-	}
+  constructor(name) {
+    super(name);
+    this.memory.type = "room";
+  }
 }

@@ -1,3 +1,4 @@
+import _ from "lodash";
 /**
  * Contains room prototype enhancements concerned with managing creeps.
  */
@@ -5,9 +6,9 @@
 /* global Room */
 
 declare global {
-	interface Room {
-		getCreepsWithOrder: (type: string, target: string) => Creep[];
-	}
+  interface Room {
+    getCreepsWithOrder: (type: string, target: string) => Creep[];
+  }
 }
 
 /**
@@ -21,15 +22,21 @@ declare global {
  * @return {Creep[]}
  *   An array of creeps that have a matching order.
  */
-Room.prototype.getCreepsWithOrder = function (this: Room, type: string, target: string): Creep[] {
-	return _.filter(this.creeps, creep => {
-		if (!creep.memory.order) return false;
-		if (creep.memory.order.type !== type) return false;
-		if (creep.memory.order.target && creep.memory.order.target !== target) return false;
-		if (creep.memory.order.name && creep.memory.order.name !== target) return false;
+Room.prototype.getCreepsWithOrder = function (
+  this: Room,
+  type: string,
+  target: string,
+): Creep[] {
+  return _.filter(this.creeps, (creep) => {
+    if (!creep.memory.order) return false;
+    if (creep.memory.order.type !== type) return false;
+    if (creep.memory.order.target && creep.memory.order.target !== target)
+      return false;
+    if (creep.memory.order.name && creep.memory.order.name !== target)
+      return false;
 
-		return true;
-	});
+    return true;
+  });
 };
 
 export {};

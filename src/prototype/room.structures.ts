@@ -1,4 +1,6 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import map from "lodash/map";
+import sortBy from "lodash/sortBy";
 /* global Room STRUCTURE_LINK CONTROLLER_STRUCTURES FIND_STRUCTURES */
 
 import Bay from "manager.bay";
@@ -132,7 +134,7 @@ function cacheStructures(room: Room) {
  * Creates and populates a room's link network.
  */
 Room.prototype.generateLinkNetwork = function (this: Room) {
-  const links = _.filter(this.myStructuresByType[STRUCTURE_LINK], (s) =>
+  const links = filter(this.myStructuresByType[STRUCTURE_LINK], (s) =>
     s.isOperational(),
   );
 
@@ -275,15 +277,12 @@ Room.prototype.getEnergyStructures = function (
     return structures;
   });
 
-  return _.map<
-    Id<StructureSpawn | StructureExtension>,
-    StructureSpawn | StructureExtension
-  >(ids, Game.getObjectById);
+  return map(ids, Game.getObjectById);
 };
 
 function getBaysByPriority(room: Room): Bay[] {
   const center = room.roomPlanner.getRoomCenter();
-  return _.sortBy(room.bays, (bay) => {
+  return sortBy(room.bays, (bay) => {
     if (bay.energyCapacity <= 0) return 999;
 
     // Prefer partially filled bays. Lower priority means empty it first.
@@ -315,8 +314,8 @@ function getUnmappedEnergyStructures(
   map: Array<Id<Structure>>,
 ): Array<StructureSpawn | StructureExtension> {
   const center = room.roomPlanner.getRoomCenter();
-  return _.sortBy(
-    _.filter(
+  return sortBy(
+    filter(
       [
         ...(room.myStructuresByType[STRUCTURE_SPAWN] || []),
         ...(room.myStructuresByType[STRUCTURE_EXTENSION] || []),

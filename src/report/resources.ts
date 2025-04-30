@@ -1,4 +1,6 @@
-import _ from "lodash";
+import max from "lodash/max";
+import map from "lodash/map";
+import sum from "lodash/sum";
 import cache from "utils/cache";
 
 declare global {
@@ -320,9 +322,9 @@ export default class ResourcesReport {
   }
 
   getHighestResourceAmountOfRow(): number {
-    return _.max(
-      _.map(resourcesToReport, (resourceRow) =>
-        _.sum(
+    return max(
+      map(resourcesToReport, (resourceRow) =>
+        sum(
           resourceRow.resources,
           (resourceInfo) =>
             this.getResourceAmount(resourceInfo.resourceType) /

@@ -1,4 +1,9 @@
-import _ from "lodash";
+import sum from "lodash/sum";
+import map from "lodash/map";
+import min from "lodash/min";
+import filter from "lodash/filter";
+import countBy from "lodash/countBy";
+import size from "lodash/size";
 /* global PowerCreep POWER_CREEP_MAX_LEVEL POWER_CLASS POWER_INFO
 PWR_OPERATE_FACTORY */
 
@@ -35,14 +40,14 @@ export default class ManagePowerCreepsProcess extends Process {
   run() {
     if (!hivemind.settings.get("automaticallyUpgradePowerCreeps")) return;
 
-    const usedGpl = _.sum(_.map(Game.powerCreeps, (creep) => creep.level + 1));
+    const usedGpl = sum(map(Game.powerCreeps, (creep) => creep.level + 1));
     if (usedGpl >= Game.gpl.level) return;
 
     hivemind
       .log("creeps")
       .info("Unused power creep levels:", Game.gpl.level - usedGpl);
 
-    const creepToUpgrade = _.min(
+    const creepToUpgrade = min(
       this.getUpgradeablePowerCreeps(),
       (creep) => creep.level,
     );
@@ -58,7 +63,7 @@ export default class ManagePowerCreepsProcess extends Process {
   }
 
   getUpgradeablePowerCreeps(): PowerCreep[] {
-    return _.filter(Game.powerCreeps, (creepToUpgrade: PowerCreep) => {
+    return filter(Game.powerCreeps, (creepToUpgrade: PowerCreep) => {
       const currentLevels = this.getFactoryLevelDistribution();
       const currentFactoryLevel =
         (creepToUpgrade.powers[PWR_OPERATE_FACTORY] || {}).level || 0;
@@ -141,7 +146,7 @@ export default class ManagePowerCreepsProcess extends Process {
 
   getFactoryLevelDistribution(): Record<number, number> {
     return cache.inObject(this, "facLevelDist", 1, () =>
-      _.countBy(
+      countBy(
         Game.powerCreeps,
         (c) => (c.powers[PWR_OPERATE_FACTORY] || {}).level || 0,
       ),
@@ -164,7 +169,7 @@ export default class ManagePowerCreepsProcess extends Process {
     // Fallback to numbered names.
     return (
       "Op" +
-      _.size(_.filter(Game.powerCreeps, (creep) => creep.name.startsWith("Op")))
+      size(filter(Game.powerCreeps, (creep) => creep.name.startsWith("Op")))
     );
   }
 }

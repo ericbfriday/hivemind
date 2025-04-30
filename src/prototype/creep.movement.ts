@@ -1,4 +1,9 @@
-import _ from "lodash";
+import clone from "lodash/clone";
+import size from "lodash/size";
+import each from "lodash/each";
+import find from "lodash/find";
+import some from "lodash/some";
+import map from "lodash/map";
 /* global Creep PowerCreep RoomVisual RoomPosition LOOK_CREEPS OK
 LOOK_CONSTRUCTION_SITES ERR_NO_PATH LOOK_STRUCTURES LOOK_POWER_CREEPS */
 
@@ -267,7 +272,7 @@ Creep.prototype.setCachedPath = function (
   reverse,
   distance,
 ) {
-  path = _.clone(path);
+  path = clone(path);
   if (reverse || distance) {
     const originalPath = deserializePositionPath(path);
     if (reverse) {
@@ -354,7 +359,7 @@ Creep.prototype.followCachedPath = function (this: Creep | PowerCreep) {
   if (
     !this.memory.cachedPath ||
     !this.memory.cachedPath.path ||
-    _.size(this.memory.cachedPath.path) === 0
+    size(this.memory.cachedPath.path) === 0
   ) {
     this.clearCachedPath();
     hivemind
@@ -695,12 +700,12 @@ Creep.prototype.moveAroundObstacles = function (this: Creep | PowerCreep) {
   // Check if we've moved at all during the previous ticks.
   let stuck = false;
   if (
-    _.size(this.memory.cachedPath.lastPositions) >
+    size(this.memory.cachedPath.lastPositions) >
     REMEMBER_POSITION_COUNT / 2
   ) {
     let last = null;
     stuck = true;
-    _.each(this.memory.cachedPath.lastPositions, (position) => {
+    each(this.memory.cachedPath.lastPositions, (position) => {
       if (!last) last = position;
       if (last !== position) {
         // We have been on 2 different positions recently.
@@ -940,7 +945,7 @@ Creep.prototype.goTo = function (
 
             // Also try not to drive through bays.
             if (Game.rooms[roomName]?.roomPlanner) {
-              _.each(
+              each(
                 Game.rooms[roomName].roomPlanner.getLocations("bay_center"),
                 (pos) => {
                   if (costs.get(pos.x, pos.y) <= 20) {
@@ -1063,7 +1068,7 @@ Creep.prototype.moveToRoom = function (
     (this.pos.roomName === this.heapMemory._mtrNextRoom && this.isInRoom())
   ) {
     const path = this.calculateRoomPath(roomName, allowDanger);
-    if (_.size(path) < 1) {
+    if (size(path) < 1) {
       // There is no valid path.
       return false;
     }
@@ -1195,7 +1200,7 @@ Creep.prototype.moveUsingNavMesh = function (
   }
 
   if (Game.rooms[nextPos.roomName]) {
-    const portal = _.find(
+    const portal = find(
       nextPos.lookFor(LOOK_STRUCTURES),
       (s) => s.structureType === STRUCTURE_PORTAL,
     ) as StructurePortal;
@@ -1205,7 +1210,7 @@ Creep.prototype.moveUsingNavMesh = function (
       handleMapArea(this.pos.x, this.pos.y, (x, y) => {
         if (x === this.pos.x && y === this.pos.y) return null;
 
-        const portalHere = _.find(
+        const portalHere = find(
           this.room.lookForAt(LOOK_STRUCTURES, x, y),
           (s) => s.structureType === STRUCTURE_PORTAL,
         ) as StructurePortal;
@@ -1234,7 +1239,7 @@ Creep.prototype.moveUsingNavMesh = function (
     this.heapMemory._nmpi < this.heapMemory._nmp.path.length - 1
   ) {
     if (
-      _.some(
+      some(
         nextPos.lookFor(LOOK_STRUCTURES),
         (s) => s.structureType === STRUCTURE_PORTAL,
       )
@@ -1279,7 +1284,7 @@ function initNavMemory(
     const path = mesh.findPath(creep.pos, targetPos, options);
     creep.heapMemory._nmp = {
       incomplete: path.incomplete,
-      path: path.path ? _.map(path.path, encodePosition) : null,
+      path: path.path ? map(path.path, encodePosition) : null,
     };
 
     creep.heapMemory._nmpi = 0;

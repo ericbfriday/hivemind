@@ -1,4 +1,5 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import each from "lodash/each";
 import BodyBuilder from "creep/body-builder";
 import cache from "utils/cache";
 import hivemind from "hivemind";
@@ -56,7 +57,7 @@ export default class ReclaimSpawnRole extends SpawnRole {
     if (!targetRoom.isSafeForReclaiming()) return false;
     if (!targetRoom.roomPlanner) return false;
 
-    const remoteBuilderCount = _.filter(
+    const remoteBuilderCount = filter(
       Game.creepsByRole["builder.remote"],
       (creep: RemoteBuilderCreep) =>
         creep.memory.targetRoom === targetRoom.name ||
@@ -102,7 +103,7 @@ export default class ReclaimSpawnRole extends SpawnRole {
     if (request.rcl < 4) return;
     if (!request.safe) return;
 
-    const remoteBuilderCount = _.filter(
+    const remoteBuilderCount = filter(
       Game.creepsByRole["builder.remote"],
       (creep: RemoteBuilderCreep) =>
         creep.memory.targetRoom === request.name &&
@@ -139,7 +140,7 @@ export default class ReclaimSpawnRole extends SpawnRole {
         );
 
         const interShardMemory = interShard.getLocalMemory();
-        _.each(
+        each(
           interShardMemory.portals[shardName],
           (portalInfo, portalLocation) => {
             if (portalInfo.dest !== roomName) return;

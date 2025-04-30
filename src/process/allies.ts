@@ -1,4 +1,3 @@
-import _ from "lodash";
 import hivemind from "hivemind";
 import Process from "process/process";
 import { FunnelGoal, simpleAllies } from "utils/communication";

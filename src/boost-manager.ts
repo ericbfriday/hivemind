@@ -1,4 +1,9 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import union from "lodash/union";
+import keys from "lodash/keys";
+import each from "lodash/each";
+import find from "lodash/find";
+import sum from "lodash/sum";
 import cache from "utils/cache";
 
 declare global {
@@ -136,13 +141,13 @@ export default class BoostManager {
   }
 
   public getBoostLabs(): StructureLab[] {
-    return _.filter(this.getAllLabs(), (lab) =>
+    return filter(this.getAllLabs(), (lab) =>
       this.isLabUsedForBoosting(lab.id),
     );
   }
 
   public getAllLabs(): StructureLab[] {
-    return _.filter(this.room.myStructuresByType[STRUCTURE_LAB], (s) =>
+    return filter(this.room.myStructuresByType[STRUCTURE_LAB], (s) =>
       s.isOperational(),
     );
   }
@@ -167,9 +172,9 @@ export default class BoostManager {
 
         const storage = this.room.storage || { store: {} };
         const terminal = this.room.terminal || { store: {} };
-        const availableResourceTypes = _.union(
-          _.keys(storage.store),
-          _.keys(terminal.store),
+        const availableResourceTypes = union(
+          keys(storage.store),
+          keys(terminal.store),
         );
         const requestedBoosts = this.getAllRequestedBoosts();
         if (
@@ -179,12 +184,12 @@ export default class BoostManager {
         )
           return boosts;
 
-        _.each(BOOSTS, (mineralBoosts) => {
+        each(BOOSTS, (mineralBoosts) => {
           for (const resourceType in mineralBoosts) {
             if (!availableResourceTypes.includes(resourceType)) continue;
 
             const boostValues = mineralBoosts[resourceType];
-            _.each(boostValues, (boostValue, boostType) => {
+            each(boostValues, (boostValue, boostType) => {
               if (!boosts[boostType]) {
                 boosts[boostType] = {};
               }
@@ -212,7 +217,7 @@ export default class BoostManager {
     boosts: Partial<Record<ResourceConstant, number>>,
   ): StructureLab[] {
     const boostLabs = this.getBoostLabs();
-    return _.filter(boostLabs, (lab) => boosts[this.memory.labs[lab.id]]);
+    return filter(boostLabs, (lab) => boosts[this.memory.labs[lab.id]]);
   }
 
   private boostCreepAtLab(creep: Creep, lab: StructureLab) {
@@ -240,7 +245,7 @@ export default class BoostManager {
         // Awesome, boost has been applied (in theory).
         // Clear memory, to prevent trying to boost again.
         delete this.memory.creeps[creep.name][resourceType];
-        if (_.keys(this.memory.creeps[creep.name]).length === 0) {
+        if (keys(this.memory.creeps[creep.name]).length === 0) {
           delete this.memory.creeps[creep.name];
         }
 
@@ -252,7 +257,7 @@ export default class BoostManager {
 
   private ensureLabIsStillNeededForBoosting(lab: StructureLab) {
     const resourceType = this.memory.labs[lab.id];
-    const needsThisBoost = _.find(
+    const needsThisBoost = find(
       this.memory.creeps,
       (boosts, creepName) =>
         boosts[resourceType] &&
@@ -292,7 +297,7 @@ export default class BoostManager {
 
   private getNumberOfPartsToBoost(labId: Id<StructureLab>): number {
     const resourceType = this.getRequiredBoostType(labId);
-    return _.sum(this.memory.creeps, (boosts, creepName) => {
+    return sum(this.memory.creeps, (boosts, creepName) => {
       if (Game.creeps[creepName]?.room?.name !== this.room.name) return 0;
 
       return boosts[resourceType] || 0;
@@ -364,7 +369,7 @@ export default class BoostManager {
     const roomLabs = this.getAllLabs();
 
     for (const resourceType in boosts) {
-      const assignedLab = _.find(
+      const assignedLab = find(
         roomLabs,
         (lab) => this.memory.labs[lab.id] === resourceType,
       );

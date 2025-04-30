@@ -1,4 +1,5 @@
-import _ from "lodash";
+import each from "lodash/each";
+import sortBy from "lodash/sortBy";
 /* global RoomPosition CREEP_SPAWN_TIME MAX_CREEP_SIZE ATTACK_POWER
 CONTROLLER_STRUCTURES STRUCTURE_POWER_SPAWN */
 
@@ -69,7 +70,7 @@ export default class PowerMiningProcess extends Process {
     const memory = Memory.strategy.power;
     this.mesh = new NavMesh();
 
-    _.each(memory.rooms, (info, roomName) => {
+    each(memory.rooms, (info, roomName) => {
       // @todo Skip room if we already decided to harvest it.
       // Calculate DPS we'd need to do to harvest this power.
       let timeRemaining = info.decays - Game.time;
@@ -215,7 +216,7 @@ export default class PowerMiningProcess extends Process {
       });
     }
 
-    potentialSpawns = _.sortBy(potentialSpawns, "distance");
+    potentialSpawns = sortBy(potentialSpawns, "distance");
 
     return potentialSpawns;
   }

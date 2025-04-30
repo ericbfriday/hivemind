@@ -1,4 +1,3 @@
-import _ from "lodash";
 import Dispatcher from "dispatcher/dispatcher";
 
 import ContainerSource from "dispatcher/resource-source/container";

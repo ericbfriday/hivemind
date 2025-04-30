@@ -1,6 +1,3 @@
-import _ from "lodash";
-/* global InterShardMemory */
-
 import { encodePosition } from "utils/serialization";
 
 declare global {

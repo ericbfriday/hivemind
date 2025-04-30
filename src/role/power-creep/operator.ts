@@ -1,4 +1,9 @@
-import _ from "lodash";
+import each from "lodash/each";
+import first from "lodash/first";
+import filter from "lodash/filter";
+import find from "lodash/find";
+import reduce from "lodash/reduce";
+import sample from "lodash/sample";
 /* global RoomPosition OK POWER_INFO PWR_GENERATE_OPS PWR_REGEN_SOURCE
 PWR_OPERATE_STORAGE PWR_OPERATE_SPAWN RESOURCE_OPS STORAGE_CAPACITY
 STRUCTURE_SPAWN PWR_OPERATE_EXTENSION RESOURCE_ENERGY
@@ -261,12 +266,9 @@ export default class OperatorRole extends Role {
     if (this.creep.powers[PWR_REGEN_SOURCE].level < 1) return;
     if (this.creep.powers[PWR_REGEN_SOURCE].cooldown > 0) return;
 
-    _.each(this.creep.room.sources, (source: Source) => {
-      const activeEffect = _.first(
-        _.filter(
-          source.effects,
-          (effect) => effect.effect === PWR_REGEN_SOURCE,
-        ),
+    each(this.creep.room.sources, (source: Source) => {
+      const activeEffect = first(
+        filter(source.effects, (effect) => effect.effect === PWR_REGEN_SOURCE),
       );
       const ticksRemaining = activeEffect ? activeEffect.ticksRemaining : 0;
       if (ticksRemaining > POWER_INFO[PWR_REGEN_SOURCE].duration / 5) return;
@@ -300,8 +302,8 @@ export default class OperatorRole extends Role {
       const maxCooldown = distance;
       if (this.creep.powers[PWR_REGEN_MINERAL].cooldown > maxCooldown) return;
 
-      const activeEffect = _.first(
-        _.filter(
+      const activeEffect = first(
+        filter(
           mineral.effects,
           (effect) => effect.effect === PWR_REGEN_MINERAL,
         ),
@@ -345,8 +347,8 @@ export default class OperatorRole extends Role {
     if (!storage) return;
     if (storage.store.getUsedCapacity() < STORAGE_CAPACITY * 0.9) return;
 
-    const activeEffect = _.first(
-      _.filter(
+    const activeEffect = first(
+      filter(
         storage.effects,
         (effect) => effect.effect === PWR_OPERATE_STORAGE,
       ),
@@ -381,11 +383,11 @@ export default class OperatorRole extends Role {
 
     // @todo Make sure we're not waiting on energy.
 
-    const spawn = _.find(
+    const spawn = find(
       this.creep.room.myStructuresByType[STRUCTURE_SPAWN],
       (spawn) => {
-        const activeEffect = _.first(
-          _.filter(
+        const activeEffect = first(
+          filter(
             spawn.effects,
             (effect) => effect.effect === PWR_OPERATE_SPAWN,
           ),
@@ -398,7 +400,7 @@ export default class OperatorRole extends Role {
         const historyChunkLength = 200;
         const totalTicks =
           memory.ticks + (memory.history?.length || 0) * historyChunkLength;
-        const spawningTicks = _.reduce(
+        const spawningTicks = reduce(
           memory.history,
           (total, h: any) => total + h.spawning,
           memory.spawning,
@@ -412,8 +414,8 @@ export default class OperatorRole extends Role {
     );
     if (!spawn) return;
 
-    const activeEffect = _.first(
-      _.filter(spawn.effects, (effect) => effect.effect === PWR_OPERATE_SPAWN),
+    const activeEffect = first(
+      filter(spawn.effects, (effect) => effect.effect === PWR_OPERATE_SPAWN),
     );
     const ticksRemaining = activeEffect ? activeEffect.ticksRemaining : 0;
     options.push({
@@ -447,10 +449,10 @@ export default class OperatorRole extends Role {
     if (!this.creep.room.factoryManager) return;
 
     const tasks = this.creep.room.factoryManager.getJobs();
-    if (_.filter(tasks, (t) => t.level === powerLevel).length === 0) return;
+    if (filter(tasks, (t) => t.level === powerLevel).length === 0) return;
 
-    const activeEffect = _.first(
-      _.filter(
+    const activeEffect = first(
+      filter(
         factory.effects,
         (effect) => effect.effect === PWR_OPERATE_FACTORY,
       ),
@@ -491,7 +493,7 @@ export default class OperatorRole extends Role {
     )
       return;
 
-    const spawn = _.find(
+    const spawn = find(
       this.creep.room.myStructuresByType[STRUCTURE_SPAWN],
       (spawn) => {
         // Make sure the spawn actually needs support with spawning.
@@ -539,11 +541,8 @@ export default class OperatorRole extends Role {
     if (!towers || towers.length === 0) return;
 
     for (const tower of towers) {
-      const activeEffect = _.first(
-        _.filter(
-          tower.effects,
-          (effect) => effect.effect === PWR_OPERATE_TOWER,
-        ),
+      const activeEffect = first(
+        filter(tower.effects, (effect) => effect.effect === PWR_OPERATE_TOWER),
       );
       const ticksRemaining = activeEffect ? activeEffect.ticksRemaining : 0;
       if (ticksRemaining > POWER_INFO[PWR_OPERATE_TOWER].duration / 5) continue;
@@ -656,7 +655,7 @@ export default class OperatorRole extends Role {
 
     if (!this.creep.room.roomPlanner) return;
 
-    const targetPos = _.sample(
+    const targetPos = sample(
       this.creep.room.roomPlanner.getLocations("helper_parking"),
     );
     if (!targetPos) return;

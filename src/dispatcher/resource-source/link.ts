@@ -1,4 +1,3 @@
-import _ from "lodash";
 import StructureSource from "dispatcher/resource-source/structure";
 
 interface LinkSourceTask extends StructureSourceTask {

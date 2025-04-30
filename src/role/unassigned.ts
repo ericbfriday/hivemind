@@ -1,4 +1,4 @@
-import _ from "lodash";
+import find from "lodash/find";
 /* global CLAIM WORK */
 
 import interShard from "intershard";
@@ -49,7 +49,7 @@ export default class UnassignedRole extends Role {
       const interShardMemory = interShard.getLocalMemory();
       if (!interShardMemory.info.rooms.reclaimable) continue;
 
-      const reclaimRequest = _.find(
+      const reclaimRequest = find(
         interShardMemory.info.rooms.reclaimable,
         (info: any) => info.portalRoom === creep.pos.roomName,
       );

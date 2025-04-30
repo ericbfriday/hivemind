@@ -1,4 +1,5 @@
-import _ from "lodash";
+import each from "lodash/each";
+import range from "lodash/range";
 /* global RawMemory */
 
 import hivemind from "hivemind";
@@ -87,7 +88,7 @@ export default class SegmentedMemory {
 
       try {
         this.totalLength += RawMemory.segments[i].length;
-        _.each(JSON.parse("{" + RawMemory.segments[i] + "}"), (value, key) => {
+        each(JSON.parse("{" + RawMemory.segments[i] + "}"), (value, key) => {
           this.data[key] = value;
         });
       } catch {
@@ -126,11 +127,11 @@ export default class SegmentedMemory {
     let stringified = "";
     let currentLength = 0;
     let allSaved = true;
-    _.each(this.data, (value, key) => {
+    each(this.data, (value, key) => {
       if (typeof RawMemory.segments[this.currentSegment] === "undefined") {
         // Can't save more data this tick.
         RawMemory.setActiveSegments(
-          _.range(
+          range(
             this.currentSegment,
             this.currentSegment + maxActiveSegments - 1,
           ),
@@ -155,7 +156,7 @@ export default class SegmentedMemory {
         ) {
           // Can't save more data this tick.
           RawMemory.setActiveSegments(
-            _.range(
+            range(
               this.currentSegment,
               this.currentSegment + maxActiveSegments - 1,
             ),

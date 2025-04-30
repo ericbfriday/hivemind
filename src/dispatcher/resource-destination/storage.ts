@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { getResourcesIn } from "utils/store";
 import StructureDestination from "dispatcher/resource-destination/structure";
 

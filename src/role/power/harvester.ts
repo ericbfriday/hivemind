@@ -1,4 +1,5 @@
-import _ from "lodash";
+import max from "lodash/max";
+import any from "lodash/any";
 /* global RoomPosition STRUCTURE_POWER_BANK OK POWER_BANK_HIT_BACK
 POWER_BANK_DECAY FIND_MY_CREEPS HEAL_POWER RANGED_HEAL_POWER HEAL
 FIND_DROPPED_RESOURCES RESOURCE_POWER FIND_HOSTILE_CREEPS RANGED_ATTACK */
@@ -107,7 +108,7 @@ export default class PowerHarvesterRole extends Role {
     });
     if (targets.length === 0) return;
 
-    const highestValue = _.max(
+    const highestValue = max(
       targets,
       (c) => c.getDamageCapacity(1) + c.getHealCapacity(1) * 2,
     );
@@ -129,12 +130,12 @@ export default class PowerHarvesterRole extends Role {
     const targets = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 3, {
       filter: (c) =>
         !hivemind.relations.isAlly(c.owner.username) &&
-        _.any(c.body, (p) => p.type === RANGED_ATTACK),
+        any(c.body, (p) => p.type === RANGED_ATTACK),
     });
     if (targets.length === 0) return;
 
     // @todo Only chase each enemy with 1 power harvester max.
-    const highestValue = _.max(
+    const highestValue = max(
       targets,
       (c) =>
         c.getDamageCapacity(1) +

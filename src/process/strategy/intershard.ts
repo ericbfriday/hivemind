@@ -1,4 +1,9 @@
-import _ from "lodash";
+import size from "lodash/size";
+import sum from "lodash/sum";
+import each from "lodash/each";
+import values from "lodash/values";
+import sortBy from "lodash/sortBy";
+import keys from "lodash/keys";
 import cache from "utils/cache";
 import container from "utils/container";
 import hivemind from "hivemind";
@@ -96,7 +101,7 @@ export default class InterShardProcess extends Process {
     if (!this.memory.info) this.memory.info = {};
 
     this.memory.info.ownedRooms = Game.myRooms.length;
-    this.memory.info.ownedCreeps = _.size(Game.creeps);
+    this.memory.info.ownedCreeps = size(Game.creeps);
 
     // Determine highest room level.
     this.memory.info.maxRoomLevel = 0;
@@ -158,9 +163,9 @@ export default class InterShardProcess extends Process {
     this.addShardData(Game.shard.name, this.memory);
 
     // Based on collected information, assign CPU to each shard.
-    const totalCpu = _.sum(Game.cpu.shardLimits);
+    const totalCpu = sum(Game.cpu.shardLimits);
     const newLimits = {};
-    _.each(this._shardData, (data, shardName) => {
+    each(this._shardData, (data, shardName) => {
       if (shardName === "total") return;
 
       newLimits[shardName] = Math.round(
@@ -218,14 +223,14 @@ export default class InterShardProcess extends Process {
 
     this._shardData.total.neededCpu += this._shardData[shardName].neededCpu;
 
-    _.each(shardMemory.portals, (portals, otherShardName) => {
+    each(shardMemory.portals, (portals, otherShardName) => {
       this.addShardData(otherShardName);
     });
   }
 
   isAdjacentShardFuntional(shardName: string) {
     let isFunctional = false;
-    _.each(this._shardData, (data, compareShard) => {
+    each(this._shardData, (data, compareShard) => {
       if (compareShard === "total") return null;
 
       const compareMemory =
@@ -252,9 +257,9 @@ export default class InterShardProcess extends Process {
    */
   redistributeExtraCPU(newLimits: Record<string, number>) {
     const extraCpu = newLimits["shard3"] - 20;
-    const otherShardsTotal = _.sum(_.values(newLimits)) - newLimits["shard3"];
+    const otherShardsTotal = sum(values(newLimits)) - newLimits["shard3"];
 
-    _.each(newLimits, (limit, shardName) => {
+    each(newLimits, (limit, shardName) => {
       if (shardName === "shard3") {
         newLimits[shardName] = 20;
         return;
@@ -268,14 +273,14 @@ export default class InterShardProcess extends Process {
 
   clampLimits(cpuLimits: Record<string, number>) {
     // Make sure sum of CPU limits is less than 300.
-    const totalCpu = _.sum(_.values(cpuLimits));
+    const totalCpu = sum(values(cpuLimits));
     if (totalCpu <= 300) return;
 
     let excessCpu = totalCpu - 300;
 
     // Remove excess from shard with most CPU.
-    const sortedShards = _.sortBy(
-      _.keys(cpuLimits),
+    const sortedShards = sortBy(
+      keys(cpuLimits),
       (shardName) => -cpuLimits[shardName],
     );
     cpuLimits[sortedShards[0]] -= excessCpu;
@@ -400,7 +405,7 @@ export default class InterShardProcess extends Process {
     squad.clearUnits();
 
     // Check if a shard we're scouting is trying to expand.
-    _.each(this.memory.portals, (portals, shardName) => {
+    each(this.memory.portals, (portals, shardName) => {
       const remoteMemory = interShard.getRemoteMemory(shardName);
       if (!remoteMemory.info || !remoteMemory.info.interShardExpansion) return;
 
@@ -429,10 +434,10 @@ export default class InterShardProcess extends Process {
    */
   findClosestPortalToSpawnTo(roomName: string, targetShard: string) {
     let bestPortal;
-    _.each(this.memory.portals, (portals, shardName) => {
+    each(this.memory.portals, (portals, shardName) => {
       if (shardName !== targetShard) return;
 
-      _.each(portals, (portalInfo, portalPosition) => {
+      each(portals, (portalInfo, portalPosition) => {
         if (portalInfo.dest !== roomName) return;
 
         const pos = decodePosition(portalPosition);
@@ -525,10 +530,10 @@ export default class InterShardProcess extends Process {
       2 * CREEP_LIFE_TIME,
       () => {
         let bestPortal;
-        _.each(this.memory.portals, (portals, shardName) => {
+        each(this.memory.portals, (portals, shardName) => {
           if (shardName === Game.shard.name) return;
 
-          _.each(portals, (portalInfo, portalLocation) => {
+          each(portals, (portalInfo, portalLocation) => {
             const portalPosition = decodePosition(portalLocation);
             if (
               Game.map.getRoomLinearDistance(

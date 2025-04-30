@@ -1,4 +1,4 @@
-import _ from "lodash";
+import max from "lodash/max";
 import RoomPlan from "room/planner/room-plan";
 import RoomPlanMatrixGenerator from "room/planner/matrix-generator";
 import RoomPlanScorer from "room/planner/room-plan-scorer";
@@ -119,7 +119,7 @@ export default class RoomPlanGenerator {
 
   getRoomPlan(): RoomPlan {
     // @todo Get room plan with highest score.
-    const best = _.max(this.results, "score.total");
+    const best = max(this.results, "score.total");
 
     if (best) return best.plan;
 

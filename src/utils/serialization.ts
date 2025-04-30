@@ -1,4 +1,4 @@
-import _ from "lodash";
+import map from "lodash/map";
 const xOffsets = {
   [TOP]: 0,
   [TOP_RIGHT]: 1,
@@ -152,7 +152,7 @@ function deserializePosition(
  */
 function serializePositionPath(path: RoomPosition[]): Array<string | number> {
   let previous: RoomPosition;
-  return _.map(path, (pos) => {
+  return map(path, (pos) => {
     let result;
     if (previous && previous.roomName === pos.roomName) {
       const dx = pos.x - previous.x;
@@ -176,7 +176,7 @@ function serializePositionPath(path: RoomPosition[]): Array<string | number> {
  */
 function deserializePositionPath(path: Array<string | number>): RoomPosition[] {
   let pos;
-  return _.map(path, (location) => {
+  return map(path, (location) => {
     pos =
       typeof location === "string"
         ? decodePosition(location)

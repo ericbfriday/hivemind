@@ -1,4 +1,12 @@
-import _ from "lodash";
+import groupBy from "lodash/groupBy";
+import values from "lodash/values";
+import size from "lodash/size";
+import sample from "lodash/sample";
+import filter from "lodash/filter";
+import sortBy from "lodash/sortBy";
+import find from "lodash/find";
+import some from "lodash/some";
+import keys from "lodash/keys";
 /* global Structure STRUCTURE_ROAD STRUCTURE_WALL STRUCTURE_SPAWN
 STRUCTURE_CONTAINER STRUCTURE_TOWER STRUCTURE_EXTENSION STRUCTURE_RAMPART
 STRUCTURE_TERMINAL STRUCTURE_STORAGE STRUCTURE_EXTRACTOR STRUCTURE_LAB
@@ -186,7 +194,7 @@ export default class RoomManager {
   initializeStructureInformation() {
     this.newStructures = 0;
     this.roomConstructionSites = this.room.find(FIND_MY_CONSTRUCTION_SITES);
-    this.constructionSitesByType = _.groupBy(
+    this.constructionSitesByType = groupBy(
       this.roomConstructionSites,
       "structureType",
     );
@@ -381,9 +389,7 @@ export default class RoomManager {
     return cache.inHeap("opRoads:" + this.room.name, 100, () => {
       const positions = {};
 
-      for (const operation of _.values<RemoteMiningOperation>(
-        Game.operationsByType.mining,
-      )) {
+      for (const operation of values(Game.operationsByType.mining)) {
         const locations = operation.getMiningLocationsByRoom();
         if (!locations[this.room.name]) continue;
 
@@ -412,8 +418,8 @@ export default class RoomManager {
    */
   manageStructures() {
     if (
-      _.size(Game.spawns) === 1 &&
-      _.sample(Game.spawns).room.name === this.room.name &&
+      size(Game.spawns) === 1 &&
+      sample(Game.spawns).room.name === this.room.name &&
       this.room.controller.level < 4
     ) {
       // In our first room, getting more extensions is pretty important for
@@ -617,7 +623,7 @@ export default class RoomManager {
   dismantleUnwantedDefenses() {
     this.memory.dismantle = {};
     if (!this.room.needsReclaiming()) {
-      const unwantedWalls = _.filter(
+      const unwantedWalls = filter(
         this.room.structuresByType[STRUCTURE_WALL],
         (structure) =>
           !this.roomPlanner.isPlannedLocation(structure.pos, "wall"),
@@ -625,7 +631,7 @@ export default class RoomManager {
       const unwantedRamparts = hivemind.settings.get(
         "dismantleUnwantedRamparts",
       )
-        ? _.filter(
+        ? filter(
             this.room.structuresByType[STRUCTURE_RAMPART],
             (structure) =>
               !this.roomPlanner.isPlannedLocation(structure.pos, "rampart"),
@@ -680,7 +686,7 @@ export default class RoomManager {
     if (!this.buildPlannedStructures("link.controller", STRUCTURE_LINK)) return;
 
     // Build link to farthest locations first.
-    const farthestLinks = _.sortBy(
+    const farthestLinks = sortBy(
       this.roomPlanner.getLocations("link.source"),
       (p) => -p.getRangeTo(this.room.controller.pos),
     );
@@ -703,7 +709,7 @@ export default class RoomManager {
       return;
     }
 
-    const sortedMinerals = _.sortBy(
+    const sortedMinerals = sortBy(
       this.scoreExtractorPositions(plannedLocations),
       (p) => -p.score,
     );
@@ -714,7 +720,7 @@ export default class RoomManager {
       // Build extractor only on minerals that have resources left.
       if (mineral.score > 0) {
         if (mineral.hasExtractor) {
-          const extractor = _.find(
+          const extractor = find(
             mineral.position.lookFor(LOOK_STRUCTURES),
             (s) => s.structureType === STRUCTURE_EXTRACTOR,
           );
@@ -726,8 +732,8 @@ export default class RoomManager {
           }
         } else {
           const currentExtractors =
-            _.size(this.structuresByType[STRUCTURE_EXTRACTOR]) +
-            _.size(this.constructionSitesByType[STRUCTURE_EXTRACTOR]);
+            size(this.structuresByType[STRUCTURE_EXTRACTOR]) +
+            size(this.constructionSitesByType[STRUCTURE_EXTRACTOR]);
 
           if (
             currentExtractors >=
@@ -750,7 +756,7 @@ export default class RoomManager {
       if (missingExtractors === 0) break;
       if (!mineral.hasExtractor) continue;
 
-      const extractor = _.find(
+      const extractor = find(
         mineral.position.lookFor(LOOK_STRUCTURES),
         (s) => s.structureType === STRUCTURE_EXTRACTOR,
       );
@@ -775,11 +781,8 @@ export default class RoomManager {
       const constructionSites = position.lookFor(LOOK_CONSTRUCTION_SITES);
 
       const hasExtractor =
-        _.some(structures, (s) => s.structureType === STRUCTURE_EXTRACTOR) ||
-        _.some(
-          constructionSites,
-          (s) => s.structureType === STRUCTURE_EXTRACTOR,
-        );
+        some(structures, (s) => s.structureType === STRUCTURE_EXTRACTOR) ||
+        some(constructionSites, (s) => s.structureType === STRUCTURE_EXTRACTOR);
 
       let scoreFactor = 1; // Mineral && mineral.mineralType === RESOURCE_THORIUM ? 5 : 1;
       if (
@@ -834,7 +837,7 @@ export default class RoomManager {
 
   buildOperationRoads() {
     const positions = this.getOperationRoadPositions();
-    for (const pos of _.values<RoomPosition>(positions)) {
+    for (const pos of values(positions)) {
       if (this.tryBuild(pos, STRUCTURE_ROAD)) continue;
 
       break;
@@ -875,7 +878,7 @@ export default class RoomManager {
       this.newStructures + this.roomConstructionSites.length < 5;
     if (
       canCreateMoreSites &&
-      _.size(Game.constructionSites) < MAX_CONSTRUCTION_SITES * 0.9
+      size(Game.constructionSites) < MAX_CONSTRUCTION_SITES * 0.9
     ) {
       // Don't try to build some structures if a nuke is about to land nearby.
       if (
@@ -924,8 +927,8 @@ export default class RoomManager {
       const roomEnergy = this.room.storage ? this.room.storage.store.energy : 0;
       const resourcesAvailable =
         roomEnergy > CONSTRUCTION_COST[STRUCTURE_SPAWN] * 2 &&
-        _.size(this.room.creepsByRole.builder) > 1;
-      if (!resourcesAvailable && _.size(roomSpawns) === 1) return;
+        size(this.room.creepsByRole.builder) > 1;
+      if (!resourcesAvailable && size(roomSpawns) === 1) return;
 
       // This spawn is misplaced, set a flag for spawning more builders to help.
       if (roomEnergy > CONSTRUCTION_COST[STRUCTURE_SPAWN] * 2) {
@@ -936,7 +939,7 @@ export default class RoomManager {
       if (spawn.spawning) continue;
 
       let buildPower = 0;
-      for (const creep of _.values<Creep>(this.room.creepsByRole.builder)) {
+      for (const creep of values(this.room.creepsByRole.builder)) {
         if (creep.ticksToLive) {
           buildPower +=
             (creep.getActiveBodyparts(WORK) * creep.ticksToLive) /
@@ -1013,7 +1016,7 @@ export default class RoomManager {
 
     let limit = Math.min(
       CONTROLLER_STRUCTURES[structureType][this.room.controller.level],
-      _.size(this.room.roomPlanner.getLocations(locationType)),
+      size(this.room.roomPlanner.getLocations(locationType)),
     );
     if (amount) {
       limit = amount + structures.length + sites.length - limit;
@@ -1060,7 +1063,7 @@ export default class RoomManager {
           // Check if there's a rampart here already.
           const structures = pos.lookFor(LOOK_STRUCTURES);
           if (
-            _.filter(
+            filter(
               structures,
               (structure) =>
                 structure.structureType === STRUCTURE_RAMPART &&
@@ -1125,7 +1128,7 @@ export default class RoomManager {
     if (!hivemind.settings.get("constructNukers")) return;
 
     // Make sure all current nukers have been built.
-    if (_.size(this.roomConstructionSites) === 0)
+    if (size(this.roomConstructionSites) === 0)
       this.removeUnplannedStructures("nuker", STRUCTURE_NUKER, 1);
     this.buildPlannedStructures("nuker", STRUCTURE_NUKER);
   }
@@ -1134,7 +1137,7 @@ export default class RoomManager {
     if (!hivemind.settings.get("constructPowerSpawns")) return;
 
     // Make sure all current power spawns have been built.
-    if (_.size(this.roomConstructionSites) === 0)
+    if (size(this.roomConstructionSites) === 0)
       this.removeUnplannedStructures("powerSpawn", STRUCTURE_POWER_SPAWN, 1);
     this.buildPlannedStructures("powerSpawn", STRUCTURE_POWER_SPAWN);
   }
@@ -1143,7 +1146,7 @@ export default class RoomManager {
     if (!hivemind.settings.get("constructObservers")) return;
 
     // Make sure all current observers have been built.
-    if (_.size(this.roomConstructionSites) === 0)
+    if (size(this.roomConstructionSites) === 0)
       this.removeUnplannedStructures("observer", STRUCTURE_OBSERVER, 1);
     this.buildPlannedStructures("observer", STRUCTURE_OBSERVER);
   }
@@ -1152,7 +1155,7 @@ export default class RoomManager {
     if (!hivemind.settings.get("constructFactories")) return;
 
     // Make sure all current factories have been built.
-    if (_.size(this.roomConstructionSites) === 0) {
+    if (size(this.roomConstructionSites) === 0) {
       this.removeUnplannedStructures("factory", STRUCTURE_FACTORY, 1);
       if (
         this.room.factory &&
@@ -1172,7 +1175,7 @@ export default class RoomManager {
    * Decides whether a dismantler is needed in the current room.
    */
   needsDismantling(): boolean {
-    return _.size(this.memory.dismantle) > 0;
+    return size(this.memory.dismantle) > 0;
   }
 
   /**
@@ -1181,7 +1184,7 @@ export default class RoomManager {
   getDismantleTarget(): Structure {
     if (!this.needsDismantling()) return null;
 
-    for (const id of _.keys(this.memory.dismantle)) {
+    for (const id of keys(this.memory.dismantle)) {
       const structure = Game.getObjectById(id as Id<AnyOwnedStructure>);
       if (!structure) {
         delete this.memory.dismantle[id];

@@ -1,4 +1,3 @@
-import _ from "lodash";
 import hivemind from "hivemind";
 
 declare global {

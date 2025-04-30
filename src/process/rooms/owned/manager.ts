@@ -1,4 +1,3 @@
-import _ from "lodash";
 import Process from "process/process";
 
 export default class RoomManagerProcess extends Process {

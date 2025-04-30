@@ -1,4 +1,10 @@
-import _ from "lodash";
+import values from "lodash/values";
+import sum from "lodash/sum";
+import size from "lodash/size";
+import map from "lodash/map";
+import filter from "lodash/filter";
+import min from "lodash/min";
+import each from "lodash/each";
 /* global RoomPosition OBSERVER_RANGE SOURCE_ENERGY_CAPACITY */
 
 import container from "utils/container";
@@ -320,7 +326,7 @@ export default class ScoutProcess extends Process {
     const exits = roomIntel.getExits();
     let hasHighwayExit = false;
     const adjacentRoomInfluence: Record<string, number> = {};
-    for (const adjacentRoom of _.values<string>(exits)) {
+    for (const adjacentRoom of values(exits)) {
       adjacentRoomInfluence[adjacentRoom] = 1;
 
       if (adjacentRoom.endsWith("0") || adjacentRoom.slice(2).startsWith("0")) {
@@ -328,7 +334,7 @@ export default class ScoutProcess extends Process {
       }
 
       const adjacentIntel = getRoomIntel(adjacentRoom);
-      for (const range2Room of _.values<string>(adjacentIntel.getExits())) {
+      for (const range2Room of values(adjacentIntel.getExits())) {
         adjacentRoomInfluence[range2Room] = 0.5;
       }
     }
@@ -351,7 +357,7 @@ export default class ScoutProcess extends Process {
     }
 
     // Check if expanding here creates a safe direction for another of our rooms.
-    for (const otherRoom of _.values<Room>(Game.rooms)) {
+    for (const otherRoom of values(Game.rooms)) {
       if (!otherRoom.isMine()) continue;
       if (otherRoom.name === roomName) continue;
 
@@ -369,12 +375,12 @@ export default class ScoutProcess extends Process {
 
       // If after expanding there are more safe directions, improve score.
       const newSafeExits = Math.abs(
-        _.sum(adjustedSafety.directions) - _.sum(normalSafety.directions),
+        sum(adjustedSafety.directions) - sum(normalSafety.directions),
       );
       result.addScore(newSafeExits * 0.25, "newSafeExits" + otherRoom.name);
       // Also, there will be less exit tiles to cover.
       const otherRoomExits = otherRoomIntel.getExits();
-      const exitRatio = newSafeExits / _.size(otherRoomExits);
+      const exitRatio = newSafeExits / size(otherRoomExits);
       result.addScore(
         otherRoomIntel.countTiles("exit") * 0.005 * exitRatio,
         "exitTiles" + otherRoom.name,
@@ -382,7 +388,7 @@ export default class ScoutProcess extends Process {
 
       if (roomDistance > 2) continue;
       // Check if we need to share adjacent harvest rooms.
-      for (const adjacentRoom of _.values<string>(otherRoomExits)) {
+      for (const adjacentRoom of values(otherRoomExits)) {
         if (adjacentRoom === roomName)
           result.addScore(
             -this.getHarvestRoomScore(adjacentRoom),
@@ -399,7 +405,7 @@ export default class ScoutProcess extends Process {
 
       if (roomDistance > 1) continue;
 
-      if (_.values(exits).includes(otherRoom.name)) {
+      if (values(exits).includes(otherRoom.name)) {
         // If we're direct neighbors, that also means we can't remote harvest
         // after expanding if there is a connecting exit.
         result.addScore(
@@ -412,12 +418,12 @@ export default class ScoutProcess extends Process {
     // Having fewer exit sides is good.
     // Having dead ends / safe rooms nearby is similarly good.
     const safety = roomIntel.calculateAdjacentRoomSafety();
-    result.addScore(_.sum(safety.directions) * 0.25, "safeExits");
+    result.addScore(sum(safety.directions) * 0.25, "safeExits");
 
     // Having fewer exit tiles is good. Safe exits reduce the number of tiles
     // we need to cover.
     // @todo We could gather exact amounts per direction in intel.
-    const unsafeRatio = (4 - _.sum(safety.directions)) / _.size(exits);
+    const unsafeRatio = (4 - sum(safety.directions)) / size(exits);
     result.addScore(
       1 - roomIntel.countTiles("exit") * 0.005 * unsafeRatio,
       "exitTiles",
@@ -431,12 +437,12 @@ export default class ScoutProcess extends Process {
     );
 
     // Prefer rooms to be a certain range from each other.
-    const distancesToRoom = _.map(
-      _.filter(Game.myRooms, (room) => room.name !== roomName),
+    const distancesToRoom = map(
+      filter(Game.myRooms, (room) => room.name !== roomName),
       (room) => Game.map.getRoomLinearDistance(room.name, roomName),
     );
     if (distancesToRoom.length > 0) {
-      const distanceToNextRoom = _.min(distancesToRoom);
+      const distanceToNextRoom = min(distancesToRoom);
       const minDist = hivemind.settings.get("expansionMinRoomDistance");
       const maxDist = hivemind.settings.get("expansionMaxRoomDistance");
       if (distanceToNextRoom < minDist) {
@@ -550,7 +556,7 @@ export default class ScoutProcess extends Process {
     const closedList: Record<string, boolean> = {};
 
     // Flood fill from own rooms and add rooms we need intel of.
-    while (_.size(openList) > 0) {
+    while (size(openList) > 0) {
       const nextRoom = this.getNextRoomCandidate(openList);
 
       if (!nextRoom) break;
@@ -619,11 +625,11 @@ export default class ScoutProcess extends Process {
       };
     }
 
-    if (_.size(openList) === 0) {
+    if (size(openList) === 0) {
       // Add any room with a portal as a scout origin if we have no room in this shard.
       const memory = interShard.getLocalMemory();
-      _.each(memory.portals, (portals) => {
-        _.each(portals, (portalInfo, portalPosition) => {
+      each(memory.portals, (portals) => {
+        each(portals, (portalInfo, portalPosition) => {
           const pos = decodePosition(portalPosition);
           if (!pos) return;
 
@@ -665,7 +671,7 @@ export default class ScoutProcess extends Process {
   getNextRoomCandidate(openList: Record<string, ScoutTarget>): string {
     let minDist = null;
     let nextRoom = null;
-    _.each(openList, (info, roomName) => {
+    each(openList, (info, roomName) => {
       if (minDist === null || info.range < minDist) {
         minDist = info.range;
         nextRoom = roomName;
@@ -694,7 +700,7 @@ export default class ScoutProcess extends Process {
     if (info.range >= (Memory.hivemind.maxScoutDistance || 7)) return;
 
     const roomIntel = getRoomIntel(roomName);
-    for (const exit of _.values<string>(roomIntel.getExits())) {
+    for (const exit of values(roomIntel.getExits())) {
       if (openList[exit] || closedList[exit]) continue;
 
       const roomIntel = getRoomIntel(exit);

@@ -1,4 +1,8 @@
-import _ from "lodash";
+import mapValues from "lodash/mapValues";
+import values from "lodash/values";
+import keys from "lodash/keys";
+import size from "lodash/size";
+import filter from "lodash/filter";
 import { packCoordList, unpackCoordListAsPosList } from "utils/packrat";
 import { serializeCoords } from "utils/serialization";
 
@@ -43,15 +47,15 @@ export default class RoomPlan {
   }
 
   serialize(): SerializedPlan {
-    return _.mapValues(
+    return mapValues(
       this.positionsByType,
       (positions: Record<number, RoomPosition>) =>
-        packCoordList(_.values(positions)),
+        packCoordList(values(positions)),
     );
   }
 
   unserialize(input: SerializedPlan) {
-    this.positionsByType = _.mapValues(
+    this.positionsByType = mapValues(
       input,
       function (posList: string): Record<number, RoomPosition> {
         const positions = unpackCoordListAsPosList(posList, this.roomName);
@@ -96,11 +100,11 @@ export default class RoomPlan {
   }
 
   getPositions(type: string): RoomPosition[] {
-    return _.values(this.positionsByType[type]);
+    return values(this.positionsByType[type]);
   }
 
   getPositionTypes(): string[] {
-    return _.keys(this.positionsByType);
+    return keys(this.positionsByType);
   }
 
   /**
@@ -128,7 +132,7 @@ export default class RoomPlan {
   remainingStructureCount(structureType: StructureConstant): number {
     return (
       CONTROLLER_STRUCTURES[structureType][this.maxLevel] -
-      _.size(this.getPositions(structureType) || [])
+      size(this.getPositions(structureType) || [])
     );
   }
 
@@ -141,14 +145,12 @@ export default class RoomPlan {
       if (!structureSymbols[type]) continue;
 
       const positions = this.positionsByType[type];
-      for (const pos of _.values<RoomPosition>(positions)) {
+      for (const pos of values(positions)) {
         visual.text(structureSymbols[type], pos.x, pos.y + 0.2);
       }
     }
 
-    for (const pos of _.values<RoomPosition>(
-      this.positionsByType.rampart || [],
-    )) {
+    for (const pos of values(this.positionsByType.rampart || [])) {
       visual.rect(pos.x - 0.5, pos.y - 0.5, 1, 1, {
         fill: "#0f0",
         opacity: 0.2,
@@ -180,7 +182,7 @@ export default class RoomPlan {
             if (terrain.get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
               if (!Game.rooms[this.roomName]) continue;
               if (
-                _.filter(
+                filter(
                   Game.rooms[this.roomName].structuresByType[STRUCTURE_ROAD],
                   (road: StructureRoad) => road.pos.getRangeTo(pos) === 0,
                 ).length === 0

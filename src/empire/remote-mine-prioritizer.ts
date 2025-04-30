@@ -1,4 +1,7 @@
-import _ from "lodash";
+import sortBy from "lodash/sortBy";
+import size from "lodash/size";
+import filter from "lodash/filter";
+import find from "lodash/find";
 import container from "utils/container";
 import RoomStatus from "room/room-status";
 import settings from "settings-manager";
@@ -30,7 +33,7 @@ export default class RemoteMinePrioritizer {
     // Create ordered list of best harvest rooms.
     // @todo At this point we should carry duplicate for rooms that could have
     // multiple origins.
-    const sortedHarvestRooms = _.sortBy(
+    const sortedHarvestRooms = sortBy(
       this.getRemoteHarvestRooms(sourceRooms),
       (info: HarvestRoomInfo) => {
         // Rooms that don't have a terminal yet need remotes to get enough
@@ -50,7 +53,7 @@ export default class RemoteMinePrioritizer {
       const roomIntel = getRoomIntel(info.roomName);
       if (
         !roomIntel.isClaimable() &&
-        _.size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0 &&
+        size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0 &&
         (Game.rooms[info.origin]?.controller?.level || 0) < 7
       ) {
         // Can't harvest source keeper rooms if we can't spawn a strong
@@ -83,7 +86,7 @@ export default class RemoteMinePrioritizer {
 
     // Determine how much remote mining each room can handle.
     for (const room of Game.myRooms) {
-      let spawnCount = _.filter(
+      let spawnCount = filter(
         Game.spawns,
         (spawn) => spawn.pos.roomName === room.name && spawn.isOperational(),
       ).length;
@@ -103,13 +106,13 @@ export default class RemoteMinePrioritizer {
       let roomNeeds = 0;
       if (room.controller.level >= 4) roomNeeds++;
       if (room.controller.level >= 6) roomNeeds++;
-      roomNeeds += _.filter(
+      roomNeeds += filter(
         getAllSquads(),
         (squad) => squad.getSpawn() === room.name,
       ).length;
 
       // Increase spawn capacity if there's a power creep that can help.
-      const powerCreep = _.find(Game.powerCreeps, (creep) => {
+      const powerCreep = find(Game.powerCreeps, (creep) => {
         if (!creep.shard) return false;
         if (creep.shard !== Game.shard.name) return false;
         if (creep.pos.roomName !== room.name) return false;

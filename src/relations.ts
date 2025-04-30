@@ -1,4 +1,3 @@
-import _ from "lodash";
 import localRelations from "relations.local";
 import settings from "settings-manager";
 import { getUsername } from "utils/account";

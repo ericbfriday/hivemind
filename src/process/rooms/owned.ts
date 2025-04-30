@@ -1,6 +1,3 @@
-import _ from "lodash";
-/* global POWER_SPAWN_ENERGY_RATIO STRUCTURE_TOWER */
-
 import balancer from "excess-energy-balancer";
 import ManageFactoryProcess from "process/rooms/owned/factory";
 import ManageLabsProcess from "process/rooms/owned/labs";

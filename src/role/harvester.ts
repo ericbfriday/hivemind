@@ -1,4 +1,7 @@
-import _ from "lodash";
+import size from "lodash/size";
+import sample from "lodash/sample";
+import find from "lodash/find";
+import filter from "lodash/filter";
 /* global STRUCTURE_LINK RESOURCE_ENERGY LOOK_CREEPS
 STRUCTURE_CONTAINER FIND_CONSTRUCTION_SITES LOOK_RESOURCES LOOK_STRUCTURES */
 
@@ -92,7 +95,7 @@ export default class HarvesterRole extends Role {
   isStationaryHarvester(creep: HarvesterCreep) {
     return (
       (creep.memory.fixedSource || creep.memory.fixedMineralSource) &&
-      _.size(creep.room.creepsByRole.transporter) > 0
+      size(creep.room.creepsByRole.transporter) > 0
     );
   }
 
@@ -109,7 +112,7 @@ export default class HarvesterRole extends Role {
     if (!creep.room.roomPlanner) return;
 
     // Get harvest position from room planner.
-    const harvestPos = _.sample(
+    const harvestPos = sample(
       creep.room.roomPlanner.getLocations("harvester." + source.id),
     );
     if (harvestPos)
@@ -216,7 +219,7 @@ export default class HarvesterRole extends Role {
       creep.memory.harvestPos,
       creep.room.name,
     );
-    const bay = _.find(
+    const bay = find(
       creep.room.bays,
       (bay) => bay.name === encodePosition(harvestPosition),
     );
@@ -242,14 +245,14 @@ export default class HarvesterRole extends Role {
    */
   pickupEnergy(creep: HarvesterCreep) {
     const resources = creep.pos.lookFor(LOOK_RESOURCES);
-    const energy = _.find(resources, (r) => r.resourceType === RESOURCE_ENERGY);
+    const energy = find(resources, (r) => r.resourceType === RESOURCE_ENERGY);
     if (energy) {
       creep.pickup(energy);
       return;
     }
 
     const structures = creep.pos.lookFor(LOOK_STRUCTURES);
-    const container = _.find(
+    const container = find(
       structures,
       (s) => s.structureType === STRUCTURE_CONTAINER,
     );
@@ -288,7 +291,7 @@ export default class HarvesterRole extends Role {
           creep.store.getCapacity() -
             creep.getActiveBodyparts(WORK) * HARVEST_POWER,
         ) &&
-      _.filter(
+      filter(
         creep.room.creepsByRole.builder,
         (c) => c.store.getFreeCapacity() > 20,
       ).length === 0
@@ -314,7 +317,7 @@ export default class HarvesterRole extends Role {
         target = link;
       } else {
         // Check for other nearby links.
-        const links: StructureLink[] = _.filter(
+        const links: StructureLink[] = filter(
           creep.room.myStructuresByType[STRUCTURE_LINK],
           (structure) =>
             structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
@@ -353,7 +356,7 @@ export default class HarvesterRole extends Role {
       });
 
       if (nearbyCreeps.length > 0) {
-        const targetCreep = _.sample(nearbyCreeps);
+        const targetCreep = sample(nearbyCreeps);
         creep.transfer(
           targetCreep,
           RESOURCE_ENERGY,
@@ -372,7 +375,7 @@ export default class HarvesterRole extends Role {
   performHarvesterDeliver(creep: HarvesterCreep) {
     if (!creep.memory.fixedSource && !creep.memory.fixedMineralSource) return;
 
-    if (_.size(creep.room.creepsByRole.transporter) === 0) {
+    if (size(creep.room.creepsByRole.transporter) === 0) {
       // Use transporter drop off logic.
       this.transporterRole.performDeliver();
       return;

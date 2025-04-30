@@ -1,4 +1,8 @@
-import _ from "lodash";
+import size from "lodash/size";
+import filter from "lodash/filter";
+import min from "lodash/min";
+import values from "lodash/values";
+import sample from "lodash/sample";
 /* global RoomPosition FIND_SOURCES FIND_STRUCTURES STRUCTURE_SPAWN
 FIND_MY_STRUCTURES RESOURCE_ENERGY ERR_NOT_IN_RANGE STRUCTURE_RAMPART
 FIND_MY_CONSTRUCTION_SITES STRUCTURE_TOWER FIND_DROPPED_RESOURCES
@@ -162,9 +166,9 @@ export default class RemoteBuilderRole extends Role {
       !creep.room.controller.upgradeBlocked
     ) {
       const upgrading =
-        _.size(creep.room.creepsByRole.upgrader) +
-        _.size(
-          _.filter(
+        size(creep.room.creepsByRole.upgrader) +
+        size(
+          filter(
             creep.room.creepsByRole["builder.remote"],
             (creep) => creep.memory.upgrading,
           ),
@@ -177,7 +181,7 @@ export default class RemoteBuilderRole extends Role {
     }
 
     // Help by filling spawn with energy.
-    const spawns = _.filter(
+    const spawns = filter(
       creep.room.structuresByType[STRUCTURE_SPAWN],
       (structure) =>
         structure.store[RESOURCE_ENERGY] <
@@ -236,7 +240,7 @@ export default class RemoteBuilderRole extends Role {
   }
 
   supplyTowers() {
-    const towers = _.filter(
+    const towers = filter(
       this.creep.room.structuresByType[STRUCTURE_TOWER],
       (structure) =>
         structure.store.getFreeCapacity(RESOURCE_ENERGY) >
@@ -262,19 +266,19 @@ export default class RemoteBuilderRole extends Role {
   saveExpiringRamparts(minHits: number): boolean {
     if (!this.creep.memory.repairTarget) {
       // Make sure ramparts don't break.
-      const ramparts = _.filter(
+      const ramparts = filter(
         this.creep.room.structuresByType[STRUCTURE_RAMPART],
         (structure) =>
           structure.hits < Math.min(minHits, structure.hitsMax) &&
           (structure.my || hivemind.relations.isAlly(structure.owner.username)),
       );
-      const spawns = _.filter(
+      const spawns = filter(
         this.creep.room.structuresByType[STRUCTURE_SPAWN],
         (structure) =>
           structure.hits < structure.hitsMax &&
           (structure.my || hivemind.relations.isAlly(structure.owner.username)),
       );
-      const towers = _.filter(
+      const towers = filter(
         this.creep.room.structuresByType[STRUCTURE_TOWER],
         (structure) =>
           structure.hits < structure.hitsMax &&
@@ -325,7 +329,7 @@ export default class RemoteBuilderRole extends Role {
     });
 
     // Build towers before building anything else.
-    const towerSites = _.filter(
+    const towerSites = filter(
       targets,
       (structure) => structure.structureType === STRUCTURE_TOWER,
     );
@@ -335,7 +339,7 @@ export default class RemoteBuilderRole extends Role {
     }
 
     // Build spawns with increased priority.
-    const spawnSites = _.filter(
+    const spawnSites = filter(
       targets,
       (structure) => structure.structureType === STRUCTURE_SPAWN,
     );
@@ -353,7 +357,7 @@ export default class RemoteBuilderRole extends Role {
 
     if (this.creep.room.controller.level >= 6) {
       // Make sure ramparts are of sufficient level.
-      const lowRamparts = _.filter(
+      const lowRamparts = filter(
         this.creep.room.structuresByType[STRUCTURE_RAMPART],
         (structure) =>
           structure.hits < hivemind.settings.get("minWallIntegrity") &&
@@ -361,7 +365,7 @@ export default class RemoteBuilderRole extends Role {
       );
 
       if (lowRamparts.length > 0) {
-        this.creep.memory.repairTarget = _.min(lowRamparts, "hits").id;
+        this.creep.memory.repairTarget = min(lowRamparts, "hits").id;
       }
     }
   }
@@ -501,13 +505,13 @@ export default class RemoteBuilderRole extends Role {
 
     const mainIntel = getRoomIntel(creep.pos.roomName);
     const possibleSources: RoomPosition[] = [];
-    for (const roomName of _.values<string>(mainIntel.getExits())) {
+    for (const roomName of values(mainIntel.getExits())) {
       const roomIntel = getRoomIntel(roomName);
       const roomMemory = Memory.rooms[roomName];
       if (roomMemory && roomMemory.enemies && !roomMemory.enemies.safe)
         continue;
       if (roomIntel.isClaimed()) continue;
-      if (_.size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) continue;
+      if (size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) continue;
 
       for (const source of roomIntel.getSourcePositions()) {
         const sourcePos = new RoomPosition(source.x, source.y, roomName);
@@ -528,7 +532,7 @@ export default class RemoteBuilderRole extends Role {
     creep: RemoteBuilderCreep,
     possibleSources: RoomPosition[],
   ) {
-    const targetPos = _.sample(possibleSources);
+    const targetPos = sample(possibleSources);
     if (targetPos) {
       creep.memory.extraEnergyTarget = encodePosition(targetPos);
       creep.memory.sourceRoom = creep.pos.roomName;

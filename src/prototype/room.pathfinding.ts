@@ -1,4 +1,6 @@
-import _ from "lodash";
+import size from "lodash/size";
+import each from "lodash/each";
+import values from "lodash/values";
 /* global Room FIND_MY_CONSTRUCTION_SITES STRUCTURE_KEEPER_LAIR */
 
 import hivemind from "hivemind";
@@ -47,11 +49,11 @@ Room.prototype.calculateRoomPath = function (targetRoom: string, options) {
   // @todo Some rooms' obstacles prevent moving from one exit to another,
   // but we can deduce that from the cost matrixes we store.
   let finalPath;
-  while (_.size(openList) > 0) {
+  while (size(openList) > 0) {
     let minDist;
     let nextRoom;
     let cost = 1;
-    _.each(openList, (info: any, rName) => {
+    each(openList, (info: any, rName) => {
       if (!minDist || info.range + info.dist < minDist) {
         minDist = info.range + info.dist;
         nextRoom = rName;
@@ -77,8 +79,8 @@ Room.prototype.calculateRoomPath = function (targetRoom: string, options) {
 
     // Add unhandled adjacent rooms to open list.
     const exits: string[] = hivemind.segmentMemory.isReady()
-      ? _.values(getRoomIntel(nextRoom).getExits())
-      : _.values(Game.map.describeExits(nextRoom));
+      ? values(getRoomIntel(nextRoom).getExits())
+      : values(Game.map.describeExits(nextRoom));
 
     for (const exit of exits) {
       if (openList[exit] || closedList[exit]) continue;
@@ -93,7 +95,7 @@ Room.prototype.calculateRoomPath = function (targetRoom: string, options) {
           cost *= 1.5;
         }
 
-        if (_.size(exitIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) {
+        if (size(exitIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) {
           // Allow pathing through source keeper rooms since we can safely avoid them most of the time.
           cost *= 2;
         }

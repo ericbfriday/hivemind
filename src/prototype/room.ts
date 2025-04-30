@@ -1,4 +1,3 @@
-import _ from "lodash";
 import "prototype/room.creeps";
 import "prototype/room.intel";
 import "prototype/room.pathfinding";

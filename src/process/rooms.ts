@@ -1,4 +1,4 @@
-import _ from "lodash";
+import each from "lodash/each";
 import container from "utils/container";
 import HighwayRoomProcess from "process/rooms/highway";
 import hivemind, {
@@ -32,7 +32,7 @@ export default class RoomsProcess extends Process {
    * Runs logic in all rooms.
    */
   run() {
-    _.each(Game.rooms, (room, roomName) => {
+    each(Game.rooms, (room, roomName) => {
       hivemind.runProcess("rooms_intel", RoomIntelProcess, {
         room,
         priority: PROCESS_PRIORITY_ALWAYS,
@@ -77,7 +77,7 @@ export default class RoomsProcess extends Process {
 
   terminateRoomOperations() {
     // Stop operations for rooms that are no longer active.
-    _.each(Game.operationsByType.room, (op) => {
+    each(Game.operationsByType.room, (op) => {
       if (Game.time - op.getLastActiveTick() > 10_000) op.terminate();
     });
   }

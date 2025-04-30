@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { getResourcesIn } from "utils/store";
 import TaskProvider from "dispatcher/task-provider";
 

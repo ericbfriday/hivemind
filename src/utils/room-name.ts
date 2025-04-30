@@ -1,4 +1,3 @@
-import _ from "lodash";
 function isHighway(roomName: string): boolean {
   return roomName.includes("0");
 }

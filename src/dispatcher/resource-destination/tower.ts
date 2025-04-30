@@ -1,4 +1,4 @@
-import _ from "lodash";
+import filter from "lodash/filter";
 import StructureDestination from "dispatcher/resource-destination/structure";
 
 interface TowerDestinationTask extends StructureDestinationTask {
@@ -26,7 +26,7 @@ export default class TowerDestination extends StructureDestination<TowerDestinat
     return this.cacheEmptyTaskListFor("", 25, () => {
       const options: TowerDestinationTask[] = [];
 
-      const unfilledTowers = _.filter(
+      const unfilledTowers = filter(
         this.room.myStructuresByType[STRUCTURE_TOWER],
         (structure) =>
           structure.store[RESOURCE_ENERGY] <

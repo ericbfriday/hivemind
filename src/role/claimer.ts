@@ -1,4 +1,3 @@
-import _ from "lodash";
 import container from "utils/container";
 import CombatManager from "creep/combat-manager";
 import RemoteMiningOperation from "operation/remote-mining";

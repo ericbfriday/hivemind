@@ -1,4 +1,6 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import each from "lodash/each";
+import values from "lodash/values";
 import { getCostMatrix, getDangerMatrix } from "utils/cost-matrix";
 import { handleMapArea } from "utils/map";
 
@@ -66,14 +68,14 @@ export default class TrafficManager {
   }
 
   manageTraffic() {
-    const powerCreeps = _.filter(
+    const powerCreeps = filter(
       Game.powerCreeps,
       (creep) =>
         (creep.ticksToLive || 0) > 0 && creep.shard === Game.shard.name,
     );
 
     // Move blocking creeps if necessary.
-    _.each([..._.values<Creep>(Game.creeps), ...powerCreeps], (creep) => {
+    each([...values(Game.creeps), ...powerCreeps], (creep) => {
       if (!creep._blockingCreepMovement) return;
       if (creep._hasMoveIntent) return;
 

@@ -1,4 +1,6 @@
-import _ from "lodash";
+import sum from "lodash/sum";
+import map from "lodash/map";
+import sample from "lodash/sample";
 import RoomPlan from "room/planner/room-plan";
 import { getRoomIntel } from "room-intel";
 
@@ -21,7 +23,7 @@ export default class RoomPlanScorer {
     // @todo Score unprotected structures.
     // @todo Score susceptibility to nukes.
 
-    score.total = _.sum(score);
+    score.total = sum(score);
 
     return score;
   }
@@ -133,21 +135,21 @@ export default class RoomPlanScorer {
     let total = 0;
 
     // Travel time from spawn to harvest positions.
-    const spawnGoals = _.map(
+    const spawnGoals = map(
       plan.getPositions(STRUCTURE_SPAWN),
       (spawnPosition) => ({ pos: spawnPosition, range: 1 }),
     );
     total -=
       0.003 *
-      _.sum(
-        _.map(plan.getPositions("harvester"), (harvestPosition) =>
+      sum(
+        map(plan.getPositions("harvester"), (harvestPosition) =>
           this.getPathLength(harvestPosition, spawnGoals, matrix),
         ),
       );
 
     // Travel time from spawn to upgrader position.
     const upgraderPosition =
-      _.sample(plan.getPositions("container.controller")) ||
+      sample(plan.getPositions("container.controller")) ||
       roomIntel.getControllerPosition();
     total -= 0.002 * this.getPathLength(upgraderPosition, spawnGoals, matrix);
 
@@ -163,12 +165,12 @@ export default class RoomPlanScorer {
 
     // Refill travel time from storage to bays.
     const roomCenter =
-      _.sample(plan.getPositions("center")) ||
-      _.sample(plan.getPositions(STRUCTURE_STORAGE));
+      sample(plan.getPositions("center")) ||
+      sample(plan.getPositions(STRUCTURE_STORAGE));
     total -=
       0.005 *
-      _.sum(
-        _.map(plan.getPositions("bay_center"), (bayPosition) =>
+      sum(
+        map(plan.getPositions("bay_center"), (bayPosition) =>
           this.getPathLength(bayPosition, roomCenter, matrix),
         ),
       );
@@ -176,8 +178,8 @@ export default class RoomPlanScorer {
     // Collection travel time from harvest position to storage.
     total -=
       0.001 *
-      _.sum(
-        _.map(plan.getPositions("harvester"), (harvestPosition) =>
+      sum(
+        map(plan.getPositions("harvester"), (harvestPosition) =>
           this.getPathLength(harvestPosition, roomCenter, matrix),
         ),
       );
@@ -190,8 +192,8 @@ export default class RoomPlanScorer {
     // Refill/empty travel time from storage to labs.
     total -=
       0.001 *
-      _.sum(
-        _.map(plan.getPositions("lab"), (harvestPosition) =>
+      sum(
+        map(plan.getPositions("lab"), (harvestPosition) =>
           this.getPathLength(harvestPosition, roomCenter, matrix),
         ),
       );
@@ -199,8 +201,8 @@ export default class RoomPlanScorer {
     // Refill travel time from storage to towers.
     total -=
       0.001 *
-      _.sum(
-        _.map(plan.getPositions("tower"), (towerPosition) =>
+      sum(
+        map(plan.getPositions("tower"), (towerPosition) =>
           this.getPathLength(towerPosition, roomCenter, matrix),
         ),
       );

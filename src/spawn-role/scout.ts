@@ -1,4 +1,6 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import size from "lodash/size";
+import each from "lodash/each";
 /* global MOVE */
 
 import container from "utils/container";
@@ -52,18 +54,18 @@ export default class ScoutSpawnRole extends SpawnRole {
       )
         return options;
 
-      const roomScouts = _.filter(
+      const roomScouts = filter(
         Game.creepsByRole.scout,
         (creep) => creep.memory.origin === room.name,
       );
       if (
-        _.size(roomScouts) >= hivemind.settings.get("maxScoutsPerRoom") ||
+        size(roomScouts) >= hivemind.settings.get("maxScoutsPerRoom") ||
         !room.needsScout()
       )
         return options;
 
       const isEarlyGame =
-        _.size(Game.myRooms) === 1 && !room.storage && !room.terminal;
+        size(Game.myRooms) === 1 && !room.storage && !room.terminal;
 
       options.push({
         priority: isEarlyGame ? 4 : hivemind.settings.get("scoutSpawnPriority"),
@@ -86,8 +88,8 @@ export default class ScoutSpawnRole extends SpawnRole {
     // Check if a portal requires a scout and has this room as origin.
     const memory = interShard.getLocalMemory();
 
-    _.each(memory.scouting, (isActive, shardName) => {
-      _.each(memory.portals[shardName], (info, portalPos) => {
+    each(memory.scouting, (isActive, shardName) => {
+      each(memory.portals[shardName], (info, portalPos) => {
         if (info.scouted && Game.time - info.scouted < 2000) return;
 
         // Only spawn scout if we're responsible for the portal room.

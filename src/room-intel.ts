@@ -1,4 +1,12 @@
-import _ from "lodash";
+import groupBy from "lodash/groupBy";
+import map from "lodash/map";
+import first from "lodash/first";
+import each from "lodash/each";
+import contains from "lodash/contains";
+import sample from "lodash/sample";
+import size from "lodash/size";
+import keys from "lodash/keys";
+import values from "lodash/values";
 /* global PathFinder Room RoomPosition
 STRUCTURE_KEEPER_LAIR STRUCTURE_CONTROLLER FIND_SOURCES
 TERRAIN_MASK_WALL TERRAIN_MASK_SWAMP POWER_BANK_DECAY STRUCTURE_PORTAL
@@ -190,7 +198,7 @@ export default class RoomIntel {
     this.gatherAbandonedResourcesIntel(room, structures, ruins);
 
     // At the same time, create a PathFinder CostMatrix to use when pathfinding through this room.
-    let constructionSites = _.groupBy(
+    let constructionSites = groupBy(
       room.find(FIND_MY_CONSTRUCTION_SITES),
       "structureType",
     );
@@ -200,7 +208,7 @@ export default class RoomIntel {
       room.controller.owner &&
       hivemind.relations.isAlly(room.controller.owner.username)
     ) {
-      constructionSites = _.groupBy(
+      constructionSites = groupBy(
         room.find(FIND_CONSTRUCTION_SITES, {
           filter: (site) =>
             site.my || hivemind.relations.isAlly(site.owner.username),
@@ -261,7 +269,7 @@ export default class RoomIntel {
    */
   gatherResourceIntel(room: Room) {
     // Check sources.
-    this.memory.sources = _.map(room.find(FIND_SOURCES), (source) => ({
+    this.memory.sources = map(room.find(FIND_SOURCES), (source) => ({
       x: source.pos.x,
       y: source.pos.y,
       id: source.id,
@@ -331,7 +339,7 @@ export default class RoomIntel {
   gatherPowerIntel(powerBanks: StructurePowerBank[]) {
     delete this.memory.power;
 
-    const powerBank: StructurePowerBank = _.first(powerBanks);
+    const powerBank: StructurePowerBank = first(powerBanks);
     if (!powerBank || powerBank.hits === 0 || powerBank.power === 0) return;
 
     // For now, send a notification!
@@ -525,16 +533,13 @@ export default class RoomIntel {
       structures[STRUCTURE_TERMINAL],
       ruins,
     ];
-    _.each(collections, (objects) => {
-      _.each(objects, (object) => {
+    each(collections, (objects) => {
+      each(objects, (object) => {
         if (!object.store) return;
 
-        _.each(
-          object.store,
-          (amount: number, resourceType: ResourceConstant) => {
-            resources[resourceType] = (resources[resourceType] || 0) + amount;
-          },
-        );
+        each(object.store, (amount: number, resourceType: ResourceConstant) => {
+          resources[resourceType] = (resources[resourceType] || 0) + amount;
+        });
       });
     });
 
@@ -574,7 +579,7 @@ export default class RoomIntel {
   gatherInvaderIntel(structures: Record<string, Structure[]>) {
     delete this.memory.invaderInfo;
 
-    const core = _.first(
+    const core = first(
       structures[STRUCTURE_INVADER_CORE],
     ) as StructureInvaderCore;
     if (!core) return;
@@ -612,8 +617,8 @@ export default class RoomIntel {
       constructionSites,
     );
     this.memory.costPositions = [
-      packCoordList(_.map(obstaclePositions.obstacles, deserializeCoords)),
-      packCoordList(_.map(obstaclePositions.roads, deserializeCoords)),
+      packCoordList(map(obstaclePositions.obstacles, deserializeCoords)),
+      packCoordList(map(obstaclePositions.roads, deserializeCoords)),
     ];
   }
 
@@ -644,7 +649,7 @@ export default class RoomIntel {
       constructionSites,
       (structure) => {
         const location = serializeCoords(structure.pos.x, structure.pos.y);
-        if (!_.contains(result.obstacles, location)) {
+        if (!contains(result.obstacles, location)) {
           result.roads.push(location);
         }
       },
@@ -652,7 +657,7 @@ export default class RoomIntel {
         result.obstacles.push(serializePosition(structure.pos, roomName)),
       (x, y) => {
         const location = serializeCoords(x, y);
-        if (!_.contains(result.obstacles, location)) {
+        if (!contains(result.obstacles, location)) {
           result.obstacles.push(location);
         }
       },
@@ -845,7 +850,7 @@ export default class RoomIntel {
       Game.rooms[this.roomName]?.isMine() &&
       Game.rooms[this.roomName]?.roomPlanner
     ) {
-      _.each(
+      each(
         Game.rooms[this.roomName].roomPlanner.getLocations("bay_center"),
         (pos) => {
           if (matrix.get(pos.x, pos.y) <= 20) {
@@ -855,7 +860,7 @@ export default class RoomIntel {
       );
 
       // Also avoid blocking construction sites we may not have cached yet.
-      _.each(
+      each(
         Game.rooms[this.roomName].find(FIND_MY_CONSTRUCTION_SITES),
         (site) => {
           if (site.isWalkable()) return;
@@ -903,7 +908,7 @@ export default class RoomIntel {
     )
       return null;
 
-    const controller: { x: number; y: number } = _.sample(
+    const controller: { x: number; y: number } = sample(
       this.memory.structures[STRUCTURE_CONTROLLER],
     );
     if (!controller) return null;
@@ -1018,7 +1023,7 @@ export default class RoomIntel {
       }
 
       // Process adjacent rooms until range has been reached.
-      while (_.size(openList) > 0) {
+      while (size(openList) > 0) {
         let minRange: AdjacentRoomEntry = null;
         for (const roomName in openList) {
           if (!minRange || minRange.range > openList[roomName].range) {
@@ -1033,8 +1038,8 @@ export default class RoomIntel {
       }
 
       // Unify status of directions which meet up somewhere.
-      for (const dir1 of _.keys(this.joinedDirs)) {
-        for (const dir2 of _.keys(this.joinedDirs[dir1])) {
+      for (const dir1 of keys(this.joinedDirs)) {
+        for (const dir2 of keys(this.joinedDirs[dir1])) {
           this.newStatus[dir1] = this.newStatus[dir1] && this.newStatus[dir2];
           this.newStatus[dir2] = this.newStatus[dir1] && this.newStatus[dir2];
         }
@@ -1042,7 +1047,7 @@ export default class RoomIntel {
 
       // Keep a list of rooms declared as safe in memory.
       const safeRooms = [];
-      for (const roomName of _.keys(closedList)) {
+      for (const roomName of keys(closedList)) {
         const roomDir = closedList[roomName].origin;
         if (this.newStatus[roomDir]) {
           safeRooms.push(roomName);
@@ -1122,7 +1127,7 @@ export default class RoomIntel {
     }
 
     // Add new adjacent rooms to openList if available.
-    for (const roomName of _.values<string>(roomIntel.getExits())) {
+    for (const roomName of values(roomIntel.getExits())) {
       if (roomData.range >= 3) {
         // Room has open exits more than 3 rooms away.
         // Mark direction as unsafe.

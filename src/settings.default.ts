@@ -1,31 +1,3 @@
-import _ from "lodash";
-/* global POWER_BANK_CAPACITY_MAX PWR_REGEN_SOURCE PWR_REGEN_MINERAL
-PWR_OPERATE_CONTROLLER PWR_OPERATE_SPAWN PWR_OPERATE_TOWER PWR_OPERATE_EXTENSION
-PWR_OPERATE_LAB PWR_OPERATE_OBSERVER PWR_OPERATE_TERMINAL PWR_OPERATE_FACTORY
-PWR_OPERATE_STORAGE PWR_GENERATE_OPS */
-
-/**
- * This file contains the default settings for hivemind.
- *
- * Please do not edit these settings directly, as they might be overwritten
- * should you update to a newer release of the bot.
- * Instead, you may create a file named `settings.local.js` where you may
- * override any setting from this file.
- *
- * Example `settings.local.js`:
- * @code
- * export default {
- *   visualizeNavMesh: true,
- *   enablePowerMining: Game.shard.name !== 'shard1',
- * };
- * @endcode
- *
- * You may also override any setting via memory within the game. You may use
- * the following method in the game's console:
- * @code
- * hivemind.settings.set('visualizeNavMesh', true);
- * @endcode
- */
 const settings: SettingsObject = {
   // Relations:
   // If true, any player that is not declared to be your ally will be treated

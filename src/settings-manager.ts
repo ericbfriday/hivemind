@@ -1,4 +1,4 @@
-import _ from "lodash";
+import each from "lodash/each";
 import defaultSettings from "settings.default";
 import localSettings from "settings.local";
 
@@ -94,14 +94,14 @@ class SettingsManager {
 
     // Add user settings from file.
     if (localSettings) {
-      _.each(localSettings, (value, key) => {
+      each(localSettings, (value, key) => {
         this.values[key] = value;
       });
     }
 
     // Add user settings from memory.
     if (Memory.hivemind?.settings) {
-      _.each(Memory.hivemind.settings, (value: unknown, key) => {
+      each(Memory.hivemind.settings, (value: unknown, key) => {
         if (typeof this.values[key] === "undefined") return;
 
         this.values[key] = value;

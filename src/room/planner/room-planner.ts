@@ -1,4 +1,4 @@
-import _ from "lodash";
+import each from "lodash/each";
 /* global PathFinder Room RoomPosition RoomVisual CONTROLLER_STRUCTURES
 FIND_SOURCES */
 
@@ -185,7 +185,7 @@ export default class RoomPlanner {
     // Reset harvest position info for harvesters in case they are not correctly
     // assigned any more.
     if (Game.rooms[this.roomName]) {
-      _.each(
+      each(
         Game.rooms[this.roomName].creepsByRole.harvester,
         (creep: HarvesterCreep) => {
           delete creep.memory.harvestPos;

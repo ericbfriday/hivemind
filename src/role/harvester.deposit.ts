@@ -1,9 +1,3 @@
-import _ from "lodash";
-/* global RoomPosition STRUCTURE_POWER_BANK OK
-POWER_BANK_DECAY FIND_MY_CREEPS HEAL_POWER RANGED_HEAL_POWER HEAL
-FIND_DROPPED_RESOURCES RESOURCE_POWER FIND_HOSTILE_CREEPS RANGED_ATTACK
-POWER_BANK_HIT_BACK */
-
 import cache from "utils/cache";
 import hivemind from "hivemind";
 import NavMesh from "utils/nav-mesh";

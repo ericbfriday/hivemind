@@ -1,4 +1,4 @@
-import _ from "lodash";
+import filter from "lodash/filter";
 import StructureDestination from "dispatcher/resource-destination/structure";
 
 interface TerminalDestinationTask extends StructureDestinationTask {
@@ -115,7 +115,7 @@ export default class TerminalDestination extends StructureDestination<TerminalDe
 
     // @todo Instead of filtering all orders, have a list of my own orders.
     // That way we can avoid filtering all orders multiple times.
-    const roomSellOrders = _.filter(
+    const roomSellOrders = filter(
       Game.market.orders,
       (order: Order) =>
         order.roomName === this.room.name && order.type === ORDER_SELL,

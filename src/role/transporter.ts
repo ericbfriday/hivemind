@@ -1,4 +1,5 @@
-import _ from "lodash";
+import some from "lodash/some";
+import random from "lodash/random";
 /* global PathFinder Room RoomPosition FIND_DROPPED_RESOURCES
 STRUCTURE_CONTAINER RESOURCE_POWER RESOURCE_GHODIUM STRUCTURE_LAB REACTIONS
 STRUCTURE_EXTENSION STRUCTURE_SPAWN STRUCTURE_TOWER STRUCTURE_NUKER ERR_NO_PATH
@@ -131,7 +132,7 @@ export default class TransporterRole extends Role {
       creep.store.getUsedCapacity() <= creep.store.getCapacity() * 0.1 &&
       creep.memory.delivering &&
       !creep.memory.order &&
-      !_.some(
+      !some(
         getResourcesIn(creep.store),
         (resourceType) =>
           resourceType !== RESOURCE_ENERGY &&
@@ -157,7 +158,7 @@ export default class TransporterRole extends Role {
       creep.pos.y === storagePosition.y &&
       (!creep.memory.order || !("target" in creep.memory.order))
     ) {
-      creep.move(_.random(1, 8) as DirectionConstant);
+      creep.move(random(1, 8) as DirectionConstant);
       return;
     }
 

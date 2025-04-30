@@ -1,4 +1,4 @@
-import _ from "lodash";
+import filter from "lodash/filter";
 import StructureDestination from "dispatcher/resource-destination/structure";
 
 interface SpawnDestinationTask extends StructureDestinationTask {
@@ -26,13 +26,13 @@ export default class SpawnDestination extends StructureDestination<SpawnDestinat
     return this.cacheEmptyTaskListFor("", 5, () => {
       const options: SpawnDestinationTask[] = [];
 
-      const targetSpawns = _.filter(
+      const targetSpawns = filter(
         this.room.myStructuresByType[STRUCTURE_SPAWN],
         (structure) =>
           (!structure.isBaySpawn() || this.room.controller.level < 3) &&
           structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
       );
-      const targetExtensions = _.filter(
+      const targetExtensions = filter(
         this.room.myStructuresByType[STRUCTURE_EXTENSION],
         (structure) =>
           !structure.isBayExtension() &&
@@ -59,7 +59,7 @@ export default class SpawnDestination extends StructureDestination<SpawnDestinat
           1 -
           context.creep.pos.getRangeTo(target) / 100;
         option.priority -=
-          _.filter(
+          filter(
             this.room.getCreepsWithOrder(this.getType(), target.id),
             (c) => c.memory.role === "transporter",
           ).length * 3;

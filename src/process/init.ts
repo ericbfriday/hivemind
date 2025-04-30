@@ -1,4 +1,5 @@
-import _ from "lodash";
+import each from "lodash/each";
+import filter from "lodash/filter";
 import Process from "process/process";
 import BoostManager from "boost-manager";
 import cache from "utils/cache";
@@ -32,10 +33,10 @@ export default class InitProcess extends Process {
     Game.operationsByType = {};
 
     // Add data to global Game object.
-    _.each(operationClasses, (opClass, opType) => {
+    each(operationClasses, (opClass, opType) => {
       Game.operationsByType[opType] = {};
     });
-    _.each(Memory.operations, (data, opName) => {
+    each(Memory.operations, (data, opName) => {
       if (data.shouldTerminate) {
         delete Memory.operations[opName];
         return;
@@ -58,7 +59,7 @@ export default class InitProcess extends Process {
        */
       get() {
         return cache.inObject(this, "myRooms", 0, () =>
-          _.filter(this.rooms, (room: Room) => room.isMine()),
+          filter(this.rooms, (room: Room) => room.isMine()),
         );
       },
       enumerable: false,
@@ -66,11 +67,11 @@ export default class InitProcess extends Process {
     });
 
     // Cache creeps per room and role.
-    _.each(Game.creeps, (creep: Creep) => {
+    each(Game.creeps, (creep: Creep) => {
       creep.enhanceData();
     });
 
-    _.each(Game.rooms, (room) => {
+    each(Game.rooms, (room) => {
       if (room.isMine()) {
         if (hivemind.segmentMemory.isReady())
           room.roomPlanner = new RoomPlanner(room.name);

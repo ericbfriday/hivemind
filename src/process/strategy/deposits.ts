@@ -1,4 +1,5 @@
-import _ from "lodash";
+import each from "lodash/each";
+import sortBy from "lodash/sortBy";
 /* global RoomPosition CREEP_SPAWN_TIME MAX_CREEP_SIZE ATTACK_POWER
 CONTROLLER_STRUCTURES STRUCTURE_POWER_SPAWN */
 
@@ -67,7 +68,7 @@ export default class DepositMiningProcess extends Process {
     const memory = Memory.strategy.deposits;
     this.mesh = new NavMesh();
 
-    _.each(memory.rooms, (info, roomName) => {
+    each(memory.rooms, (info, roomName) => {
       const roomIntel = getRoomIntel(roomName);
       const deposits = roomIntel.getDepositInfo();
 
@@ -152,7 +153,7 @@ export default class DepositMiningProcess extends Process {
       });
     }
 
-    potentialSpawns = _.sortBy(potentialSpawns, "distance");
+    potentialSpawns = sortBy(potentialSpawns, "distance");
 
     return potentialSpawns;
   }

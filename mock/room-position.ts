@@ -1,15 +1,3 @@
-import _ from "lodash";
-/**
- * Creates a new RoomPosition object.
- * @constructor
- *
- * @param {number} x
- *   x position.
- * @param {number} y
- *   y position.
- * @param {string} roomName
- *   Name of the room.
- */
 const RoomPosition = function (
   this: RoomPosition,
   x: number,

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import each from "lodash/each";
 export default class LabManager {
   public getReactionFor(
     room: Room,
@@ -9,10 +9,10 @@ export default class LabManager {
     // Try to find possible reactions where we have a good amount of resources.
     let bestReaction = null;
     let mostResources = null;
-    _.each(roomData.totalResources, (amount, resourceType) => {
+    each(roomData.totalResources, (amount, resourceType) => {
       if (amount <= 0 || !REACTIONS[resourceType]) return;
 
-      _.each(REACTIONS[resourceType], (targetType, resourceType2) => {
+      each(REACTIONS[resourceType], (targetType, resourceType2) => {
         const amount2 = roomData.totalResources[resourceType2] || 0;
         const resultAmount = roomData.totalResources[targetType] || 0;
 

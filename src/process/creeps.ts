@@ -1,4 +1,5 @@
-import _ from "lodash";
+import each from "lodash/each";
+import filter from "lodash/filter";
 import container from "utils/container";
 import CreepManager from "creep-manager";
 import hivemind from "hivemind";
@@ -87,7 +88,7 @@ export default class CreepsProcess extends Process {
   run() {
     // Run normal creeps.
     this.creepManager.onTickStart();
-    _.each(Game.creepsByRole, (creeps, role) => {
+    each(Game.creepsByRole, (creeps, role) => {
       if (!this.creepManager.hasRole(role)) return;
 
       hivemind.runSubProcess("creeps_" + role, () => {
@@ -99,7 +100,7 @@ export default class CreepsProcess extends Process {
     this.creepManager.report();
 
     // Run power creeps.
-    const powerCreeps = _.filter(
+    const powerCreeps = filter(
       Game.powerCreeps,
       (creep) => (creep.ticksToLive || 0) > 0,
     );

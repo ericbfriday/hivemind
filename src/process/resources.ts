@@ -1,4 +1,4 @@
-import _ from "lodash";
+import filter from "lodash/filter";
 /* global RESOURCE_ENERGY */
 
 import container from "utils/container";
@@ -169,7 +169,7 @@ export default class ResourcesProcess extends Process {
 
       // Use multiple routes as long as no room is involved multiple times.
       routes = sentSuccessfully
-        ? _.filter(
+        ? filter(
             routes,
             (option: any) =>
               option.source !== best.source &&
@@ -177,7 +177,7 @@ export default class ResourcesProcess extends Process {
               option.source !== best.target &&
               option.target !== best.target,
           )
-        : _.filter(
+        : filter(
             routes,
             (option: any) =>
               option.source !== best.source ||

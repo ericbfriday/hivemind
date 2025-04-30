@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { handleMapArea } from "utils/map";
 
 export default class RoomPlanMatrixGenerator {

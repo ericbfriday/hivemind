@@ -1,4 +1,6 @@
-import _ from "lodash";
+import size from "lodash/size";
+import each from "lodash/each";
+import some from "lodash/some";
 /* global PathFinder RoomPosition StructureController ATTACK SYSTEM_USERNAME
 STRUCTURE_CONTROLLER STRUCTURE_STORAGE STRUCTURE_SPAWN STRUCTURE_TOWER HEAL
 LOOK_STRUCTURES FIND_STRUCTURES FIND_MY_CREEPS CREEP_LIFE_TIME CLAIM
@@ -370,7 +372,7 @@ export default class BrawlerRole extends Role {
       filter: (friendly) =>
         friendly.id !== creep.id && friendly.hits < friendly.hitsMax,
     });
-    if (_.size(damaged) === 0) {
+    if (size(damaged) === 0) {
       damaged = creep.room.find(FIND_HOSTILE_CREEPS, {
         filter: (friendly) =>
           friendly.id !== creep.id &&
@@ -443,10 +445,10 @@ export default class BrawlerRole extends Role {
         creep.getActiveBodyparts(HEAL)
       ) {
         // Check for enemies and interrupt move accordingly.
-        _.each(creep.room.enemyCreeps, (hostiles, owner) => {
+        each(creep.room.enemyCreeps, (hostiles, owner) => {
           if (hivemind.relations.isAlly(owner)) return null;
 
-          _.each(hostiles, (c) => {
+          each(hostiles, (c) => {
             if (!c.isDangerous()) return null;
             if (
               c.owner.username === SYSTEM_USERNAME ||
@@ -498,9 +500,7 @@ export default class BrawlerRole extends Role {
           targetPos,
           () => {
             const structures = targetPos.lookFor(LOOK_STRUCTURES);
-            if (
-              _.some(structures, (s) => s.structureType === STRUCTURE_PORTAL)
-            ) {
+            if (some(structures, (s) => s.structureType === STRUCTURE_PORTAL)) {
               creep.move(creep.pos.getDirectionTo(targetPos));
             }
           },

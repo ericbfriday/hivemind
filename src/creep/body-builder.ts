@@ -1,4 +1,6 @@
-import _ from "lodash";
+import sum from "lodash/sum";
+import filter from "lodash/filter";
+import keys from "lodash/keys";
 const MOVEMENT_MODE_ROAD = 0;
 const MOVEMENT_MODE_PLAINS = 1;
 const MOVEMENT_MODE_SWAMP = 2;
@@ -89,8 +91,8 @@ export default class BodyBuilder {
   }
 
   private normalizeWeights(weights: BodyWeights): BodyWeights {
-    const total = _.sum(
-      _.filter(weights, (weight, partType) => weight > 0 && partType !== MOVE),
+    const total = sum(
+      filter(weights, (weight, partType) => weight > 0 && partType !== MOVE),
     );
 
     if (total <= 0) return {};
@@ -162,7 +164,7 @@ export default class BodyBuilder {
     const currentWeights = this.normalizeWeights(partCounts);
 
     let fallbackPart: BodyPartConstant = null;
-    for (const part of _.keys(this.weights) as BodyPartConstant[]) {
+    for (const part of keys(this.weights) as BodyPartConstant[]) {
       if ((currentWeights[part] || 0) < this.weights[part]) return part;
       if (!fallbackPart) fallbackPart = part;
     }
@@ -185,7 +187,7 @@ export default class BodyBuilder {
     nextPart: BodyPartConstant,
   ): number {
     let total = this.getGeneratedFatigue(nextPart);
-    for (const part of _.keys(partCounts) as BodyPartConstant[]) {
+    for (const part of keys(partCounts) as BodyPartConstant[]) {
       total += partCounts[part] * this.getGeneratedFatigue(part);
     }
 
@@ -247,7 +249,7 @@ export default class BodyBuilder {
     let done = false;
     while (!done) {
       done = true;
-      for (const part of _.keys(partCounts) as BodyPartConstant[]) {
+      for (const part of keys(partCounts) as BodyPartConstant[]) {
         if (
           part === ATTACK ||
           part === RANGED_ATTACK ||
@@ -279,7 +281,7 @@ export default class BodyBuilder {
     moveParts: number,
   ): BodyPartConstant[] {
     const moveStrength = this.getMovePartStrength();
-    let totalFatigue = _.sum(body, (part) => this.getGeneratedFatigue(part));
+    let totalFatigue = sum(body, (part) => this.getGeneratedFatigue(part));
     let totalMovePower = moveParts * moveStrength;
 
     const newBody: BodyPartConstant[] = [];

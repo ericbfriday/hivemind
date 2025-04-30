@@ -1,4 +1,5 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import size from "lodash/size";
 /* global FIND_MINERALS STRUCTURE_EXTRACTOR MOVE WORK CARRY CREEP_SPAWN_TIME */
 
 import BodyBuilder, { MOVEMENT_MODE_ROAD } from "creep/body-builder";
@@ -27,7 +28,7 @@ export default class MineralHarvesterSpawnRole extends SpawnRole {
         filter: (mineral) => {
           const extractors =
             mineral.mineralAmount > 0
-              ? _.filter(
+              ? filter(
                   room.myStructuresByType[STRUCTURE_EXTRACTOR],
                   (structure) =>
                     structure.isOperational() &&
@@ -43,7 +44,7 @@ export default class MineralHarvesterSpawnRole extends SpawnRole {
         if (!mineral.getNearbyContainer()) continue;
         if (room.isFullOnMinerals()) return [];
 
-        const mineralHarvesters = _.filter(
+        const mineralHarvesters = filter(
           mineral.harvesters,
           (creep) =>
             creep.spawning ||
@@ -53,7 +54,7 @@ export default class MineralHarvesterSpawnRole extends SpawnRole {
         const maxHarvesters = room.isStripmine()
           ? Math.min(3, mineral.getNumHarvestSpots())
           : 1;
-        if (_.size(mineralHarvesters) >= maxHarvesters) continue;
+        if (size(mineralHarvesters) >= maxHarvesters) continue;
 
         const minAmount = 0;
         if (mineral.mineralAmount <= minAmount) continue;

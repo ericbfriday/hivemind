@@ -1,4 +1,5 @@
-import _ from "lodash";
+import size from "lodash/size";
+import filter from "lodash/filter";
 /* global CONTROLLER_DOWNGRADE MOVE WORK CARRY
 CONTROLLER_MAX_UPGRADE_PER_TICK */
 
@@ -26,8 +27,8 @@ export default class UpgraderSpawnRole extends SpawnRole {
     return this.cacheEmptySpawnOptionsFor(room, 100, () => {
       const options: UpgraderSpawnOption[] = [];
       const maxUpgraders = this.getUpgraderAmount(room);
-      const upgraderCount = _.size(
-        _.filter(
+      const upgraderCount = size(
+        filter(
           room.creepsByRole.upgrader,
           (creep) =>
             !creep.ticksToLive || creep.ticksToLive > creep.body.length * 3,

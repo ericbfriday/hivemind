@@ -1,4 +1,5 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import each from "lodash/each";
 /* global MOVE WORK */
 
 import BodyBuilder, { MOVEMENT_MODE_ROAD } from "creep/body-builder";
@@ -39,14 +40,14 @@ export default class DismantlerSpawnRole extends SpawnRole {
    */
   addManualDismantlers(room: Room, options: DismantlerSpawnOption[]) {
     // @todo Move from flag based to something the AI can control.
-    const flags = _.filter(Game.flags, (flag) =>
+    const flags = filter(Game.flags, (flag) =>
       flag.name.startsWith("Dismantle:" + room.name),
     );
     if (flags.length === 0) return;
 
     // @todo Check if there is enough dismantlers per room with flags in it.
     const flag = flags[0];
-    const dismantlerCount = _.filter(
+    const dismantlerCount = filter(
       Game.creepsByRole.dismantler || [],
       (creep: DismantlerCreep) =>
         creep.memory.targetRoom === flag.pos.roomName &&
@@ -74,7 +75,7 @@ export default class DismantlerSpawnRole extends SpawnRole {
     if (room.isEvacuating()) return;
     if (!room.roomManager.needsDismantling()) return;
 
-    const dismantlerCount = _.filter(
+    const dismantlerCount = filter(
       room.creepsByRole.dismantler || [],
       (creep: DismantlerCreep) =>
         creep.memory.targetRoom === room.name &&
@@ -98,11 +99,11 @@ export default class DismantlerSpawnRole extends SpawnRole {
    *   A list of spawn options to add to.
    */
   addOperationDismantlers(room: Room, options: DismantlerSpawnOption[]) {
-    const operations = _.filter(
+    const operations = filter(
       Game.operationsByType.mining,
       (o) => o.needsDismantler() && !o.isUnderAttack(),
     );
-    _.each(operations, (operation) => {
+    each(operations, (operation) => {
       const locations = operation.getMiningLocationsByRoom()[room.name];
       if (!locations || locations.length === 0) return;
 
@@ -125,7 +126,7 @@ export default class DismantlerSpawnRole extends SpawnRole {
   ) {
     if (!operation.needsDismantler(sourceLocation)) return;
 
-    const dismantlerCount = _.filter(
+    const dismantlerCount = filter(
       Game.creepsByRole.dismantler || [],
       (creep: DismantlerCreep) => creep.memory.source === sourceLocation,
     ).length;

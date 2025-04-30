@@ -1,4 +1,3 @@
-import _ from "lodash";
 import StructureDestination from "dispatcher/resource-destination/structure";
 
 interface LabDestinationTask extends StructureDestinationTask {

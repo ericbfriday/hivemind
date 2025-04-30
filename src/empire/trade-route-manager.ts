@@ -1,4 +1,4 @@
-import _ from "lodash";
+import each from "lodash/each";
 import { ENEMY_STRENGTH_NONE } from "room-defense";
 import ResourceLevelManager from "room/resource-level-manager";
 import cache from "utils/cache";
@@ -30,7 +30,7 @@ export default class TradeRouteManager {
     const options = [];
     const rooms: Record<string, RoomResourceState> = this.getResourceStates();
 
-    _.each(rooms, (roomState: RoomResourceState, roomName: string) => {
+    each(rooms, (roomState: RoomResourceState, roomName: string) => {
       const room = Game.rooms[roomName];
       if (!roomState.canTrade) return;
 
@@ -70,7 +70,7 @@ export default class TradeRouteManager {
           continue;
 
         // Look for other rooms that are low on this resource.
-        _.each(rooms, (roomState2: any, roomName2: string) => {
+        each(rooms, (roomState2: any, roomName2: string) => {
           if (roomName === roomName2) return;
           if (!roomState2.canTrade) return;
 

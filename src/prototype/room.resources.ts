@@ -1,4 +1,10 @@
-import _ from "lodash";
+import each from "lodash/each";
+import filter from "lodash/filter";
+import sortBy from "lodash/sortBy";
+import size from "lodash/size";
+import sum from "lodash/sum";
+import some from "lodash/some";
+import values from "lodash/values";
 /* global Room RoomPosition RESOURCE_ENERGY LOOK_RESOURCES
 RESOURCE_POWER STRUCTURE_LAB RESOURCES_ALL */
 
@@ -193,7 +199,7 @@ function getAllResources(room: Room): Record<string, number> {
 
     // Add resources in transporters to prevent fluctuation from transporters
     // moving stuff around.
-    _.each(room.creepsByRole.transporter, (creep) => {
+    each(room.creepsByRole.transporter, (creep) => {
       for (const resourceType of getResourcesIn(creep.store)) {
         resources[resourceType] =
           (resources[resourceType] || 0) + creep.store[resourceType];
@@ -202,7 +208,7 @@ function getAllResources(room: Room): Record<string, number> {
 
     if (!room.terminal && !room.storage) {
       // Until a storage is built, haulers effectively act as transporters.
-      _.each(room.creepsByRole.hauler, (creep) => {
+      each(room.creepsByRole.hauler, (creep) => {
         for (const resourceType of getResourcesIn(creep.store)) {
           resources[resourceType] =
             (resources[resourceType] || 0) + creep.store[resourceType];
@@ -232,7 +238,7 @@ Room.prototype.getStoredEnergy = function (this: Room) {
       storageLocation.y,
       this.name,
     );
-    const resources = _.filter(
+    const resources = filter(
       storagePosition.lookFor(LOOK_RESOURCES),
       (resource) => resource.resourceType === RESOURCE_ENERGY,
     );
@@ -410,10 +416,10 @@ Room.prototype.getRemoteHarvestSourcePositions = function (this: Room) {
   // @todo Sort by profitability because it influences spawn order.
   return cache.inHeap("remoteSourcePositions:" + this.name, 500, () => {
     const evaluations: SourceEvaluation[] = [];
-    _.each(Game.operationsByType.mining, (operation) => {
+    each(Game.operationsByType.mining, (operation) => {
       const locations = operation.getMiningLocationsByRoom();
 
-      _.each(locations[this.name], (location) => {
+      each(locations[this.name], (location) => {
         if (!operation.getPaths()[location]?.path) return;
 
         evaluations.push(getRemoteHarvestSourceEvaluation(operation, location));
@@ -421,7 +427,7 @@ Room.prototype.getRemoteHarvestSourcePositions = function (this: Room) {
     });
 
     const harvestPositions: RoomPosition[] = [];
-    for (const evaluation of _.sortBy(evaluations, (evaluation) => {
+    for (const evaluation of sortBy(evaluations, (evaluation) => {
       if (this.storage || this.terminal)
         return evaluation.averageDistance * (1.2 - evaluation.sourceCount / 5);
 
@@ -438,14 +444,14 @@ function getRemoteHarvestSourceEvaluation(
   operation: RemoteMiningOperation,
   location: string,
 ): SourceEvaluation {
-  const filteredPaths = _.filter(operation.getPaths(), (path) => path.path);
+  const filteredPaths = filter(operation.getPaths(), (path) => path.path);
 
   return {
     location,
-    sourceCount: _.size(filteredPaths),
+    sourceCount: size(filteredPaths),
     distance: operation.getPaths()[location].path.length,
     averageDistance:
-      _.sum(filteredPaths, (path) => path.path.length) / _.size(filteredPaths),
+      sum(filteredPaths, (path) => path.path.length) / size(filteredPaths),
   };
 }
 
@@ -457,7 +463,7 @@ function getRemoteHarvestSourceEvaluation(
  */
 Room.prototype.getRemoteReservePositions = function (this: Room) {
   const reservePositions: RoomPosition[] = [];
-  _.each(Game.operationsByType.mining, (operation) => {
+  each(Game.operationsByType.mining, (operation) => {
     const roomName = operation.getClaimerSourceRoom();
     if (this.name !== roomName) return;
 
@@ -518,26 +524,20 @@ Room.prototype.getResourceState = function (this: Room) {
     roomData.isEvacuating = this.isEvacuating();
 
     if (storage && !roomData.isEvacuating) {
-      _.each(
-        storage.store,
-        (amount: number, resourceType: ResourceConstant) => {
-          roomData.addResource(resourceType, amount);
-        },
-      );
+      each(storage.store, (amount: number, resourceType: ResourceConstant) => {
+        roomData.addResource(resourceType, amount);
+      });
     }
 
     if (terminal) {
       roomData.canTrade = true;
-      _.each(
-        terminal.store,
-        (amount: number, resourceType: ResourceConstant) => {
-          roomData.addResource(resourceType, amount);
-        },
-      );
+      each(terminal.store, (amount: number, resourceType: ResourceConstant) => {
+        roomData.addResource(resourceType, amount);
+      });
     }
 
     if (this.factory) {
-      _.each(
+      each(
         this.factory.store,
         (amount: number, resourceType: ResourceConstant) => {
           roomData.addResource(resourceType, amount);
@@ -756,7 +756,7 @@ StructureKeeperLair.prototype.isDangerous = function (
   this: StructureKeeperLair,
 ) {
   if (
-    _.some(
+    some(
       this.room.enemyCreeps["Source Keeper"],
       (c) => c.pos.getRangeTo(this) <= 5,
     )
@@ -779,9 +779,7 @@ const isDangerous = function (this: Source | Mineral): boolean {
   // It's still safe if a guardian with sufficient lifespan is nearby to take
   // care of any source keepers, and the lair isn't too close to the source.
   if (this.room.creepsByRole.skKiller && lair.pos.getRangeTo(this) > 4) {
-    for (const guardian of _.values<SkKillerCreep>(
-      this.room.creepsByRole.skKiller,
-    )) {
+    for (const guardian of values(this.room.creepsByRole.skKiller)) {
       if (lair.pos.getRangeTo(guardian) < 5 && guardian.ticksToLive > 30) {
         return false;
       }

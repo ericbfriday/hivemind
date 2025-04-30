@@ -1,4 +1,3 @@
-import _ from "lodash";
 let callTimes: Record<string, number[]> = {};
 let firstTick = Game.time;
 

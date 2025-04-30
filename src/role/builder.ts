@@ -1,4 +1,5 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import map from "lodash/map";
 /* global FIND_STRUCTURES FIND_MY_CONSTRUCTION_SITES STRUCTURE_SPAWN OK
 STRUCTURE_RAMPART STRUCTURE_WALL STRUCTURE_ROAD STRUCTURE_CONTAINER WORK
 UPGRADE_CONTROLLER_POWER RESOURCE_ENERGY */
@@ -383,7 +384,7 @@ export default class BuilderRole extends Role {
    *   An array of repair or build option objects to add to.
    */
   addRepairOptions(creep: BuilderCreep, options: OrderOption[]) {
-    const targets = _.filter(
+    const targets = filter(
       this.getAvailableRepairTargets(creep),
       (structure) =>
         structure.hits < structure.hitsMax &&
@@ -460,7 +461,7 @@ export default class BuilderRole extends Role {
       "repairStructures:" + creep.room.name,
       50,
       () => {
-        const repairableStructures = _.filter(
+        const repairableStructures = filter(
           creep.room.structures,
           (structure: Structure<BuildableStructureConstant>) => {
             if (structure.hits >= this.getStructureMaxHits(structure))
@@ -507,16 +508,15 @@ export default class BuilderRole extends Role {
           },
         );
 
-        return _.map(
-          repairableStructures,
-          (structure) => structure.id,
-        ) as Array<Id<Structure<BuildableStructureConstant>>>;
+        return map(repairableStructures, (structure) => structure.id) as Array<
+          Id<Structure<BuildableStructureConstant>>
+        >;
       },
     );
 
     return cache.inObject(creep.room, "repairStructures", 1, () =>
-      _.filter(
-        _.map(
+      filter(
+        map(
           repairableStructureIds,
           (id: Id<Structure<BuildableStructureConstant>>) =>
             Game.getObjectById(id),
@@ -771,7 +771,7 @@ export default class BuilderRole extends Role {
     const workParts = creep.getActiveBodyparts(WORK);
     if (!workParts) return;
 
-    const needsRepair = _.filter(
+    const needsRepair = filter(
       this.getAvailableRepairTargets(creep),
       (structure) => {
         if (creep.pos.getRangeTo(structure.pos) > 3) return false;

@@ -1,6 +1,3 @@
-import _ from "lodash";
-/* global Creep ERR_NOT_ENOUGH_RESOURCES RESOURCE_ENERGY STRUCTURE_LINK */
-
 import { getSquad } from "manager.squad";
 import "prototype/creep.military";
 import "prototype/creep.movement";

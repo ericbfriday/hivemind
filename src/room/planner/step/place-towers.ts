@@ -1,4 +1,5 @@
-import _ from "lodash";
+import max from "lodash/max";
+import sum from "lodash/sum";
 import PlacementManager from "room/planner/placement-manager";
 import RoomPlan from "room/planner/room-plan";
 import { encodePosition } from "utils/serialization";
@@ -34,7 +35,7 @@ export default class placeTowersStep {
       while (
         newTowers.length < this.roomPlan.remainingStructureCount("tower")
       ) {
-        const info = _.max(positions, "score");
+        const info = max(positions, "score");
         if (!info || typeof info === "number" || info.score < 0) break;
 
         info.score = -1;
@@ -87,7 +88,7 @@ export default class placeTowersStep {
     const safety = roomIntel.calculateAdjacentRoomSafety();
     const positions: ScoredTowerPosition[] = [];
 
-    const allDirectionsSafe = _.sum(safety.directions) === 4;
+    const allDirectionsSafe = sum(safety.directions) === 4;
     if (allDirectionsSafe) return positions;
 
     for (let x = 1; x < 49; x++) {

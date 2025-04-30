@@ -1,4 +1,7 @@
-import _ from "lodash";
+import size from "lodash/size";
+import filter from "lodash/filter";
+import map from "lodash/map";
+import values from "lodash/values";
 /* global Creep */
 
 declare global {
@@ -43,7 +46,7 @@ Creep.prototype.getTrainId = function (this: Creep): Id<Creep> {
 Creep.prototype.isTrainFullySpawned = function (this: Creep): boolean {
   const trainId = this.getTrainId();
   const headSegment = Game.getObjectById<Creep>(trainId);
-  if (headSegment && _.size(headSegment.memory.train.partsToSpawn) > 0)
+  if (headSegment && size(headSegment.memory.train.partsToSpawn) > 0)
     return false;
 
   return true;
@@ -54,22 +57,20 @@ Creep.prototype.getTrainParts = function (this: Creep): Creep[] {
   const trainId = this.getTrainId();
   let segments: Creep[];
   if (this.memory.train.parts) {
-    segments = _.filter(
-      _.map<string, Creep>(this.memory.train.parts, Game.getObjectById),
-    );
+    segments = filter(map(this.memory.train.parts, Game.getObjectById));
     if (segments.length < this.memory.train.parts.length) {
-      this.memory.train.parts = _.map(segments, "id");
+      this.memory.train.parts = map(segments, "id");
     }
   } else {
     // @todo Order these creeps consistently. We save info redundantly
     // for when individual segments die.
-    segments = _.values(
-      _.filter(
+    segments = values(
+      filter(
         Game.creeps,
         (creep) => creep.isPartOfTrain() && creep.getTrainId() === trainId,
       ),
     );
-    this.memory.train.parts = _.map(segments, "id");
+    this.memory.train.parts = map(segments, "id");
   }
 
   return segments;

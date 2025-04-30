@@ -1,4 +1,5 @@
-import _ from "lodash";
+import countBy from "lodash/countBy";
+import reduce from "lodash/reduce";
 /* global BODYPART_COST MAX_CREEP_SIZE TOUGH ATTACK RANGED_ATTACK HEAL */
 
 export default class SpawnRole {
@@ -108,7 +109,7 @@ export default class SpawnRole {
   ): Partial<Record<string, ResourceConstant>> {
     if (!room.boostManager.canSpawnBoostedCreeps()) return {};
 
-    const numberAffectedParts = _.countBy(body)[partType] || 0;
+    const numberAffectedParts = countBy(body)[partType] || 0;
     const bestBoost = this.getBestBoost(
       room,
       numberAffectedParts,
@@ -163,7 +164,7 @@ export default class SpawnRole {
    *   The energy cost of the provided body.
    */
   calculateBodyCost(body: BodyPartConstant[]): number {
-    return _.reduce(body, (sum, part) => sum + BODYPART_COST[part], 0);
+    return reduce(body, (sum, part) => sum + BODYPART_COST[part], 0);
   }
 
   cacheEmptySpawnOptionsFor<T extends SpawnOption>(

@@ -1,4 +1,8 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import max from "lodash/max";
+import map from "lodash/map";
+import each from "lodash/each";
+import size from "lodash/size";
 /* global RoomPosition */
 
 import cache from "utils/cache";
@@ -47,7 +51,7 @@ export default class MapVisualsProcess extends Process {
       }
 
       // @todo Make sure we actually need this loop.
-      for (const roomName in _.filter(
+      for (const roomName in filter(
         Memory.rooms,
         (mem, roomName) => !this.roomStatus.hasRoom(roomName),
       )) {
@@ -129,8 +133,8 @@ export default class MapVisualsProcess extends Process {
       "expansionScoreCutoff",
       5000,
       () =>
-        _.max(
-          _.map(
+        max(
+          map(
             this.roomStatus.getPotentialExpansionTargets(),
             (roomName: string) => {
               if (Game.rooms[roomName]?.isMine()) return 0;
@@ -223,14 +227,14 @@ export default class MapVisualsProcess extends Process {
   drawNavMesh() {
     if (!hivemind.settings.get("visualizeNavMesh")) return;
     if (!Memory.nav) return;
-    _.each(Memory.nav.rooms, (navInfo, roomName) => {
+    each(Memory.nav.rooms, (navInfo, roomName) => {
       const roomIntel = getRoomIntel(roomName);
       let color = "#ffffff";
       if (roomIntel.isOwned()) {
         color = "#ff0000";
       } else if (roomIntel.isClaimed()) {
         color = "#ffff00";
-      } else if (_.size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) {
+      } else if (size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) {
         color = "#ff8000";
       }
 

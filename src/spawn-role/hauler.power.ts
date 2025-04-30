@@ -1,4 +1,6 @@
-import _ from "lodash";
+import each from "lodash/each";
+import filter from "lodash/filter";
+import reduce from "lodash/reduce";
 /* global CREEP_LIFE_TIME CREEP_SPAWN_TIME MAX_CREEP_SIZE MOVE CARRY */
 
 import BodyBuilder, { MOVEMENT_MODE_ROAD } from "creep/body-builder";
@@ -29,7 +31,7 @@ export default class PowerHaulerSpawnRole extends SpawnRole {
 
       const options: PowerHaulerSpawnOption[] = [];
 
-      _.each(Memory.strategy.power.rooms, (info, roomName) => {
+      each(Memory.strategy.power.rooms, (info, roomName) => {
         if (!info.isActive) return;
         if (!info.spawnRooms[room.name]) return;
 
@@ -45,11 +47,11 @@ export default class PowerHaulerSpawnRole extends SpawnRole {
           return;
 
         // Time to spawn haulers!
-        const powerHaulers = _.filter(
+        const powerHaulers = filter(
           Game.creepsByRole["hauler.power"] || {},
           (creep) => creep.memory.targetRoom === roomName,
         );
-        const totalCapacity = _.reduce(
+        const totalCapacity = reduce(
           powerHaulers,
           (total, creep) => total + creep.store.getCapacity(),
           0,

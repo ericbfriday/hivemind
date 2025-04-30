@@ -1,4 +1,7 @@
-import _ from "lodash";
+import groupBy from "lodash/groupBy";
+import map from "lodash/map";
+import filter from "lodash/filter";
+import some from "lodash/some";
 /* global Room STRUCTURE_CONTAINER FIND_HOSTILE_CREEPS
 STRUCTURE_LINK STRUCTURE_NUKER STRUCTURE_OBSERVER LOOK_CREEPS
 STRUCTURE_POWER_SPAWN FIND_SOURCES FIND_MINERALS */
@@ -53,7 +56,7 @@ Object.defineProperty(Room.prototype, "enemyCreeps", {
    */
   get(this: Room) {
     return cache.inObject(this, "enemyCreeps", 1, () =>
-      _.groupBy(this.find(FIND_HOSTILE_CREEPS), "owner.username"),
+      groupBy(this.find(FIND_HOSTILE_CREEPS), "owner.username"),
     );
   },
   enumerable: false,
@@ -113,10 +116,10 @@ Object.defineProperty(Room.prototype, "sources", {
   get(this: Room) {
     return cache.inObject(this, "sources", 1, () => {
       const sourceIds = cache.inHeap("sources:" + this.name, 10_000, () =>
-        _.map(this.find(FIND_SOURCES), "id"),
+        map(this.find(FIND_SOURCES), "id"),
       );
 
-      return _.map(sourceIds, Game.getObjectById);
+      return map(sourceIds, Game.getObjectById);
     });
   },
   enumerable: false,
@@ -134,7 +137,7 @@ Object.defineProperty(Room.prototype, "minerals", {
   get(this: Room): Mineral[] {
     return cache.inObject(this, "minerals", 1, () => {
       const mineralIds = cache.inHeap("mineral:" + this.name, 10_000, () =>
-        _.map<Mineral, Id<Mineral>>(this.find(FIND_MINERALS), "id"),
+        map(this.find(FIND_MINERALS), "id"),
       );
 
       const minerals = [];
@@ -282,10 +285,10 @@ Room.prototype.updateControllerContainer = function (this: Room) {
       "container.controller",
     );
     if (containerPositions.length > 0) {
-      const structures = _.filter(
+      const structures = filter(
         this.structuresByType[STRUCTURE_CONTAINER],
         (structure) =>
-          _.some(
+          some(
             containerPositions,
             (pos) => pos.x === structure.pos.x && pos.y === structure.pos.y,
           ),
@@ -298,7 +301,7 @@ Room.prototype.updateControllerContainer = function (this: Room) {
     }
   }
 
-  const structures = _.filter(
+  const structures = filter(
     this.structuresByType[STRUCTURE_CONTAINER],
     (structure) => structure.pos.getRangeTo(this.controller) <= 3,
   );
@@ -317,10 +320,10 @@ Room.prototype.updateControllerLink = function (this: Room) {
     const linkPositions: RoomPosition[] =
       this.roomPlanner.getLocations("link.controller");
     if (linkPositions.length > 0) {
-      const structures = _.filter(
+      const structures = filter(
         this.myStructuresByType[STRUCTURE_LINK],
         (structure) =>
-          _.some(
+          some(
             linkPositions,
             (pos) => pos.x === structure.pos.x && pos.y === structure.pos.y,
           ),
@@ -331,7 +334,7 @@ Room.prototype.updateControllerLink = function (this: Room) {
     }
   }
 
-  const structures = _.filter(
+  const structures = filter(
     this.myStructuresByType[STRUCTURE_LINK],
     (structure) => structure.pos.getRangeTo(this.controller) <= 3,
   );
@@ -352,10 +355,10 @@ Room.prototype.updateStorageLink = function (this: Room) {
     const linkPositions: RoomPosition[] =
       this.roomPlanner.getLocations("link.storage");
     if (linkPositions.length > 0) {
-      const structures = _.filter(
+      const structures = filter(
         this.myStructuresByType[STRUCTURE_LINK],
         (structure) =>
-          _.some(
+          some(
             linkPositions,
             (pos) => pos.x === structure.pos.x && pos.y === structure.pos.y,
           ),
@@ -365,7 +368,7 @@ Room.prototype.updateStorageLink = function (this: Room) {
     }
   }
 
-  const structures = _.filter(
+  const structures = filter(
     this.myStructuresByType[STRUCTURE_LINK],
     (structure) => structure.pos.getRangeTo(this.storage) <= 3,
   );

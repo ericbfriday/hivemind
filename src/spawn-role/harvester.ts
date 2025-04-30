@@ -1,4 +1,9 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import min from "lodash/min";
+import map from "lodash/map";
+import size from "lodash/size";
+import each from "lodash/each";
+import some from "lodash/some";
 /* global ENERGY_REGEN_TIME PWR_REGEN_SOURCE POWER_INFO MOVE WORK CARRY */
 
 import BodyBuilder, {
@@ -48,14 +53,14 @@ export default class HarvesterSpawnRole extends SpawnRole {
    */
   addInitialHarvester(source: Source, options: HarvesterSpawnOption[]) {
     // Spawn new harvester before previous harvester dies.
-    const spawns = _.filter(
+    const spawns = filter(
       Game.spawns,
       (spawn) => spawn.room.name === source.room.name,
     );
-    const minSpawnDistance = _.min(
-      _.map(spawns, (spawn) => spawn.pos.getRangeTo(source.pos)),
+    const minSpawnDistance = min(
+      map(spawns, (spawn) => spawn.pos.getRangeTo(source.pos)),
     );
-    const activeHarvesters = _.filter(
+    const activeHarvesters = filter(
       source.harvesters,
       (creep) =>
         creep.spawning ||
@@ -98,12 +103,12 @@ export default class HarvesterSpawnRole extends SpawnRole {
       totalWorkParts += creep.getActiveBodyparts(WORK) || 0;
     }
 
-    const spawns = _.filter(
+    const spawns = filter(
       Game.spawns,
       (spawn) => spawn.room.name === source.room.name,
     );
-    const minSpawnDistance = _.min(
-      _.map(spawns, (spawn) => spawn.pos.getRangeTo(source.pos)),
+    const minSpawnDistance = min(
+      map(spawns, (spawn) => spawn.pos.getRangeTo(source.pos)),
     );
     const maxParts = this.getMaxWorkParts(source);
     if (totalWorkParts < maxParts) {
@@ -147,7 +152,7 @@ export default class HarvesterSpawnRole extends SpawnRole {
    */
   isSmallHarvesterNeeded(room: Room): boolean {
     // If there's another harvester, we're fine.
-    if (_.size(room.creepsByRole.harvester) > 0) return false;
+    if (size(room.creepsByRole.harvester) > 0) return false;
 
     // Otherwise, rooms without a storage need a harvester always.
     if (!room.storage) return true;
@@ -172,7 +177,7 @@ export default class HarvesterSpawnRole extends SpawnRole {
   getMaxWorkParts(source: Source): number {
     let numberOfParts = source.energyCapacity / ENERGY_REGEN_TIME / 2;
 
-    _.each(source.effects, (effect) => {
+    each(source.effects, (effect) => {
       if (effect.effect === PWR_REGEN_SOURCE) {
         numberOfParts +=
           POWER_INFO[PWR_REGEN_SOURCE].effect[effect.level - 1] /
@@ -208,7 +213,7 @@ export default class HarvesterSpawnRole extends SpawnRole {
    */
   getCreepBody(room: Room, option: HarvesterSpawnOption): BodyPartConstant[] {
     const source = Game.getObjectById(option.source);
-    const hasSpawnAtSource = _.some(
+    const hasSpawnAtSource = some(
       room.myStructuresByType[STRUCTURE_SPAWN],
       (s) => source.pos.getRangeTo(s.pos) <= 2 && s.isOperational(),
     );

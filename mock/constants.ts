@@ -1,4 +1,3 @@
-import _ from "lodash";
 const constants = {
   OK: 0,
   ERR_NOT_OWNER: -1,

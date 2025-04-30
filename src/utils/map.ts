@@ -1,17 +1,3 @@
-import _ from "lodash";
-/**
- * Runs a function for every tile in range around a given center coordinate.
- *
- * @param {number} x
- *   Center tile's x coordinate.
- * @param {number} y
- *   Center tile's y coordinate.
- * @param {function} callback
- *   Callback that gets invoked for every tile with x and y coordinates as
- *   arguments. It may explicitly return false to stop looping through tiles.
- * @param {number} range
- *   (Optional) Range around the center to run code for. Defaults to 1.
- */
 function handleMapArea(
   x: number,
   y: number,

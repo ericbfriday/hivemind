@@ -1,4 +1,4 @@
-import _ from "lodash";
+import each from "lodash/each";
 /* global FIND_RUINS FIND_DROPPED_RESOURCES FIND_TOMBSTONES
 STRUCTURE_STORAGE STRUCTURE_TERMINAL FIND_SYMBOL_CONTAINERS */
 
@@ -71,7 +71,7 @@ export default class MuleRole extends Role {
     creep.heapMemory.demiseReported = true;
 
     const storageContents = [];
-    _.each(creep.store, (amount, resourceType) => {
+    each(creep.store, (amount, resourceType) => {
       if (amount === 0) return;
       storageContents.push(amount + " " + resourceType);
     });
@@ -152,24 +152,18 @@ export default class MuleRole extends Role {
     if (!this.tradeRoute.isActive()) {
       if (creep.store.getUsedCapacity() > 0) {
         // Choose a resource and deliver it.
-        _.each(
-          creep.store,
-          (amount: number, resourceType: ResourceConstant) => {
-            if (!amount || amount === 0) return null;
+        each(creep.store, (amount: number, resourceType: ResourceConstant) => {
+          if (!amount || amount === 0) return null;
 
-            const target = creep.room.getBestStorageTarget(
-              amount,
-              resourceType,
-            );
-            if (!target) return false;
+          const target = creep.room.getBestStorageTarget(amount, resourceType);
+          if (!target) return false;
 
-            creep.whenInRange(1, target, () => {
-              creep.transfer(target, resourceType);
-            });
+          creep.whenInRange(1, target, () => {
+            creep.transfer(target, resourceType);
+          });
 
-            return false;
-          },
-        );
+          return false;
+        });
         return;
       }
 

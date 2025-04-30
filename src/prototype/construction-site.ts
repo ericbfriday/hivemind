@@ -1,4 +1,4 @@
-import _ from "lodash";
+import includes from "lodash/includes";
 /* global ConstructionSite OBSTACLE_OBJECT_TYPES */
 
 declare global {
@@ -17,7 +17,7 @@ ConstructionSite.prototype.isWalkable = function (
   this: ConstructionSite,
 ): boolean {
   if (!this.my) return true;
-  if (_.includes(OBSTACLE_OBJECT_TYPES, this.structureType)) return false;
+  if (includes(OBSTACLE_OBJECT_TYPES, this.structureType)) return false;
 
   return true;
 };

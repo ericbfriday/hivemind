@@ -1,8 +1,8 @@
-import _ from "lodash";
+import keys from "lodash/keys";
 function getResourcesIn(
   store: StoreDefinition | Partial<Record<ResourceConstant, any>>,
 ): ResourceConstant[] {
-  return _.keys(store) as ResourceConstant[];
+  return keys(store) as ResourceConstant[];
 }
 
 export { getResourcesIn };

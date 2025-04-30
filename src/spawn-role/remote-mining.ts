@@ -1,4 +1,11 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import sum from "lodash/sum";
+import map from "lodash/map";
+import countBy from "lodash/countBy";
+import sample from "lodash/sample";
+import size from "lodash/size";
+import some from "lodash/some";
+import min from "lodash/min";
 /* global MOVE CLAIM BODYPART_COST CONTROLLER_RESERVE_MAX RESOURCE_ENERGY */
 
 import BodyBuilder, {
@@ -83,14 +90,14 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
     const haulerSpawnTime = (haulerBody?.length || 0) * CREEP_SPAWN_TIME;
 
     const currentlyNeededCarryParts = this.getNeededCarryParts(room);
-    const currentHaulers = _.filter(
+    const currentHaulers = filter(
       Game.creepsByRole["hauler.relay"],
       (creep) =>
         creep.memory.sourceRoom === room.name &&
         (creep.spawning || creep.ticksToLive > haulerSpawnTime),
     );
-    const currentCarryParts = _.sum(
-      _.map(currentHaulers, (creep) => creep.getActiveBodyparts(CARRY)),
+    const currentCarryParts = sum(
+      map(currentHaulers, (creep) => creep.getActiveBodyparts(CARRY)),
     );
 
     if (currentCarryParts >= currentlyNeededCarryParts) return;
@@ -151,7 +158,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
       room,
       maximumNeededCarryParts,
     );
-    const maxCarryPartsOnBiggestBody = _.countBy(maximumBody)[CARRY];
+    const maxCarryPartsOnBiggestBody = countBy(maximumBody)[CARRY];
     const maxCarryPartsToEmptyContainer = Math.ceil(
       (0.9 * CONTAINER_CAPACITY) / CARRY_CAPACITY,
     );
@@ -166,7 +173,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
   }
 
   getActiveRemoteHarvestPositions(room: Room): RoomPosition[] {
-    return _.filter(room.getRemoteHarvestSourcePositions(), (position) => {
+    return filter(room.getRemoteHarvestSourcePositions(), (position) => {
       const operation =
         Game.operationsByType.mining["mine:" + position.roomName];
 
@@ -188,12 +195,12 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
     if (!room.storage && !room.terminal) return;
 
     const currentlyNeededWorkParts = this.getNeededWorkParts(room);
-    const currentBuilders = _.filter(
+    const currentBuilders = filter(
       Game.creepsByRole["builder.mines"],
       (creep) => creep.memory.sourceRoom === room.name,
     );
-    const currentWorkParts = _.sum(
-      _.map(currentBuilders, (creep) => creep.getActiveBodyparts(WORK)),
+    const currentWorkParts = sum(
+      map(currentBuilders, (creep) => creep.getActiveBodyparts(WORK)),
     );
 
     if (currentWorkParts >= currentlyNeededWorkParts) return;
@@ -250,7 +257,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
       .setMovementMode(hasRoads ? MOVEMENT_MODE_ROAD : MOVEMENT_MODE_PLAINS)
       .setEnergyLimit(room.energyCapacityAvailable)
       .build();
-    const maxWorkParts = _.countBy(maximumBody)[WORK];
+    const maxWorkParts = countBy(maximumBody)[WORK];
     const maxBuilders = Math.ceil(maximumNeededWorkParts / maxWorkParts);
     const adjustedWorkParts = Math.ceil(maximumNeededWorkParts / maxBuilders);
 
@@ -285,16 +292,16 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
       if (!operation.hasActiveHarvesters()) continue;
 
       // @todo Cache path for claimers, as well, to get an exact number.
-      const pathLength = _.sample(operation.getPaths())?.path?.length || 50;
+      const pathLength = sample(operation.getPaths())?.path?.length || 50;
       const claimerBody = this.getClaimerCreepBody(room);
       const claimerSpawnTime = claimerBody.length * CREEP_SPAWN_TIME;
-      const claimers = _.filter(
+      const claimers = filter(
         Game.creepsByRole.claimer || {},
         (creep: ClaimerCreep) =>
           creep.memory.mission === "reserve" &&
           creep.memory.target === encodePosition(pos),
       );
-      const activeClaimersOnArrival = _.filter(
+      const activeClaimersOnArrival = filter(
         claimers,
         (creep) =>
           creep.spawning || creep.ticksToLive > pathLength + claimerSpawnTime,
@@ -303,7 +310,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 
       const roomMemory = Memory.rooms[pos.roomName];
       if (roomMemory?.lastClaim) {
-        const claimPartCount = _.filter(
+        const claimPartCount = filter(
           claimerBody,
           (part) => part === CLAIM,
         ).length;
@@ -312,7 +319,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
           (claimPartCount - 1) * effectiveLifetime;
         const remainingReservation =
           roomMemory.lastClaim.value + (roomMemory.lastClaim.time - Game.time);
-        const extraReservation = _.sum(
+        const extraReservation = sum(
           claimers,
           (creep) =>
             Math.min(
@@ -365,13 +372,13 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
   ) {
     const roomIntel = getRoomIntel(roomName);
     if (roomIntel.isClaimable()) return;
-    if (_.size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) == 0) return;
+    if (size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) == 0) return;
 
-    const currentCreeps = _.filter(
+    const currentCreeps = filter(
       Game.creepsByRole.skKiller,
       (creep) => creep.memory.targetRoom === roomName,
     );
-    const isActiveRoom = _.some(
+    const isActiveRoom = some(
       Game.creepsByRole["harvester.remote"],
       (creep) => creep.memory.targetRoom === roomName,
     );
@@ -385,7 +392,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
     if (!operation) return;
 
     const paths = operation.getPaths();
-    const travelTime = _.min(_.map(paths, (path) => path.travelTime ?? 500));
+    const travelTime = min(map(paths, (path) => path.travelTime ?? 500));
     if (!travelTime) return;
 
     const option: SkKillerSpawnOption = {
@@ -399,7 +406,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
     if (!body || body.length < MAX_CREEP_SIZE) return;
 
     const creepSpawnTime = body.length * CREEP_SPAWN_TIME;
-    const activeSkKillers = _.filter(currentCreeps, (creep: SkKillerCreep) => {
+    const activeSkKillers = filter(currentCreeps, (creep: SkKillerCreep) => {
       // @todo Instead of filtering for every room, this could be grouped once per tick.
       if (creep.spawning) return true;
       if (creep.ticksToLive > Math.min(travelTime + creepSpawnTime + 100, 600))
@@ -435,7 +442,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
     )
       return;
 
-    const isActiveRoom = _.some(
+    const isActiveRoom = some(
       Game.creepsByRole["harvester.remote"],
       (creep: RemoteHarvesterCreep) => creep.memory.source === targetPos,
     );
@@ -448,9 +455,9 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
     const roomIntel = getRoomIntel(position.roomName);
     if (
       !roomIntel.isClaimable() &&
-      _.size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0
+      size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0
     ) {
-      const hasSkKiller = _.some(
+      const hasSkKiller = some(
         Game.creepsByRole.skKiller,
         (creep) => creep.memory.targetRoom === position.roomName,
       );
@@ -498,7 +505,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
 
     const creepSpawnTime =
       this.getCreepBody(room, option)?.length * CREEP_SPAWN_TIME || 0;
-    const harvesters = _.filter(
+    const harvesters = filter(
       Game.creepsByRole["harvester.remote"] || {},
       (creep: RemoteHarvesterCreep) => {
         // @todo Instead of filtering for every room, this could be grouped once per tick.
@@ -525,7 +532,7 @@ export default class RemoteMiningSpawnRole extends SpawnRole {
       operation.hasContainer(targetPos) || room.controller.level > 5
         ? 0.9
         : (BUILD_POWER + HARVEST_POWER) / BUILD_POWER;
-    const workParts = _.sum(harvesters, (creep) =>
+    const workParts = sum(harvesters, (creep) =>
       creep.getActiveBodyparts(WORK),
     );
     if (

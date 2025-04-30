@@ -1,4 +1,10 @@
-import _ from "lodash";
+import each from "lodash/each";
+import first from "lodash/first";
+import keys from "lodash/keys";
+import find from "lodash/find";
+import filter from "lodash/filter";
+import some from "lodash/some";
+import sample from "lodash/sample";
 /* global RoomPosition SOURCE_ENERGY_CAPACITY CARRY_CAPACITY
 SOURCE_ENERGY_NEUTRAL_CAPACITY ENERGY_REGEN_TIME CONTROLLER_RESERVE_MAX
 HARVEST_POWER LOOK_STRUCTURES STRUCTURE_CONTAINER */
@@ -65,7 +71,7 @@ export default class RemoteMiningOperation extends Operation {
       const result: Record<string, string[]> = {};
       const paths = this.getPaths();
 
-      _.each(paths, (info, sourceLocation) => {
+      each(paths, (info, sourceLocation) => {
         if (!info.accessible) return;
         if (!result[info.sourceRoom]) result[info.sourceRoom] = [];
 
@@ -112,7 +118,7 @@ export default class RemoteMiningOperation extends Operation {
    * @todo Use room with higher rcl or spawn capacity.
    */
   getClaimerSourceRoom() {
-    return _.first(_.keys(this.getMiningLocationsByRoom()));
+    return first(keys(this.getMiningLocationsByRoom()));
   }
 
   /**
@@ -336,14 +342,14 @@ export default class RemoteMiningOperation extends Operation {
     }
 
     const structures = position.lookFor(LOOK_STRUCTURES);
-    const structure = _.find(
+    const structure = find(
       structures,
       (structure) => structure.structureType === structureType,
     );
     if (structure) return structure.hitsMax - structure.hits;
 
     const sites = position.lookFor(LOOK_STRUCTURES);
-    const site = _.find(sites, (site) => site.structureType === structureType);
+    const site = find(sites, (site) => site.structureType === structureType);
     if (site) return site.hitsMax * REPAIR_POWER;
 
     return CONSTRUCTION_COST[structureType] * REPAIR_POWER;
@@ -449,7 +455,7 @@ export default class RemoteMiningOperation extends Operation {
 
       const containerPosition = this.getContainerPosition(sourceLocation);
       if (!containerPosition) return false;
-      const structures = _.filter(
+      const structures = filter(
         containerPosition.lookFor(LOOK_STRUCTURES),
         (struct: AnyStructure) => struct.structureType === STRUCTURE_CONTAINER,
       ) as StructureContainer[];
@@ -540,7 +546,7 @@ export default class RemoteMiningOperation extends Operation {
 
   hasActiveHarvesters(sourceLocation?: string): boolean {
     if (sourceLocation)
-      return _.some(
+      return some(
         Game.creepsByRole["harvester.remote"],
         (creep: RemoteHarvesterCreep) => creep.memory.source === sourceLocation,
       );
@@ -640,8 +646,8 @@ export default class RemoteMiningOperation extends Operation {
         if (!Game.rooms[pos.roomName] || Game.rooms[pos.roomName].isMine())
           continue;
 
-        const road = _.sample(
-          _.filter(
+        const road = sample(
+          filter(
             pos.lookFor(LOOK_STRUCTURES),
             (s) => s.structureType === STRUCTURE_ROAD,
           ),

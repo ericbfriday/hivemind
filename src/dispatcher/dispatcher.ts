@@ -1,4 +1,4 @@
-import _ from "lodash";
+import sortBy from "lodash/sortBy";
 import TaskProvider from "dispatcher/task-provider";
 import utilities from "utilities";
 
@@ -45,7 +45,7 @@ export default class Dispatcher<TaskType extends Task, ContextType> {
   getProvidersByPriority(
     context: ContextType,
   ): Array<TaskProvider<TaskType, ContextType>> {
-    return _.sortBy(
+    return sortBy(
       this.providers,
       (provider) => -provider.getHighestPriority(context),
     );

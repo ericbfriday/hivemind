@@ -1,4 +1,7 @@
-import _ from "lodash";
+import size from "lodash/size";
+import each from "lodash/each";
+import filter from "lodash/filter";
+import any from "lodash/any";
 /* global RawMemory */
 
 // Make sure game object prototypes are enhanced.
@@ -166,7 +169,7 @@ class BotKernel {
 
     if (shardHasRooms) {
       hivemind.runProcess("strategy.remote_mining", RemoteMiningProcess, {
-        interval: _.size(Game.myRooms) === 1 ? 20 : 100,
+        interval: size(Game.myRooms) === 1 ? 20 : 100,
       });
 
       hivemind.runProcess("player-intel", PlayerIntelProcess, {
@@ -268,7 +271,7 @@ class BotKernel {
 
     stats.recordStat("cpu_total", time);
     stats.recordStat("bucket", Game.cpu.bucket);
-    stats.recordStat("creeps", _.size(Game.creeps));
+    stats.recordStat("creeps", size(Game.creeps));
   }
 
   /**
@@ -341,7 +344,7 @@ class BotKernel {
 
     // Periodically clean memory that is no longer needed.
     if (Game.time % 1234 === 56) {
-      _.each(Memory.rooms, (roomMemory: DeprecatedRoomMemory) => {
+      each(Memory.rooms, (roomMemory: DeprecatedRoomMemory) => {
         delete roomMemory.bays;
         delete roomMemory.minerals;
         delete roomMemory.remoteHarvesting;
@@ -360,7 +363,7 @@ class BotKernel {
 
   cleanupRoomMemory() {
     let count = 0;
-    _.each(Memory.rooms, (memory, roomName) => {
+    each(Memory.rooms, (memory, roomName) => {
       if (getRoomIntel(roomName).getAge() > 100_000) {
         delete Memory.rooms[roomName];
         count++;
@@ -377,7 +380,7 @@ class BotKernel {
   }
 
   cleanupSquadMemory() {
-    _.each(Memory.squads, (memory, squadName) => {
+    each(Memory.squads, (memory, squadName) => {
       // Only delete if squad can't be spawned.
       if (memory.spawnRoom && Game.rooms[memory.spawnRoom]) return;
 
@@ -386,11 +389,8 @@ class BotKernel {
 
       // Only delete if there are no creeps belonging to this squad.
       if (
-        _.size(
-          _.filter(
-            Game.creeps,
-            (creep) => creep.memory.squadName === squadName,
-          ),
+        size(
+          filter(Game.creeps, (creep) => creep.memory.squadName === squadName),
         ) > 0
       )
         return;
@@ -405,7 +405,7 @@ class BotKernel {
       if (route.active) continue;
 
       if (
-        _.any(
+        any(
           Game.creepsByRole?.mule || [],
           (creep: MuleCreep) => creep.memory.route === routeName,
         )

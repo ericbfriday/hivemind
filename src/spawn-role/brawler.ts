@@ -1,4 +1,7 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import size from "lodash/size";
+import each from "lodash/each";
+import cloneDeep from "lodash/cloneDeep";
 /* global RoomPosition MOVE ATTACK HEAL RANGED_ATTACK ATTACK_POWER
 RANGED_ATTACK_POWER HEAL_POWER RESOURCE_ENERGY */
 
@@ -100,11 +103,11 @@ export default class BrawlerSpawnRole extends SpawnRole {
       )
         continue;
 
-      const brawlers = _.filter(
+      const brawlers = filter(
         Game.creepsByRole.brawler || [],
         (creep: Creep) => creep.memory.operation === "mine:" + pos.roomName,
       );
-      if (_.size(brawlers) > 0) continue;
+      if (size(brawlers) > 0) continue;
 
       const totalEnemyData = operation.getTotalEnemyData();
       const responseType = this.getDefenseCreepSize(room, totalEnemyData);
@@ -136,7 +139,7 @@ export default class BrawlerSpawnRole extends SpawnRole {
       return;
     if (room.getEffectiveAvailableEnergy() < 10_000) return;
 
-    _.each(Memory.strategy.power.rooms, (info, roomName) => {
+    each(Memory.strategy.power.rooms, (info, roomName) => {
       if (!info.isActive) return;
       if (!info.spawnRooms[room.name]) return;
 
@@ -144,17 +147,17 @@ export default class BrawlerSpawnRole extends SpawnRole {
       if (!roomMemory || !roomMemory.enemies) return;
       if (roomMemory.enemies.safe) return;
 
-      const brawlers = _.filter(
+      const brawlers = filter(
         Game.creepsByRole.brawler || [],
         (creep) =>
           creep.memory.target &&
           decodePosition(creep.memory.target).roomName === roomName,
       );
-      if (_.size(brawlers) > 0) return;
+      if (size(brawlers) > 0) return;
 
       // We don't care about melee attacks, plenty of attack creeps in the
       // room when we're harvesting power.
-      const enemies = _.cloneDeep(roomMemory.enemies);
+      const enemies = cloneDeep(roomMemory.enemies);
       // @todo Retain information about enemy boosts affecting damage.
       enemies.damage -= (enemies.parts[ATTACK] || 0) * ATTACK_POWER * 0.9;
       if (enemies.parts[ATTACK]) enemies.parts[ATTACK] *= 0.1;
@@ -216,11 +219,11 @@ export default class BrawlerSpawnRole extends SpawnRole {
 
     // If damage and heal suffices, use single range / heal creep.
     const blinkyBody = this.getBlinkyCreepBody(room);
-    const numberBlinkyRanged = _.filter(
+    const numberBlinkyRanged = filter(
       blinkyBody,
       (p) => p === RANGED_ATTACK,
     ).length;
-    const numberBlinkyHeal = _.filter(blinkyBody, (p) => p === HEAL).length;
+    const numberBlinkyHeal = filter(blinkyBody, (p) => p === HEAL).length;
     if (
       enemyPower <
       numberBlinkyRanged * RANGED_ATTACK_POWER +
@@ -233,12 +236,12 @@ export default class BrawlerSpawnRole extends SpawnRole {
     const attackBody = this.getAttackCreepBody(room);
     const rangedBody = this.getRangedCreepBody(room);
     const healBody = this.getHealCreepBody(room);
-    const numberTrainAttack = _.filter(attackBody, (p) => p === ATTACK).length;
-    const numberTrainRanged = _.filter(
+    const numberTrainAttack = filter(attackBody, (p) => p === ATTACK).length;
+    const numberTrainRanged = filter(
       rangedBody,
       (p) => p === RANGED_ATTACK,
     ).length;
-    const numberTrainHeal = _.filter(healBody, (p) => p === HEAL).length;
+    const numberTrainHeal = filter(healBody, (p) => p === HEAL).length;
 
     // if (!isRangedEnemy && enemyPower < (numberTrainAttack * ATTACK_POWER) + (numberTrainHeal * HEAL_POWER * healValue)) {
     // 	return RESPONSE_ATTACK_HEAL_TRAIN;
@@ -301,10 +304,10 @@ export default class BrawlerSpawnRole extends SpawnRole {
    *   A list of spawn options to add to.
    */
   getTrainPartSpawnOptions(room: Room, options: BrawlerSpawnOption[]) {
-    const trainStarters = _.filter(
+    const trainStarters = filter(
       room.creepsByRole.brawler || [],
       (creep: Creep) =>
-        creep.memory.train && _.size(creep.memory.train.partsToSpawn) > 0,
+        creep.memory.train && size(creep.memory.train.partsToSpawn) > 0,
     );
 
     for (const creep of trainStarters) {
@@ -342,7 +345,7 @@ export default class BrawlerSpawnRole extends SpawnRole {
     if (!targetRoom.isSafeForReclaiming()) return false;
     if (!targetRoom.roomPlanner) return false;
 
-    const remoteDefense = _.filter(
+    const remoteDefense = filter(
       Game.creepsByRole.brawler,
       (creep: Creep) =>
         creep.memory.target ===

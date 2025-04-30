@@ -1,4 +1,3 @@
-import _ from "lodash";
 import hivemind from "hivemind";
 import RoomPlan from "room/planner/room-plan";
 

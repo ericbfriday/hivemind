@@ -1,4 +1,6 @@
-import _ from "lodash";
+import min from "lodash/min";
+import filter from "lodash/filter";
+import map from "lodash/map";
 /* global STRUCTURE_ROAD OK RESOURCE_ENERGY LOOK_CREEPS
 STRUCTURE_CONTAINER FIND_SOURCES LOOK_CONSTRUCTION_SITES
 FIND_MY_CONSTRUCTION_SITES */
@@ -67,8 +69,8 @@ export default class RemoteHarvesterRole extends Role {
 
     if (!creep.hasCachedPath()) {
       const paths = creep.operation.getPaths();
-      const path = _.min(
-        _.filter(paths, (path) => path.accessible),
+      const path = min(
+        filter(paths, (path) => path.accessible),
         (path) => path.travelTime ?? 500,
       );
 
@@ -112,18 +114,18 @@ export default class RemoteHarvesterRole extends Role {
 
         if (
           creep.owner.username === "Source Keeper" &&
-          _.min(
-            _.map(
+          min(
+            map(
               room.structuresByType[STRUCTURE_KEEPER_LAIR],
               (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos),
             ),
           ) <= 5
         ) {
-          const closestLair = _.min(
+          const closestLair = min(
             room.structuresByType[STRUCTURE_KEEPER_LAIR],
             (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos),
           );
-          const closestResource = _.min(
+          const closestResource = min(
             [...room.sources, ...room.minerals],
             (s: Source | Mineral) => s.pos.getRangeTo(closestLair.pos),
           );
@@ -168,7 +170,7 @@ export default class RemoteHarvesterRole extends Role {
     }
 
     // If there's no current target, move to SK lair with soonest respawn.
-    const nextLair = _.min(
+    const nextLair = min(
       room.structuresByType[STRUCTURE_KEEPER_LAIR],
       (s: StructureKeeperLair) => s.ticksToSpawn,
     );
@@ -184,7 +186,7 @@ export default class RemoteHarvesterRole extends Role {
       if (target) return target;
     }
 
-    const target = _.min(sourceKeepers, (c) => c.pos.getRangeTo(creep.pos));
+    const target = min(sourceKeepers, (c) => c.pos.getRangeTo(creep.pos));
     creep.heapMemory.targetCreep = target.id;
 
     return target;

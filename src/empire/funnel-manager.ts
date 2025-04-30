@@ -1,4 +1,7 @@
-import _ from "lodash";
+import groupBy from "lodash/groupBy";
+import some from "lodash/some";
+import max from "lodash/max";
+import filter from "lodash/filter";
 import cache from "utils/cache";
 import container from "utils/container";
 import TradeRoute from "trade-route";
@@ -19,7 +22,7 @@ export default class FunnelManager {
   getRoomsToFunnel(): string[] {
     return cache.inHeap("funneledRooms", 500, () => {
       const funneledRooms: string[] = [];
-      const roomsAtLevel = _.groupBy(
+      const roomsAtLevel = groupBy(
         this.getAvailableRoomsToFunnel(),
         (room) => room.controller.level,
       );
@@ -28,7 +31,7 @@ export default class FunnelManager {
       const hasRCL7 = (roomsAtLevel[7]?.length || 0) > 0;
       const hasRCL6 = (roomsAtLevel[6]?.length || 0) > 0;
       const hasEnoughRCL7 = (roomsAtLevel[7]?.length || 0) > 2;
-      const hasTooMuchEnergy = _.some(
+      const hasTooMuchEnergy = some(
         Game.myRooms,
         (room) =>
           room.getEffectiveAvailableEnergy() > 300_000 &&
@@ -50,12 +53,12 @@ export default class FunnelManager {
       if (hasEnoughRCL7 || (!hasRCL6 && hasRCL7)) {
         // Funnel to best RCL 7 room.
         funneledRooms.push(
-          _.max(roomsAtLevel[7], (room) => this.getFunnelRoomScore(room)).name,
+          max(roomsAtLevel[7], (room) => this.getFunnelRoomScore(room)).name,
         );
       } else if (hasRCL6) {
         // Funnel to best RCL 6 or 7 room.
         funneledRooms.push(
-          _.max(
+          max(
             [...(roomsAtLevel[6] ?? []), ...(roomsAtLevel[7] ?? [])],
             (room) => this.getFunnelRoomScore(room),
           ).name,
@@ -67,7 +70,7 @@ export default class FunnelManager {
   }
 
   protected getAvailableRoomsToFunnel(): Room[] {
-    return _.filter(Game.myRooms, (room) => {
+    return filter(Game.myRooms, (room) => {
       if (!room.terminal) return false;
       if (room.isStripmine() && room.controller.level >= 6) return false;
       if (room.isEvacuating()) return false;
@@ -96,7 +99,7 @@ export default class FunnelManager {
   }
 
   manageTradeRoutes() {
-    const funnelTargets = _.filter(
+    const funnelTargets = filter(
       Game.myRooms,
       (room) =>
         room.storage &&
@@ -113,7 +116,7 @@ export default class FunnelManager {
   getRequestedFunnelTradeRoutes(funnelTargets: Room[]): TraderouteInfo[] {
     const tradeRoutes: TraderouteInfo[] = [];
     for (const room of funnelTargets) {
-      const sourceRooms = _.filter(
+      const sourceRooms = filter(
         Game.myRooms,
         (sourceRoom) =>
           sourceRoom.controller.level >= 7 &&

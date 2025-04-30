@@ -1,4 +1,4 @@
-import _ from "lodash";
+import size from "lodash/size";
 import cache from "utils/cache";
 
 declare global {
@@ -84,7 +84,7 @@ export default class FactoryManager {
     const neededResources = {};
 
     const jobs = this.getJobs();
-    const numberJobs = _.size(jobs);
+    const numberJobs = size(jobs);
 
     let productName: FactoryProductConstant;
     for (productName in jobs) {

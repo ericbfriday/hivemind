@@ -1,4 +1,6 @@
-import _ from "lodash";
+import size from "lodash/size";
+import sample from "lodash/sample";
+import filter from "lodash/filter";
 /* global RESOURCE_ENERGY OK STRUCTURE_CONTAINER WORK
 UPGRADE_CONTROLLER_POWER */
 
@@ -92,7 +94,7 @@ export default class UpgraderRole extends Role {
     const distance = creep.pos.getRangeTo(controller);
     const isOnlyUpgrader =
       creep.memory.role === "upgrader" &&
-      _.size(creep.room.creepsByRole.upgrader) === 1;
+      size(creep.room.creepsByRole.upgrader) === 1;
     if (distance > 3 && isOnlyUpgrader) {
       const upgraderPosition = cache.inHeap(
         "upgraderPosition:" + creep.room.name,
@@ -101,7 +103,7 @@ export default class UpgraderRole extends Role {
           if (!creep.room.roomPlanner) return null;
 
           // Get harvest position from room planner.
-          return _.sample(creep.room.roomPlanner.getLocations("upgrader.0"));
+          return sample(creep.room.roomPlanner.getLocations("upgrader.0"));
         },
       );
       if (upgraderPosition) creep.goTo(upgraderPosition);
@@ -211,7 +213,7 @@ export default class UpgraderRole extends Role {
     }
 
     // Could also try to get energy from another nearby container.
-    const otherContainers = _.filter(
+    const otherContainers = filter(
       creep.room.structuresByType[STRUCTURE_CONTAINER],
       (structure) =>
         structure.store.energy > CONTAINER_CAPACITY / 4 &&

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import values from "lodash/values";
 import TaskProvider from "dispatcher/task-provider";
 import { ENEMY_STRENGTH_NORMAL } from "room-defense";
 
@@ -66,7 +66,7 @@ export default class WorkerCreepDestination extends TaskProvider<
     weight: number,
     context: ResourceDestinationContext,
   ) {
-    for (const creep of _.values<Creep>(this.room.creepsByRole[role])) {
+    for (const creep of values(this.room.creepsByRole[role])) {
       if (creep.spawning) continue;
       if (
         creep.store.getFreeCapacity(RESOURCE_ENERGY) <

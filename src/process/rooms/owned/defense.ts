@@ -1,4 +1,5 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import min from "lodash/min";
 /* global STRUCTURE_TOWER HEAL */
 
 import hivemind from "hivemind";
@@ -51,7 +52,7 @@ export default class RoomDefenseProcess extends Process {
    * Manages this room's towers.
    */
   manageTowers() {
-    const towers = _.filter(
+    const towers = filter(
       this.room.myStructuresByType[STRUCTURE_TOWER],
       (s) => s.energy > 0 && s.isOperational(),
     );
@@ -117,7 +118,7 @@ export default class RoomDefenseProcess extends Process {
       "damagedTargetsToHeal",
       1,
       () => {
-        const damagedCreeps = _.filter(
+        const damagedCreeps = filter(
           tower.room.creeps,
           (creep) =>
             creep.hits < creep.hitsMax &&
@@ -125,7 +126,7 @@ export default class RoomDefenseProcess extends Process {
               creep.getActiveBodyparts(RANGED_ATTACK) > 0 ||
               enemyStrength === 0),
         );
-        const damagedPCs = _.filter(
+        const damagedPCs = filter(
           tower.room.powerCreeps,
           (creep) => creep.hits < creep.hitsMax,
         );
@@ -135,7 +136,7 @@ export default class RoomDefenseProcess extends Process {
     );
     if (damagedTargets.length === 0) return false;
 
-    const bestTarget = _.min(
+    const bestTarget = min(
       damagedTargets,
       (creep) =>
         creep.hits /
@@ -188,7 +189,7 @@ export default class RoomDefenseProcess extends Process {
     );
     if (availableRamparts.size === 0) return false;
 
-    const prioritizedRampart = _.min(
+    const prioritizedRampart = min(
       [...availableRamparts],
       (rampart) =>
         rampart.hits /
@@ -257,7 +258,7 @@ export default class RoomDefenseProcess extends Process {
   }
 
   getImportantStructures() {
-    const importantStructures: Array<Structure | ConstructionSite> = _.filter(
+    const importantStructures: Array<Structure | ConstructionSite> = filter(
       this.room.myStructures,
       (structure) =>
         (

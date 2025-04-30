@@ -1,4 +1,4 @@
-import _ from "lodash";
+import each from "lodash/each";
 declare global {
   interface Memory {
     throttleInfo: {
@@ -80,7 +80,7 @@ function initThrottleMemory(): void {
     const sequence = generateEvenSequence(8, 2);
     const max = sequence[0];
 
-    _.each(sequence, (number, index) => {
+    each(sequence, (number, index) => {
       throttleNumbers[index] = 1 - number / max;
     });
 

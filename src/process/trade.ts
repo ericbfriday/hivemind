@@ -1,4 +1,10 @@
-import _ from "lodash";
+import size from "lodash/size";
+import filter from "lodash/filter";
+import each from "lodash/each";
+import some from "lodash/some";
+import min from "lodash/min";
+import max from "lodash/max";
+import reduce from "lodash/reduce";
 /* global RESOURCES_ALL RESOURCE_ENERGY RESOURCE_POWER OK RESOURCE_OPS
 ORDER_BUY ORDER_SELL PIXEL STORAGE_CAPACITY INTERSHARD_RESOURCES
 REACTION_TIME */
@@ -49,7 +55,7 @@ export default class TradeProcess extends Process {
     if (!hivemind.settings.get("enableTradeManagement")) return;
 
     // Only trade if we have a terminal to trade with.
-    if (_.size(_.filter(Game.myRooms, (room) => room.terminal)) === 0) return;
+    if (size(filter(Game.myRooms, (room) => room.terminal)) === 0) return;
 
     this.removeOldTrades();
 
@@ -177,7 +183,7 @@ export default class TradeProcess extends Process {
       }
 
       // Also try to cheaply buy some energy for rooms that are low on it.
-      _.each(resources.rooms, (roomState, roomName) => {
+      each(resources.rooms, (roomState, roomName) => {
         if (!roomState.canTrade) return;
         if (roomState.isEvacuating) return;
         if (
@@ -585,7 +591,7 @@ export default class TradeProcess extends Process {
     ignoreOtherRooms?: boolean,
   ) {
     if (
-      _.some(Game.market.orders, (order) => {
+      some(Game.market.orders, (order) => {
         if (order.type === ORDER_BUY && order.resourceType === resourceType) {
           if (ignoreOtherRooms && !rooms[order.roomName]) {
             return false;
@@ -681,7 +687,7 @@ export default class TradeProcess extends Process {
     rooms: Record<string, RoomResourceState>,
   ) {
     if (
-      _.some(
+      some(
         Game.market.orders,
         (order) =>
           order.type === ORDER_SELL && order.resourceType === resourceType,
@@ -766,7 +772,7 @@ export default class TradeProcess extends Process {
   ): string {
     let minAmount: number;
     let bestRoom: string;
-    _.each(rooms, (roomState: RoomResourceState, roomName: string) => {
+    each(rooms, (roomState: RoomResourceState, roomName: string) => {
       if (!roomState.canTrade) return;
       if (Game.rooms[roomName]?.isFullOn(resourceType)) return;
       if (
@@ -798,7 +804,7 @@ export default class TradeProcess extends Process {
   ): string {
     let maxAmount: number;
     let bestRoom: string;
-    _.each(rooms, (roomState: RoomResourceState, roomName: string) => {
+    each(rooms, (roomState: RoomResourceState, roomName: string) => {
       if (!roomState.canTrade) return;
       if (
         !maxAmount ||
@@ -832,7 +838,7 @@ export default class TradeProcess extends Process {
 
     let maxScore: number;
     let bestOrder: Order;
-    _.each(orders, (order) => {
+    each(orders, (order) => {
       if (order.amount < 100) return;
       const transactionCost = isIntershardResource(resourceType)
         ? 0
@@ -869,7 +875,7 @@ export default class TradeProcess extends Process {
 
     let minScore: number;
     let bestOrder: Order;
-    _.each(orders, (order) => {
+    each(orders, (order) => {
       if (order.amount < 100) return;
       const transactionCost = isIntershardResource(resourceType)
         ? 0
@@ -890,7 +896,7 @@ export default class TradeProcess extends Process {
    * Removes outdated orders from the market.
    */
   removeOldTrades() {
-    _.each(Game.market.orders, (order) => {
+    each(Game.market.orders, (order) => {
       const age = Game.time - order.created;
 
       if (age > 100_000 || order.remainingAmount === 0) {
@@ -987,14 +993,14 @@ export default class TradeProcess extends Process {
       if (history.length < 4) return null;
 
       // Find days with highest and lowest deal values.
-      const minDay = _.min(history, "avgPrice");
-      const maxDay = _.max(history, "avgPrice");
-      const maxDev = _.max(history, "stddevPrice");
+      const minDay = min(history, "avgPrice");
+      const maxDay = max(history, "avgPrice");
+      const maxDev = max(history, "stddevPrice");
 
       let count = 0;
       let totalValue = 0;
       let totalDev = 0;
-      _.each(history, (day) => {
+      each(history, (day) => {
         // Skip days with highest and lowest deal values as outliers.
         if (day.date === minDay.date) return;
         if (day.date === maxDay.date) return;
@@ -1030,7 +1036,7 @@ export default class TradeProcess extends Process {
         return history ? history.average : 0;
       }
 
-      const reagentWorth = _.reduce(
+      const reagentWorth = reduce(
         recipes[resourceType],
         (total: number, componentType: ResourceConstant) => {
           const componentWorth = this.calculateWorth(componentType);

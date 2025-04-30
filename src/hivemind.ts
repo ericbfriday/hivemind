@@ -1,4 +1,9 @@
-import _ from "lodash";
+import each from "lodash/each";
+import map from "lodash/map";
+import filter from "lodash/filter";
+import groupBy from "lodash/groupBy";
+import sortByOrder from "lodash/sortByOrder";
+import round from "lodash/round";
 /* global RoomVisual */
 
 import ProcessInterface from "process/process-interface";
@@ -429,7 +434,7 @@ class Hivemind {
     if (!this.memory.intelMigrated) {
       if (!this.segmentMemory.isReady()) return true;
 
-      _.each(Memory.rooms, (memory: OutdatedRoomMemory, roomName: string) => {
+      each(Memory.rooms, (memory: OutdatedRoomMemory, roomName: string) => {
         if (!memory.intel) return;
 
         const key = "intel:" + roomName;
@@ -444,7 +449,7 @@ class Hivemind {
     if (!this.memory.roomPlannerMigrated) {
       if (!this.segmentMemory.isReady()) return true;
 
-      _.each(Memory.rooms, (memory, roomName) => {
+      each(Memory.rooms, (memory, roomName) => {
         if (!memory.roomPlanner) return;
 
         const key = "planner:" + roomName;
@@ -463,7 +468,7 @@ class Hivemind {
    * Shows a list of processes run in a tick, sorted by CPU usage.
    */
   drawProcessDebug() {
-    const processes = _.map(
+    const processes = map(
       this.memory.process,
       (data: ProcessMemory, id: string) => ({
         id,
@@ -472,9 +477,9 @@ class Hivemind {
         parentId: data.parentId,
       }),
     );
-    const filtered = _.filter(processes, (data) => data.lastCpu > 0.5);
-    const processData = _.groupBy(
-      _.sortByOrder(filtered, ["lastRun", "lastCpu"], ["desc", "desc"]),
+    const filtered = filter(processes, (data) => data.lastCpu > 0.5);
+    const processData = groupBy(
+      sortByOrder(filtered, ["lastRun", "lastCpu"], ["desc", "desc"]),
       "parentId",
     );
 
@@ -482,8 +487,8 @@ class Hivemind {
     let lineNumber = 0;
 
     const drawProcesses = function (parentId, indent) {
-      _.each(processData[parentId], (data) => {
-        visual.text(String(_.round(data.lastCpu, 2)), 5, lineNumber, {
+      each(processData[parentId], (data) => {
+        visual.text(String(round(data.lastCpu, 2)), 5, lineNumber, {
           align: "right",
         });
         visual.text(data.id, 6 + indent, lineNumber, { align: "left" });

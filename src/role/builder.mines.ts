@@ -1,4 +1,7 @@
-import _ from "lodash";
+import max from "lodash/max";
+import filter from "lodash/filter";
+import some from "lodash/some";
+import size from "lodash/size";
 /* global FIND_DROPPED_RESOURCES RESOURCE_ENERGY OK
 ERR_NO_PATH ERR_NOT_IN_RANGE FIND_STRUCTURES STRUCTURE_CONTAINER STRUCTURE_ROAD
 FIND_MY_CONSTRUCTION_SITES LOOK_STRUCTURES MAX_CONSTRUCTION_SITES
@@ -115,8 +118,8 @@ export default class MineBuilderRole extends Role {
 
     if (scoredPositions.length === 0) return;
 
-    const bestPosition = _.max(
-      _.filter(scoredPositions, (p) => p.work > 0),
+    const bestPosition = max(
+      filter(scoredPositions, (p) => p.work > 0),
       "work",
     );
 
@@ -134,13 +137,13 @@ export default class MineBuilderRole extends Role {
 
     const path = operation.getPaths()[targetPos];
 
-    const hasBuilder = _.some(
+    const hasBuilder = some(
       Game.creepsByRole["builder.mines"],
       (c: MineBuilderCreep) => c.memory.source === targetPos,
     );
     if (hasBuilder) return { position, work: 0 };
 
-    const hasHarvester = _.some(
+    const hasHarvester = some(
       Game.creepsByRole["harvester.remote"],
       (c: RemoteHarvesterCreep) => c.memory.source === targetPos,
     );
@@ -238,7 +241,7 @@ export default class MineBuilderRole extends Role {
       this.getSource(creep)?.isDangerous() &&
       creep.pos.getRangeTo(sourcePosition) <= 10
     ) {
-      if (_.size(creep.room.creepsByRole.skKiller) > 0) {
+      if (size(creep.room.creepsByRole.skKiller) > 0) {
         // We wait for SK killer to clean up.
         creep.whenInRange(6, sourcePosition, () => {});
       } else {
@@ -444,10 +447,10 @@ export default class MineBuilderRole extends Role {
       // Create construction site in remote rooms.
       if (
         !tileHasRoad &&
-        _.size(Game.constructionSites) < MAX_CONSTRUCTION_SITES * 0.7
+        size(Game.constructionSites) < MAX_CONSTRUCTION_SITES * 0.7
       ) {
         const sites = position.lookFor(LOOK_CONSTRUCTION_SITES);
-        const numberSites = _.filter(
+        const numberSites = filter(
           Game.constructionSites,
           (site) => site.pos.roomName === position.roomName,
         ).length;
@@ -537,7 +540,7 @@ export default class MineBuilderRole extends Role {
     if (!containerPosition || containerPosition.roomName !== creep.pos.roomName)
       return false;
 
-    const sites = _.filter(
+    const sites = filter(
       containerPosition.lookFor(LOOK_CONSTRUCTION_SITES),
       (site) => site.structureType === STRUCTURE_CONTAINER,
     );

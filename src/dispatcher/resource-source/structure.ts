@@ -1,4 +1,3 @@
-import _ from "lodash";
 import TaskProvider from "dispatcher/task-provider";
 import { getDangerMatrix } from "utils/cost-matrix";
 

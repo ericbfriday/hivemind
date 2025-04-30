@@ -1,4 +1,7 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import sortBy from "lodash/sortBy";
+import size from "lodash/size";
+import each from "lodash/each";
 /* global PathFinder STRUCTURE_KEEPER_LAIR */
 
 import cache from "utils/cache";
@@ -34,13 +37,13 @@ export default class RemotePathManager {
       return unpackPosList(memory.path);
     }
 
-    const availableSourceRooms = _.filter(
+    const availableSourceRooms = filter(
       Game.myRooms,
       (r) =>
         Game.map.getRoomLinearDistance(sourcePosition.roomName, r.name) <=
         hivemind.settings.get("maxRemoteMineRoomDistance"),
     );
-    const sortedByDist = _.sortBy(availableSourceRooms, (r) =>
+    const sortedByDist = sortBy(availableSourceRooms, (r) =>
       Game.map.getRoomLinearDistance(sourcePosition.roomName, r.name),
     );
 
@@ -113,10 +116,10 @@ export default class RemotePathManager {
 
         if (
           !isTargetRoom &&
-          _.size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0
+          size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0
         ) {
           // Disallow areas around source keeper sources.
-          _.each(roomIntel.getSourcePositions(), (sourceInfo) => {
+          each(roomIntel.getSourcePositions(), (sourceInfo) => {
             handleMapArea(
               sourceInfo.x,
               sourceInfo.y,

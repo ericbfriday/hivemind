@@ -1,4 +1,3 @@
-import _ from "lodash";
 import settings from "./settings-manager";
 
 declare global {

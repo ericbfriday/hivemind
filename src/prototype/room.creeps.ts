@@ -1,4 +1,4 @@
-import _ from "lodash";
+import filter from "lodash/filter";
 /**
  * Contains room prototype enhancements concerned with managing creeps.
  */
@@ -27,7 +27,7 @@ Room.prototype.getCreepsWithOrder = function (
   type: string,
   target: string,
 ): Creep[] {
-  return _.filter(this.creeps, (creep) => {
+  return filter(this.creeps, (creep) => {
     if (!creep.memory.order) return false;
     if (creep.memory.order.type !== type) return false;
     if (creep.memory.order.target && creep.memory.order.target !== target)

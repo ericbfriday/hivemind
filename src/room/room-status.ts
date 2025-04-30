@@ -1,4 +1,3 @@
-import _ from "lodash";
 import cache from "utils/cache";
 
 declare global {

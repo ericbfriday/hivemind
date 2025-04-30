@@ -1,7 +1,3 @@
-import _ from "lodash";
-/* global RoomPosition RESOURCE_POWER ATTACK_POWER FIND_TOMBSTONES
-STRUCTURE_POWER_BANK FIND_DROPPED_RESOURCES FIND_RUINS MAX_CREEP_SIZE */
-
 import Role from "role/role";
 import { getResourcesIn } from "utils/store";
 

@@ -1,4 +1,3 @@
-import _ from "lodash";
 import BayDestination from "dispatcher/resource-destination/bay";
 import ContainerDestination from "dispatcher/resource-destination/container";
 import Dispatcher from "dispatcher/dispatcher";

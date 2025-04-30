@@ -1,4 +1,4 @@
-import _ from "lodash";
+import filter from "lodash/filter";
 import Process from "process/process";
 
 declare global {
@@ -417,7 +417,7 @@ export default class RoomSongsProcess extends Process {
     )
       return;
 
-    const creeps = _.filter(this.room.creeps, (creep: Creep) =>
+    const creeps = filter(this.room.creeps, (creep: Creep) =>
       song.roles.includes(creep.memory.role),
     );
     if (creeps.length <= 0) return;

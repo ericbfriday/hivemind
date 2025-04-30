@@ -1,4 +1,5 @@
-import _ from "lodash";
+import size from "lodash/size";
+import sample from "lodash/sample";
 let ownUserName: string;
 
 /**
@@ -10,19 +11,19 @@ let ownUserName: string;
 function getUsername(): string {
   if (ownUserName) return ownUserName;
 
-  if (_.size(Game.spawns) === 0) {
-    if (_.size(Game.creeps) === 0) {
-      if (_.size(Game.myRooms) === 0) return "@undefined";
+  if (size(Game.spawns) === 0) {
+    if (size(Game.creeps) === 0) {
+      if (size(Game.myRooms) === 0) return "@undefined";
 
-      ownUserName = _.sample(Game.myRooms).controller.owner.username;
+      ownUserName = sample(Game.myRooms).controller.owner.username;
       return ownUserName;
     }
 
-    ownUserName = _.sample(Game.creeps).owner.username;
+    ownUserName = sample(Game.creeps).owner.username;
     return ownUserName;
   }
 
-  ownUserName = _.sample(Game.spawns).owner.username;
+  ownUserName = sample(Game.spawns).owner.username;
   return ownUserName;
 }
 

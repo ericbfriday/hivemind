@@ -1,4 +1,3 @@
-import _ from "lodash";
 declare global {
   interface CostMatrix {
     render: (roomName?: string, asVisual?: boolean) => string;

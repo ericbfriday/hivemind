@@ -1,4 +1,5 @@
-import _ from "lodash";
+import sum from "lodash/sum";
+import last from "lodash/last";
 declare global {
   type HistoryStatMemory = Record<
     number,
@@ -55,7 +56,7 @@ const stats = {
     }
 
     if (memory[multiplier].currentValues.length >= increment) {
-      let avg = _.sum(memory[multiplier].currentValues);
+      let avg = sum(memory[multiplier].currentValues);
       avg /= memory[multiplier].currentValues.length;
 
       stats.saveStatValue(memory, multiplier * increment, avg);
@@ -88,7 +89,7 @@ const stats = {
       return null;
     }
 
-    return _.last(Memory.history[key][interval].currentValues);
+    return last(Memory.history[key][interval].currentValues);
   },
 };
 

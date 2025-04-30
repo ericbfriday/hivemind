@@ -1,11 +1,14 @@
-import _ from "lodash";
+import min from "lodash/min";
+import filter from "lodash/filter";
+import some from "lodash/some";
 /* global FIND_STRUCTURES STRUCTURE_EXTENSION STRUCTURE_SPAWN
 LOOK_STRUCTURES RESOURCE_ENERGY STRUCTURE_TOWER
 STRUCTURE_LINK STRUCTURE_CONTAINER */
 
-import cache from "utils/cache";
-import { encodePosition } from "utils/serialization";
-import { handleMapArea } from "utils/map";
+import cache from "@/utils/cache";
+import { encodePosition } from "@/utils/serialization";
+import { handleMapArea } from "@/utils/map";
+import { minBy } from "lodash";
 
 declare global {
   interface Room {
@@ -189,7 +192,7 @@ export default class Bay {
     const needsRefill = this.getStructuresNeedingRefill();
     if (needsRefill.length === 0) return false;
 
-    const target = _.minBy(needsRefill, (extension) =>
+    const target = minBy(needsRefill, (extension) =>
       (bayStructures as string[]).indexOf(extension.structureType),
     );
 
@@ -217,7 +220,7 @@ export default class Bay {
   }
 
   getStructuresNeedingRefill() {
-    return _.filter(this.extensions, (extension: AnyBayStructure) => {
+    return filter(this.extensions, (extension: AnyBayStructure) => {
       if (extension.store)
         return extension.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
 
@@ -254,11 +257,11 @@ export default class Bay {
 
         // Check if there's a structure here already.
         const structures = pos.lookFor(LOOK_STRUCTURES);
-        if (_.some(structures, (structure) => !structure.isWalkable())) return;
+        if (some(structures, (structure) => !structure.isWalkable())) return;
 
         // Check if there's a construction site here already.
         const sites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
-        if (_.some(sites, (site) => !site.isWalkable())) return;
+        if (some(sites, (site) => !site.isWalkable())) return;
 
         availableTiles.push(pos);
       });

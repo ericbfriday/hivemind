@@ -1,7 +1,6 @@
-import _ from "lodash";
-import TaskProvider from "dispatcher/task-provider";
+import TaskProvider from "@/dispatcher/task-provider";
 import { ENEMY_STRENGTH_NONE } from "room-defense";
-import { getDangerMatrix } from "utils/cost-matrix";
+import { getDangerMatrix } from "@/utils/cost-matrix";
 
 interface DropSourceTask extends ResourceSourceTask {
   type: "drop";

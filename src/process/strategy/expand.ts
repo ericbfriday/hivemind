@@ -1,18 +1,21 @@
-import _ from "lodash";
+import size from "lodash/size";
+import filter from "lodash/filter";
+import each from "lodash/each";
+import some from "lodash/some";
 /* global PathFinder Room RoomPosition CREEP_LIFE_TIME FIND_MY_CREEPS
 TERRAIN_MASK_WALL STRUCTURE_ROAD FIND_CONSTRUCTION_SITES STRUCTURE_RAMPART */
 
-import cache from "utils/cache";
-import container from "utils/container";
-import Process from "process/process";
-import hivemind from "hivemind";
+import cache from "@/utils/cache";
+import container from "@/utils/container";
+import Process from "@/process/process";
+import hivemind from "@/hivemind";
 import interShard from "intershard";
-import NavMesh from "utils/nav-mesh";
-import RoomStatus from "room/room-status";
-import settings from "settings-manager";
-import Squad, { getAllSquads } from "manager.squad";
-import stats from "utils/stats";
-import { getUsername } from "utils/account";
+import NavMesh from "@/utils/nav-mesh";
+import RoomStatus from "@/room/room-status";
+import settings from "@/settings-manager";
+import Squad, { getAllSquads } from "@/manager.squad";
+import stats from "@/utils/stats";
+import { getUsername } from "@/utils/account";
 import { getRoomIntel } from "room-intel";
 
 interface ExpansionTarget {
@@ -183,7 +186,7 @@ export default class ExpandProcess extends Process {
           .log("strategy")
           .debug(
             "Suspended trying to find expansion target.",
-            _.size(expansionTargetScoringProgress.rooms),
+            size(expansionTargetScoringProgress.rooms),
             "/",
             this.roomStatus.getPotentialExpansionTargets().length,
             "rooms checked so far.",
@@ -288,7 +291,7 @@ export default class ExpandProcess extends Process {
 
   manageStripmines(roomName: string) {
     const maxMines = 0; // Math.floor((Game.myRooms.length + 1) / 3);
-    const totalMines = _.filter(Game.myRooms, (room) =>
+    const totalMines = filter(Game.myRooms, (room) =>
       room.isStripmine(),
     ).length;
 
@@ -413,7 +416,7 @@ export default class ExpandProcess extends Process {
     const squad = new Squad("expand");
     squad.disband();
 
-    _.each(getAllSquads(), (squad, squadName) => {
+    each(getAllSquads(), (squad, squadName) => {
       if (squadName.startsWith("expandSupport." + roomName)) {
         squad.disband();
       }
@@ -438,7 +441,7 @@ export default class ExpandProcess extends Process {
     // @todo Start with closest rooms first.
     for (const room of Game.myRooms) {
       // 5 Support squads max.
-      if (_.size(activeSquads) >= 5) break;
+      if (size(activeSquads) >= 5) break;
 
       if (room.controller.level < 4) continue;
       if ((room.structuresByType[STRUCTURE_SPAWN] || []).length === 0) continue;
@@ -475,7 +478,7 @@ export default class ExpandProcess extends Process {
     // Remove support squads from older rooms.
     // @todo This should no longer be necessary when the code in stopExpansion
     // works reliably.
-    _.each(getAllSquads(), (squad, squadName) => {
+    each(getAllSquads(), (squad, squadName) => {
       if (squadName.startsWith("expandSupport.") && !activeSquads[squadName]) {
         squad.disband();
       }
@@ -518,10 +521,7 @@ export default class ExpandProcess extends Process {
       matrix.set(site.pos.x, site.pos.y, 1);
     }
 
-    const blockingStructures = _.filter(
-      room.structures,
-      (s) => !s.isWalkable(),
-    );
+    const blockingStructures = filter(room.structures, (s) => !s.isWalkable());
     for (const structure of blockingStructures) {
       matrix.set(structure.pos.x, structure.pos.y, 255);
     }
@@ -727,8 +727,7 @@ export default class ExpandProcess extends Process {
     for (const room of Game.myRooms) {
       if (!room.isStripmine()) continue;
       if (!room.terminal) continue;
-      if (_.some(room.minerals, (mineral) => mineral.mineralAmount > 0))
-        continue;
+      if (some(room.minerals, (mineral) => mineral.mineralAmount > 0)) continue;
 
       room.setEvacuating(true);
       this.memory.evacuatingRoom = {
@@ -807,8 +806,8 @@ export default class ExpandProcess extends Process {
     // Alright, this is it, flipping the switch!
     if (room.controller.unclaim() === OK) {
       room.setEvacuating(false);
-      _.each(
-        _.filter(
+      each(
+        filter(
           room.find(FIND_MY_CREEPS),
           (creep) => creep.memory.singleRoom === room.name,
         ),

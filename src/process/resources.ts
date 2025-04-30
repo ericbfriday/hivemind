@@ -1,11 +1,11 @@
-import _ from "lodash";
+import filter from "lodash/filter";
 /* global RESOURCE_ENERGY */
 
-import container from "utils/container";
-import hivemind from "hivemind";
-import Process from "process/process";
-import utilities from "utilities";
-import type { TransportRouteOption } from "empire/trade-route-manager";
+import container from "@/utils/container";
+import hivemind from "@/hivemind";
+import Process from "@/process/process";
+import utilities from "@/utilities";
+import type { TransportRouteOption } from "@empire/trade-route-manager";
 
 /**
  * Sends resources between owned rooms when needed.
@@ -90,7 +90,21 @@ export default class ResourcesProcess extends Process {
       }
 
       // Use multiple routes as long as no room is involved multiple times.
-      routes = sentSuccessfully ? _.filter(routes, (option: any) => option.source !== best.source && option.target !== best.source && option.source !== best.target && option.target !== best.target) : _.filter(routes, (option: any) => option.source !== best.source || option.resourceType !== best.resourceType);
+      routes = sentSuccessfully
+        ? filter(
+          routes,
+          (option: any) =>
+            option.source !== best.source &&
+            option.target !== best.source &&
+            option.source !== best.target &&
+            option.target !== best.target,
+        )
+        : filter(
+          routes,
+          (option: any) =>
+            option.source !== best.source ||
+            option.resourceType !== best.resourceType,
+        );
       best = utilities.getBestOption(routes);
     }
   }

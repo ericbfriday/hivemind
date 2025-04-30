@@ -1,7 +1,7 @@
-import _ from "lodash";
-import cache from "utils/cache";
-import { drawTable } from "utils/room-visuals";
-import { getCallStats } from "utils/cpu";
+import size from "lodash/size";
+import cache from "@/utils/cache";
+import { drawTable } from "@/utils/room-visuals";
+import { getCallStats } from "@/utils/cpu";
 
 declare global {
   interface ReportClasses {
@@ -37,7 +37,7 @@ export default class RolesReport {
       const roleName = key.slice(10);
       roleData.push([
         roleName,
-        _.size(Game.creepsByRole[roleName]).toString(),
+        size(Game.creepsByRole[roleName]).toString(),
         record.count.toString(),
         record.average.toPrecision(3),
         record.maximum.toPrecision(3),

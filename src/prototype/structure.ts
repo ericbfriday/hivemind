@@ -1,6 +1,8 @@
-import _ from "lodash";
-import cache from "utils/cache";
-import { handleMapArea } from "utils/map";
+import includes from "lodash/includes";
+import each from "lodash/each";
+import some from "lodash/some";
+import cache from "@/utils/cache";
+import { handleMapArea } from "@/utils/map";
 
 /* global Structure StructureExtension StructureSpawn StructureTower
 STRUCTURE_RAMPART TOWER_OPTIMAL_RANGE TOWER_FALLOFF_RANGE TOWER_FALLOFF
@@ -60,7 +62,7 @@ Object.defineProperty(Structure.prototype, "heapMemory", {
  *   True if a creep can move onto this structure.
  */
 Structure.prototype.isWalkable = function () {
-  if (_.includes(OBSTACLE_OBJECT_TYPES, this.structureType)) return false;
+  if (includes(OBSTACLE_OBJECT_TYPES, this.structureType)) return false;
   if (this.structureType === STRUCTURE_RAMPART) {
     return this.my || this.isPublic;
   }
@@ -85,7 +87,7 @@ Structure.prototype.isOperational = function (this: Structure) {
 function getInactiveStructures(
   room: Room,
 ): Partial<Record<Id<Structure>, boolean>> {
-  const rcl = room.controller?.level ?? 0;
+  const rcl = room.controller?.level || 0;
   if (rcl >= 8) return {};
 
   return cache.inHeap(
@@ -93,7 +95,7 @@ function getInactiveStructures(
     500,
     () => {
       const inactiveStructures = {};
-      _.each(room.myStructuresByType, (structures, structureType) => {
+      each(room.myStructuresByType, (structures, structureType) => {
         // Check if more structures than allowed exist.
         if (
           !CONTROLLER_STRUCTURES[structureType] ||
@@ -157,7 +159,7 @@ StructureSpawn.prototype.getSpawnDirections = function (
       if (this.room.roomPlanner.isPlannedLocation(position, "bay_center"))
         return;
       if (
-        _.some(position.lookFor(LOOK_STRUCTURES), (s) =>
+        some(position.lookFor(LOOK_STRUCTURES), (s) =>
           (OBSTACLE_OBJECT_TYPES as string[]).includes(s.structureType),
         )
       )
@@ -208,7 +210,7 @@ StructureTower.prototype.getPowerAtRange = function (
 StructureSpawn.prototype.calculateCreepBodyCost = function (bodyMemory) {
   // @todo This really doesn't need to be a method of StructureSpawn.
   let cost = 0;
-  _.each(bodyMemory, (count, partType) => {
+  each(bodyMemory, (count, partType) => {
     cost += BODYPART_COST[partType] * count;
   });
 

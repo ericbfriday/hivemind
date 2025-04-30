@@ -1,8 +1,9 @@
-import _ from "lodash";
+import each from "lodash/each";
+import filter from "lodash/filter";
 /* global hivemind MOVE CARRY */
 
-import BodyBuilder from "creep/body-builder";
-import SpawnRole from "spawn-role/spawn-role";
+import BodyBuilder from "@/creep/body-builder";
+import SpawnRole from "@/spawn-role/spawn-role";
 import TradeRoute from "trade-route";
 
 declare global {
@@ -23,7 +24,7 @@ export default class MuleSpawnRole extends SpawnRole {
 
     return this.cacheEmptySpawnOptionsFor(room, 100, () => {
       const options: MuleSpawnOption[] = [];
-      _.each(Memory.tradeRoutes, (mem, routeName) => {
+      each(Memory.tradeRoutes, (mem, routeName) => {
         const tradeRoute = new TradeRoute(routeName);
         if (!tradeRoute.isActive()) return;
         if (tradeRoute.getOrigin() !== room.name) return;
@@ -32,7 +33,7 @@ export default class MuleSpawnRole extends SpawnRole {
         const minAmount = resourceType === RESOURCE_ENERGY ? 5000 : 1000;
         if (storedAmount < minAmount) return;
 
-        const numberMules = _.filter(
+        const numberMules = filter(
           Game.creepsByRole.mule || [],
           (creep: MuleCreep) =>
             creep.memory.origin === room.name &&

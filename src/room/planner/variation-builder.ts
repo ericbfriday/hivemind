@@ -1,14 +1,17 @@
-import _ from "lodash";
-import hivemind from "hivemind";
-import minCut from "utils/mincut";
-import PlaceTowersStep from "room/planner/step/place-towers";
-import RoomVariationBuilderBase from "room/planner/variation-builder-base";
-import settings from "settings-manager";
-import { encodePosition, decodePosition } from "utils/serialization";
-import { getExitCenters } from "utils/room-info";
+import keys from "lodash/keys";
+import first from "lodash/first";
+import size from "lodash/size";
+import map from "lodash/map";
+import hivemind from "@/hivemind";
+import minCut from "@/utils/mincut";
+import PlaceTowersStep from "@/room";planner/step/place-towers";
+import RoomVariationBuilderBase from "@/room";planner/variation-builder-base";
+import settings  from "@/settings-manager";
+import { encodePosition, decodePosition } from "@/utils/serialization";
+import { getExitCenters } from "@/utils/room-info";
 import { getRoomIntel } from "room-intel";
-import { handleMapArea } from "utils/map";
-import type { ExitCoords } from "utils/room-info";
+import { handleMapArea } from "@/utils/map";
+import type { ExitCoords } from "@/utils/room-info";
 
 const TILE_IS_ENDANGERED = 0;
 const TILE_IS_SAFE = 1;
@@ -357,7 +360,7 @@ export default class RoomVariationBuilder extends RoomVariationBuilderBase {
 
   placeRoadNetwork(): StepResult {
     // Find paths from each exit towards the room center for making roads.
-    for (const dir of _.keys(this.exitCenters)) {
+    for (const dir of keys(this.exitCenters)) {
       for (const pos of this.exitCenters[dir]) {
         const exitRoads = this.placementManager.findAccessRoad(
           pos,
@@ -758,7 +761,7 @@ export default class RoomVariationBuilder extends RoomVariationBuilderBase {
 
     // Protect exits to safe rooms.
     const bounds: MinCutRect = { x1: 0, x2: 49, y1: 0, y2: 49 };
-    for (const exitDir of _.keys(safety.directions)) {
+    for (const exitDir of keys(safety.directions)) {
       if (!safety.directions[exitDir]) continue;
 
       if (exitDir === "N") bounds.protectTopExits = true;
@@ -811,7 +814,7 @@ export default class RoomVariationBuilder extends RoomVariationBuilderBase {
   pruneWalls(walls: RoomPosition[]) {
     const roomIntel = getRoomIntel(this.roomName);
     const safety = roomIntel.calculateAdjacentRoomSafety();
-    const roomCenter = _.first(this.roomPlan.getPositions("center"));
+    const roomCenter = first(this.roomPlan.getPositions("center"));
     this.safetyMatrix = new PathFinder.CostMatrix();
 
     const openList = [];
@@ -917,8 +920,8 @@ export default class RoomVariationBuilder extends RoomVariationBuilderBase {
     }
 
     // Flood fill, marking all walls we touch as relevant.
-    while (_.size(openList) > 0) {
-      const nextPos = decodePosition(_.first(_.keys(openList)));
+    while (size(openList) > 0) {
+      const nextPos = decodePosition(first(keys(openList)));
 
       // Record which tiles are safe or unsafe.
       this.safetyMatrix.set(nextPos.x, nextPos.y, safetyValue);
@@ -1079,7 +1082,7 @@ export default class RoomVariationBuilder extends RoomVariationBuilderBase {
   }
 
   getRampartGroups(): RoomPosition[][] {
-    const allRamparts = _.map(this.roomPlan.getPositions("rampart"), (pos) => ({
+    const allRamparts = map(this.roomPlan.getPositions("rampart"), (pos) => ({
       pos,
       isUsed: false,
     }));

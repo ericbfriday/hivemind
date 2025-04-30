@@ -1,4 +1,3 @@
-import _ from "lodash";
 declare global {
   interface Memory {
     logger: {

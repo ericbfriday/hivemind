@@ -1,17 +1,22 @@
-import _ from "lodash";
+import size from "lodash/size";
+import map from "lodash/map";
+import min from "lodash/min";
+import find from "lodash/find";
+import filter from "lodash/filter";
 /* global PathFinder Room RoomPosition LEFT RIGHT TOP BOTTOM
 TERRAIN_MASK_WALL STRUCTURE_KEEPER_LAIR */
 
-import cache from "utils/cache";
-import hivemind from "hivemind";
+import cache from "@/utils/cache";
+import hivemind from "@/hivemind";
 import {
   encodePosition,
   deserializePosition,
   serializeCoords,
-} from "utils/serialization";
-import { getCostMatrix } from "utils/cost-matrix";
+} from "@/utils/serialization";
+import { getCostMatrix } from "@/utils/cost-matrix";
 import { getRoomIntel } from "room-intel";
-import { handleMapArea } from "utils/map";
+import { handleMapArea } from "@/utils/map";
+import { minBy } from "lodash";
 
 declare global {
   interface Memory {
@@ -432,10 +437,10 @@ export default class NavMesh {
       portals[portal.destination.roomName].totalY += portal.pos.y;
     }
 
-    if (_.size(portals) === 0) return undefined;
+    if (size(portals) === 0) return undefined;
 
-    return _.map(portals, (portal) => {
-      const pos = _.minBy(portal.positions, (pos) =>
+    return map(portals, (portal) => {
+      const pos = minBy(portal.positions, (pos) =>
         pos.getRangeTo(
           Math.round(portal.totalX / portal.positions.length),
           Math.round(portal.totalY / portal.positions.length),
@@ -558,7 +563,7 @@ export default class NavMesh {
       }
 
       if (current.portal) {
-        const portalBack = _.find(
+        const portalBack = find(
           roomMemory.portals,
           (p) => p.room === current.roomName,
         );
@@ -702,9 +707,7 @@ export default class NavMesh {
       if (result.incomplete) continue;
 
       // Exits for this region are available.
-      return _.filter(roomMemory.exits, (exit) =>
-        region.exits.includes(exit.id),
-      );
+      return filter(roomMemory.exits, (exit) => region.exits.includes(exit.id));
     }
 
     return [];
@@ -722,18 +725,18 @@ export default class NavMesh {
     if (isPortal) return roomMemory.exits;
 
     if (!roomMemory.regions)
-      return _.filter(roomMemory.exits, (exit) => exit.id !== exitId);
+      return filter(roomMemory.exits, (exit) => exit.id !== exitId);
 
     // Find region containing corresponding exit.
-    const region = _.find(roomMemory.regions, (region: any) =>
+    const region = find(roomMemory.regions, (region: any) =>
       region.exits.includes(exitId),
     );
     if (!region) return [];
 
-    return _.filter(
+    return filter(
       roomMemory.exits,
       (exit) => exit.id !== exitId && region.exits.includes(exit.id),
-    );
+    ) as typeof roomMemory.exits;
   }
 
   addExitsToOpenList(
@@ -800,7 +803,7 @@ export default class NavMesh {
         roomIntel.getReservationStatus().username !== "Invader"
       ) {
         costMultiplier *= 1.5;
-      } else if (_.size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) {
+      } else if (size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0) {
         // Allow pathing through source keeper rooms since we can safely avoid them.
         costMultiplier *= 1.2;
       }

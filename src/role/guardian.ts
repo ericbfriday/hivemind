@@ -1,9 +1,14 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import map from "lodash/map";
+import min from "lodash/min";
+import max from "lodash/max";
+import find from "lodash/find";
+import sample from "lodash/sample";
 /* global FIND_HOSTILE_CREEPS STRUCTURE_RAMPART */
 
-import container from "utils/container";
-import hivemind from "hivemind";
-import Role from "role/role";
+import container from "@/utils/container";
+import hivemind from "@/hivemind";
+import Role from "@/role/role";
 
 declare global {
   interface GuardianCreep extends Creep {
@@ -52,7 +57,7 @@ export default class GuardianRole extends Role {
   }
 
   getAdjacentRampartPositions(creep: GuardianCreep): RoomPosition[] {
-    const closestRamparts = _.filter(
+    const closestRamparts = filter(
       creep.room.myStructuresByType[STRUCTURE_RAMPART],
       (s) => {
         if (s.pos.getRangeTo(creep.pos) !== 1) return false;
@@ -65,7 +70,7 @@ export default class GuardianRole extends Role {
       },
     );
 
-    return _.map(closestRamparts, (s) => s.pos);
+    return map(closestRamparts, (s) => s.pos);
   }
 
   getBestRampartToCover(creep: GuardianCreep): StructureRampart {
@@ -76,8 +81,8 @@ export default class GuardianRole extends Role {
 
     const ramparts: StructureRampart[] = [];
     for (const target of targets) {
-      const closestRampart = _.minBy(
-        _.filter(creep.room.myStructuresByType[STRUCTURE_RAMPART], (s) => {
+      const closestRampart = minBy(
+        filter(creep.room.myStructuresByType[STRUCTURE_RAMPART], (s) => {
           if (!creep.room.roomPlanner.isPlannedLocation(s.pos, "rampart"))
             return false;
           if (creep.room.roomPlanner.isPlannedLocation(s.pos, "rampart.ramp"))
@@ -95,7 +100,7 @@ export default class GuardianRole extends Role {
       if (!ramparts.includes(closestRampart)) ramparts.push(closestRampart);
     }
 
-    return _.minBy(
+    return minBy(
       ramparts,
       (s: StructureRampart) =>
         s.pos.getRangeTo(creep.pos) / 2 +
@@ -117,15 +122,15 @@ export default class GuardianRole extends Role {
       });
       if (targets.length === 0) return;
 
-      let target = _.maxBy(targets, "militaryPriority");
+      let target = max(targets, "militaryPriority");
       if (!target || typeof target === "number") {
         if (
           targets.length > 2 ||
-          _.find(targets, (c) => c.pos.getRangeTo(creep) === 1)
+          find(targets, (c) => c.pos.getRangeTo(creep) === 1)
         ) {
           creep.rangedMassAttack();
         } else {
-          target = _.sample(targets);
+          target = sample(targets);
         }
       }
 
@@ -138,8 +143,8 @@ export default class GuardianRole extends Role {
       });
       if (targets.length === 0) return;
 
-      let target = _.maxBy(targets, "militaryPriority");
-      if (!target || typeof target === "number") target = _.sample(targets);
+      let target = max(targets, "militaryPriority");
+      if (!target || typeof target === "number") target = sample(targets);
       creep.attack(target);
     }
   }

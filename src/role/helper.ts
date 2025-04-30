@@ -1,8 +1,9 @@
-import _ from "lodash";
+import sample from "lodash/sample";
+import sum from "lodash/sum";
 /* global RESOURCE_ENERGY */
 
-import Role from "role/role";
-import { getResourcesIn } from "utils/store";
+import Role from "@/role/role";
+import { getResourcesIn } from "@/utils/store";
 
 declare global {
   interface HelperCreep extends Creep {
@@ -62,7 +63,7 @@ export default class HelperRole extends Role {
   parkHelper(creep: HelperCreep) {
     if (!creep.room.roomPlanner) return;
 
-    const targetPos = _.sample(
+    const targetPos = sample(
       creep.room.roomPlanner.getLocations("helper_parking"),
     );
     if (!targetPos) return;
@@ -227,7 +228,7 @@ export default class HelperRole extends Role {
     // Get energy to fill labs when needed.
     const boostManager = creep.room.boostManager;
     const labs = boostManager.getBoostLabs();
-    const totalNeededEnergy = _.sumBy(labs, (lab) =>
+    const totalNeededEnergy = sum(labs, (lab) =>
       Math.min(
         lab.store.getFreeCapacity(RESOURCE_ENERGY),
         boostManager.getRequiredEnergyAmount(lab.id) -

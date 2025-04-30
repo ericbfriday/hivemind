@@ -1,5 +1,4 @@
-import _ from "lodash";
-import StructureSource from "dispatcher/resource-source/structure";
+import StructureSource from "@/dispatcher/resource-source/structure";
 
 interface LabSourceTask extends StructureSourceTask {
   type: "lab";

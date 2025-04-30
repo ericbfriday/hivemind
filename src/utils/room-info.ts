@@ -1,5 +1,5 @@
-import _ from "lodash";
-import cache from "utils/cache";
+import keys from "lodash/keys";
+import cache from "@/utils/cache";
 
 export type ExitCoords = {
   N: RoomPosition[];
@@ -53,7 +53,7 @@ function findExitCenters(roomName: string, exitCoords: ExitCoords): ExitCoords {
     E: [],
   };
 
-  for (const dir of _.keys(exitCoords)) {
+  for (const dir of keys(exitCoords)) {
     let startPos = null;
     let previousPos = null;
     for (const pos of exitCoords[dir]) {

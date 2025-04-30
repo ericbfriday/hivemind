@@ -1,22 +1,19 @@
-import _ from "lodash";
-/* global POWER_SPAWN_ENERGY_RATIO STRUCTURE_TOWER */
-
 import balancer from "excess-energy-balancer";
-import ManageFactoryProcess from "process/rooms/owned/factory";
-import ManageLabsProcess from "process/rooms/owned/labs";
-import ManageLinksProcess from "process/rooms/owned/links";
-import ManageSpawnsProcess from "process/rooms/owned/spawns";
-import Process from "process/process";
-import RoomDefenseProcess from "process/rooms/owned/defense";
-import RoomManagerProcess from "process/rooms/owned/manager";
-import RoomSongsProcess from "process/rooms/owned/songs";
-import RoomOperation from "operation/room";
+import ManageFactoryProcess from "@/process/rooms/owned/factory";
+import ManageLabsProcess from "@/process/rooms/owned/labs";
+import ManageLinksProcess from "@/process/rooms/owned/links";
+import ManageSpawnsProcess from "@/process/rooms/owned/spawns";
+import Process from "@/process/process";
+import RoomDefenseProcess from "@/process/rooms/owned/defense";
+import RoomManagerProcess from "@/process/rooms/owned/manager";
+import RoomSongsProcess from "@/process/rooms/owned/songs";
+import RoomOperation from "@/operation/room";
 import hivemind, {
   PROCESS_PRIORITY_LOW,
   PROCESS_PRIORITY_DEFAULT,
   PROCESS_PRIORITY_ALWAYS,
-} from "hivemind";
-import { timeCall } from "utils/cpu";
+} from "@/hivemind";
+import { timeCall } from "@/utils/cpu";
 
 declare global {
   interface Memory {

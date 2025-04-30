@@ -1,13 +1,16 @@
-import _ from "lodash";
+import size from "lodash/size";
+import filter from "lodash/filter";
+import max from "lodash/max";
+import map from "lodash/map";
 /* global MOVE ATTACK WORK CARRY HEAL */
 
 import BodyBuilder, {
   MOVEMENT_MODE_ROAD,
   MOVEMENT_MODE_PLAINS,
-} from "creep/body-builder";
-import hivemind from "hivemind";
-import settings from "settings-manager";
-import SpawnRole from "spawn-role/spawn-role";
+} from "@/creep/body-builder";
+import hivemind from "@/hivemind";
+import settings  from "@/settings-manager";
+import SpawnRole from "@/spawn-role/spawn-role";
 import { ENEMY_STRENGTH_NORMAL } from "room-defense";
 
 declare global {
@@ -52,7 +55,7 @@ export default class RoomDefenseSpawnRole extends SpawnRole {
     if (room.controller.level >= 4) return;
     if ((room.controller.safeMode || 0) > 500) return;
     if (!room.memory.enemies || room.memory.enemies.safe) return;
-    if (_.size(room.creepsByRole.brawler) >= 2) return;
+    if (size(room.creepsByRole.brawler) >= 2) return;
 
     options.push({
       priority: 5,
@@ -82,7 +85,7 @@ export default class RoomDefenseSpawnRole extends SpawnRole {
     if (responseType === RESPONSE_NONE) return;
 
     // @todo Limit defense creeps to number of threats and ramparts to cover.
-    if (_.size(room.creepsByRole.guardian) >= 5) return;
+    if (size(room.creepsByRole.guardian) >= 5) return;
 
     options.push({
       priority: 5,
@@ -122,7 +125,7 @@ export default class RoomDefenseSpawnRole extends SpawnRole {
 
     if (responseType === RESPONSE_NONE) return;
 
-    if (_.size(room.creepsByRole.builder) >= 5) return;
+    if (size(room.creepsByRole.builder) >= 5) return;
 
     options.push({
       priority: 4,
@@ -137,9 +140,9 @@ export default class RoomDefenseSpawnRole extends SpawnRole {
 
     if (enemyStrength >= ENEMY_STRENGTH_NORMAL) {
       // Spawn a mix of meelee and ranged defenders.
-      const totalGuardians = _.size(room.creepsByRole.guardian);
-      const rangedGuardians = _.size(
-        _.filter(
+      const totalGuardians = size(room.creepsByRole.guardian);
+      const rangedGuardians = size(
+        filter(
           room.creepsByRole.guardian,
           (creep: GuardianCreep) => creep.getActiveBodyparts(RANGED_ATTACK) > 0,
         ),
@@ -313,10 +316,10 @@ export default class RoomDefenseSpawnRole extends SpawnRole {
 
       highest = Math.max(
         highest,
-        _.maxBy(
-          _.map(room.enemyCreeps[userName], (creep) =>
-            _.maxBy(
-              _.map(creep.body, (part) => {
+        max(
+          map(room.enemyCreeps[userName], (creep) =>
+            max(
+              map(creep.body, (part) => {
                 if (!part.boost || typeof part.boost !== "string") return 0;
 
                 return part.boost.length || 0;

@@ -1,5 +1,5 @@
-import _ from "lodash";
-import TaskProvider from "dispatcher/task-provider";
+import find from "lodash/find";
+import TaskProvider from "@/dispatcher/task-provider";
 
 declare global {
   interface BayDestinationTask extends ResourceDestinationTask {
@@ -60,7 +60,7 @@ export default class BayDestination extends TaskProvider<
   }
 
   isValid(task: BayDestinationTask, context: ResourceDestinationContext) {
-    const bay = _.find(this.room.bays, (b) => b.name === task.name);
+    const bay = find(this.room.bays, (b) => b.name === task.name);
     if (!bay) return false;
     if (bay.energy >= bay.energyCapacity) return false;
     if (bay.hasHarvester()) return false;
@@ -75,7 +75,7 @@ export default class BayDestination extends TaskProvider<
 
   execute(task: BayDestinationTask, context: ResourceDestinationContext) {
     const creep = context.creep;
-    const target = _.find(creep.room.bays, (bay) => bay.name === task.name);
+    const target = find(creep.room.bays, (bay) => bay.name === task.name);
 
     if (creep.store.getUsedCapacity(task.resourceType) === 0) {
       delete creep.memory.order;

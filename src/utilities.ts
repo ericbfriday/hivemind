@@ -1,12 +1,13 @@
-import _ from "lodash";
-/* global PathFinder RoomPosition REACTIONS BODYPART_COST */
-
-import cache from 'utils/cache';
-import hivemind from 'hivemind';
-import { ErrorMapper } from 'utils/ErrorMapper';
-import { getCostMatrix } from 'utils/cost-matrix';
+import escape from "lodash/escape";
+import each from "lodash/each";
+import cache from '@/utils/cache';
+import hivemind from '@/hivemind';
+import { ErrorMapper } from '@/utils/ErrorMapper';
+import { getCostMatrix } from '@/utils/cost-matrix';
 import { getRoomIntel } from 'room-intel';
-import { handleMapArea } from 'utils/map';
+import { handleMapArea } from '@/utils/map';
+
+/* global PathFinder RoomPosition REACTIONS BODYPART_COST */
 
 declare global {
   type TileCallback = (x: number, y: number) => boolean | void;
@@ -52,7 +53,7 @@ const utilities = {
 
       let stackTrace = error.stack;
       if (error instanceof Error) {
-        stackTrace = _.escape(ErrorMapper.sourceMappedStackTrace(error));
+        stackTrace = escape(ErrorMapper.sourceMappedStackTrace(error));
       }
 
       Game.notify(error.name + " in " + errorLocation + ":<br>" + stackTrace);
@@ -149,7 +150,7 @@ const utilities = {
       },
     };
 
-    _.each(addOptions, (value, key) => {
+    each(addOptions, (value, key) => {
       options[key] = value;
     });
 
@@ -215,8 +216,8 @@ const utilities = {
     return cache.inHeap("reverseReactions", 100_000, () => {
       const recipes: Partial<Record<ResourceConstant, ResourceConstant[]>> = {};
 
-      _.each(REACTIONS, (reaction, resourceType) => {
-        _.each(reaction, (result, resourceType2) => {
+      each(REACTIONS, (reaction, resourceType) => {
+        each(reaction, (result, resourceType2) => {
           if (recipes[result]) return;
 
           recipes[result] = [resourceType, resourceType2];

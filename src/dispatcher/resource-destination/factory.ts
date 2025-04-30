@@ -1,5 +1,4 @@
-import _ from "lodash";
-import StructureDestination from "dispatcher/resource-destination/structure";
+import StructureDestination from "@/dispatcher/resource-destination/structure";
 
 interface FactoryDestinationTask extends StructureDestinationTask {
   type: "factory";

@@ -1,4 +1,3 @@
-import _ from "lodash";
 type LinkAndDelta = {
   link: StructureLink;
   delta: number;

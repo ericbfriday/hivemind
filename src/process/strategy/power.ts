@@ -1,11 +1,13 @@
-import _ from "lodash";
+import each from "lodash/each";
+import sortBy from "lodash/sortBy";
+
+import Process from '@/process/process';
+import hivemind from '@/hivemind';
+import NavMesh from '@/utils/nav-mesh';
+import { maxHeaderSize } from 'http';
+import { filter, sumBy } from "lodash";
 /* global RoomPosition CREEP_SPAWN_TIME MAX_CREEP_SIZE ATTACK_POWER
 CONTROLLER_STRUCTURES STRUCTURE_POWER_SPAWN */
-
-import Process from 'process/process';
-import hivemind from 'hivemind';
-import NavMesh from 'utils/nav-mesh';
-import { maxHeaderSize } from 'http';
 
 declare global {
 	interface StrategyMemory {
@@ -61,7 +63,6 @@ export default class PowerMiningProcess extends Process {
 
 		return true;
 	}
-
 	/**
 	 * Analizes the power banks detected by intel, to decide which and how to attack.
 	 */
@@ -70,12 +71,12 @@ export default class PowerMiningProcess extends Process {
 		const memory = Memory.strategy.power;
 		this.mesh = new NavMesh();
 
-		const totalStoredPower = _.sumBy(Game.myRooms, (room: Room) => room.getCurrentResourceAmount(RESOURCE_POWER));
-		const rcl8RoomCount = _.filter(Game.myRooms, (room: Room) => room.controller.level >= 8).length;
+		const totalStoredPower = sumBy(Game.myRooms, (room: Room) => room.getCurrentResourceAmount(RESOURCE_POWER));
+		const rcl8RoomCount = filter(Game.myRooms, (room: Room) => room.controller.level >= 8).length;
 		const storedPowerLevel = totalStoredPower / Math.min(rcl8RoomCount, 1);
 		const maxDistance = Math.ceil(hivemind.settings.get('maxRangeForPowerMining') / (totalStoredPower < 50_000 ? 1 : 2));
 
-		_.each(memory.rooms, (info, roomName) => {
+		each(memory.rooms, (info, roomName) => {
 			// @todo Skip room if we already decided to harvest it.
 			// Calculate DPS we'd need to do to harvest this power.
 			let timeRemaining = info.decays - Game.time;
@@ -190,14 +191,7 @@ export default class PowerMiningProcess extends Process {
 			const roomRoute = this.mesh.findPath(new RoomPosition(25, 25, room.name), new RoomPosition(25, 25, roomName));
 			if (roomRoute.incomplete || roomRoute.path.length > 2 * hivemind.settings.get("maxRangeForPowerMining")) continue;
 
-			hivemind
-				.log("strategy")
-				.debug(
-					"Could spawn creeps in",
-					room.name,
-					"with distance",
-					roomRoute.path.length,
-				);
+			potentialSpawns = sortBy(potentialSpawns, "distance");
 
 			potentialSpawns.push({
 				room: room.name,
@@ -205,7 +199,7 @@ export default class PowerMiningProcess extends Process {
 			});
 		}
 
-		potentialSpawns = _.sortBy(potentialSpawns, "distance");
+		potentialSpawns = sortBy(potentialSpawns, "distance");
 
 		return potentialSpawns;
 	}

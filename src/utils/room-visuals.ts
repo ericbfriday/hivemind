@@ -1,4 +1,6 @@
-import _ from "lodash";
+import sum from "lodash/sum";
+import max from "lodash/max";
+import map from "lodash/map";
 interface TableDefinition {
   data: string[][];
   top: number;
@@ -7,7 +9,7 @@ interface TableDefinition {
 
 function drawTable(table: TableDefinition, visual: RoomVisual) {
   const columnWidths = getColumnWidths(table.data);
-  const totalWidth = _.sumBy(columnWidths);
+  const totalWidth = sum(columnWidths);
   const totalHeight = table.data.length;
 
   const top = table.top + 0.8;
@@ -37,8 +39,7 @@ function drawTable(table: TableDefinition, visual: RoomVisual) {
 function getColumnWidths(tableData: string[][]): number[] {
   const widths: number[] = [];
   for (let i = 0; i < tableData[0].length; i++) {
-    const width =
-      _.maxBy(_.map(tableData, (row) => row[i]?.length ?? 0)) * 0.4 + 0.5;
+    const width = max(map(tableData, (row) => row[i]?.length || 0)) * 0.4 + 0.5;
     widths.push(width);
   }
 

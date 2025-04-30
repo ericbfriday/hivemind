@@ -1,9 +1,10 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import find from "lodash/find";
 /* global RoomPosition LOOK_STRUCTURES STRUCTURE_RAMPART */
 
-import RemoteMiningOperation from "operation/remote-mining";
-import Role from "role/role";
-import { encodePosition } from "utils/serialization";
+import RemoteMiningOperation from "@/operation/remote-mining";
+import Role from "@/role/role";
+import { encodePosition } from "@/utils/serialization";
 
 declare global {
   interface DismantlerCreep extends Creep {
@@ -80,7 +81,7 @@ export default class DismantlerRole extends Role {
         continue;
 
       if (pos.roomName === creep.pos.roomName) {
-        const structures = _.filter(
+        const structures = filter(
           pos.lookFor(LOOK_STRUCTURES),
           (s: AnyStructure) => !s.isWalkable(),
         );
@@ -110,7 +111,7 @@ export default class DismantlerRole extends Role {
       return true;
     }
 
-    const structure = _.find(
+    const structure = find(
       target.lookFor(LOOK_STRUCTURES),
       (s: AnyStructure) => !s.isWalkable(),
     );

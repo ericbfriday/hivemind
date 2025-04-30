@@ -1,8 +1,9 @@
-import _ from "lodash";
-import cache from "utils/cache";
-import FunnelManager from "empire/funnel-manager";
-import { drawTable } from "utils/room-visuals";
-import { getCallStats } from "utils/cpu";
+import sortBy from "lodash/sortBy";
+import map from "lodash/map";
+import cache from "@/utils/cache";
+import FunnelManager from "@empire/funnel-manager";
+import { drawTable } from "@/utils/room-visuals";
+import { getCallStats } from "@/utils/cpu";
 
 declare global {
   interface ReportClasses {
@@ -86,7 +87,7 @@ export default class RoomsReport {
       allData.push(this.getRoomInfo(room));
     }
 
-    _.sortBy(allData, (data) => data.weight);
+    sortBy(allData, (data) => data.weight);
     return allData;
   }
 
@@ -104,7 +105,7 @@ export default class RoomsReport {
       energyAvailable: room.getEffectiveAvailableEnergy(),
       weight,
       currentReaction: room.memory.currentReaction,
-      mineralType: _.map(room.minerals, (m) => m.mineralType).join(", "),
+      mineralType: map(room.minerals, (m) => m.mineralType).join(", "),
       storagePercent:
         room.storage || room.terminal
           ? (1 - room.getFreeStorage() / room.getStorageLimit()) * 100

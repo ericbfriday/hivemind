@@ -1,8 +1,7 @@
-import _ from "lodash";
-import container from "utils/container";
-import hivemind from "hivemind";
+import container from "@/utils/container";
+import hivemind from "@/hivemind";
 import PlayerIntelManager from "player-intel-manager";
-import Process from "process/process";
+import Process from "@/process/process";
 import { getRoomIntel, getRoomsWithIntel } from "room-intel";
 
 export default class PlayerIntelProcess extends Process {

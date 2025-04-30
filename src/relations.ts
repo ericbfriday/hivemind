@@ -1,7 +1,6 @@
-import _ from "lodash";
 import localRelations from "relations.local";
-import settings from "settings-manager";
-import { getUsername } from "utils/account";
+import settings  from "@/settings-manager";
+import { getUsername } from "@/utils/account";
 
 export default class Relations {
   readonly allies: string[];

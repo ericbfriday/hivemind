@@ -1,17 +1,23 @@
-import _ from "lodash";
+import max from "lodash/max";
+import filter from "lodash/filter";
+import sum from "lodash/sum";
+import sample from "lodash/sample";
+import size from "lodash/size";
+import some from "lodash/some";
 /* global FIND_DROPPED_RESOURCES RESOURCE_ENERGY OK LOOK_CONSTRUCTION_SITES
 ERR_NO_PATH ERR_NOT_IN_RANGE STRUCTURE_CONTAINER STRUCTURE_ROAD
 FIND_MY_CONSTRUCTION_SITES LOOK_STRUCTURES MAX_CONSTRUCTION_SITES */
 
 // @todo Collect energy if it's lying on the path.
 
-import CombatManager from 'creep/combat-manager';
-import container from 'utils/container';
-import hivemind from 'hivemind';
-import RemoteMiningOperation from 'operation/remote-mining';
-import Role from 'role/role';
-import { encodePosition, decodePosition, serializePositionPath } from 'utils/serialization';
-import { getResourcesIn } from 'utils/store';
+import CombatManager from '@/creep/combat-manager';
+import container from '@/utils/container';
+import hivemind from '@/hivemind';
+import RemoteMiningOperation from '@/operation/remote-mining';
+import Role from '@/role/role';
+import { encodePosition, decodePosition, serializePositionPath } from '@/utils/serialization';
+import { getResourcesIn } from '@/utils/store';
+import { maxBy, sumBy } from "lodash";
 
 declare global {
   interface RelayHaulerCreep extends Creep {
@@ -97,7 +103,7 @@ export default class RelayHaulerRole extends Role {
 
     if (scoredPositions.length === 0) return;
 
-    const bestPosition = _.maxBy(scoredPositions, "energy");
+    const bestPosition = maxBy(scoredPositions, "energy");
 
     if (bestPosition?.position) {
       creep.memory.source = encodePosition(bestPosition.position);
@@ -113,8 +119,8 @@ export default class RelayHaulerRole extends Role {
     const path = operation.getPaths()[targetPos];
 
     const currentEnergy = operation.getEnergyForPickup(targetPos);
-    const maxHarvesterLifetime = _.maxBy(
-      _.filter(
+    const maxHarvesterLifetime = maxBy(
+      filter(
         Game.creepsByRole["harvester.remote"],
         (creep: RemoteHarvesterCreep) => creep.memory.source === targetPos,
       ),
@@ -131,16 +137,16 @@ export default class RelayHaulerRole extends Role {
       ? (projectedIncomeDuration * sourceMaxEnergy) / ENERGY_REGEN_TIME
       : 0;
 
-    const queuedHaulerCapacity = _.sumBy(
-      _.filter(
+    const queuedHaulerCapacity = sumBy(
+      filter(
         Game.creepsByRole["hauler.relay"],
         (creep: RelayHaulerCreep) =>
           creep.memory.source === targetPos && !creep.memory.delivering,
       ),
       (creep: Creep) => creep.store.getFreeCapacity(RESOURCE_ENERGY),
     );
-    const queuedBuilderCapacity = _.sumBy(
-      _.filter(
+    const queuedBuilderCapacity = sumBy(
+      filter(
         Game.creepsByRole["builder.mines"],
         (creep: MineBuilderCreep) =>
           creep.memory.source === targetPos && !creep.memory.returning,
@@ -220,7 +226,7 @@ export default class RelayHaulerRole extends Role {
           creep.store.getCapacity() / 3,
       });
       if (creeps.length > 0) {
-        creep.transfer(_.sample(creeps), RESOURCE_ENERGY);
+        creep.transfer(sample(creeps), RESOURCE_ENERGY);
         return;
       }
     }
@@ -323,7 +329,7 @@ export default class RelayHaulerRole extends Role {
     if (creep.room.storage || creep.room.terminal) return;
     if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) return;
 
-    const structures = _.filter(
+    const structures = filter(
       [
         ...(creep.room.myStructuresByType[STRUCTURE_SPAWN] || []),
         ...(creep.room.myStructuresByType[STRUCTURE_EXTENSION] || []),
@@ -336,7 +342,7 @@ export default class RelayHaulerRole extends Role {
     );
 
     if (structures.length > 0) {
-      creep.transfer(_.sample(structures), RESOURCE_ENERGY);
+      creep.transfer(sample(structures), RESOURCE_ENERGY);
       return;
     }
 
@@ -348,7 +354,7 @@ export default class RelayHaulerRole extends Role {
     });
 
     if (creeps.length > 0) {
-      creep.transfer(_.sample(creeps), RESOURCE_ENERGY);
+      creep.transfer(sample(creeps), RESOURCE_ENERGY);
     }
   }
 
@@ -413,7 +419,7 @@ export default class RelayHaulerRole extends Role {
       this.getSource(creep)?.isDangerous() &&
       creep.pos.getRangeTo(sourcePosition) <= 10
     ) {
-      if (_.size(creep.room.creepsByRole.skKiller) > 0) {
+      if (size(creep.room.creepsByRole.skKiller) > 0) {
         // We wait for SK killer to clean up.
         creep.whenInRange(6, sourcePosition, () => { });
       } else {
@@ -465,7 +471,7 @@ export default class RelayHaulerRole extends Role {
     if (container) {
       creep.say("container");
 
-      const hasActiveHarvester = _.some(
+      const hasActiveHarvester = some(
         creep.room.creepsByRole["harvester.remote"],
         (harvester: RemoteHarvesterCreep) => {
           if (harvester.memory.source !== creep.memory.source) return false;

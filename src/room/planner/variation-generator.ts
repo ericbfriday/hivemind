@@ -1,7 +1,9 @@
-import _ from "lodash";
-import hivemind from "hivemind";
-import { getExitCenters } from "utils/room-info";
+import keys from "lodash/keys";
+import min from "lodash/min";
+import hivemind from "@/hivemind";
+import { getExitCenters } from "@/utils/room-info";
 import { getRoomIntel } from "room-intel";
+import minBy from "lodash/minBy";
 
 declare global {
   type VariationInfo = {
@@ -30,7 +32,7 @@ export default class VariationGenerator {
       this.varySourceSpawns(variation),
     );
 
-    this.variationKeys = _.keys(this.variations);
+    this.variationKeys = keys(this.variations);
   }
 
   varyBy(
@@ -111,7 +113,7 @@ export default class VariationGenerator {
     let cx = controllerPosition.x;
     let cy = controllerPosition.y;
     let count = 1;
-    for (const dir of _.keys(exitCenters)) {
+    for (const dir of keys(exitCenters)) {
       for (const pos of exitCenters[dir]) {
         count++;
         cx += pos.x;
@@ -136,9 +138,7 @@ export default class VariationGenerator {
     cy = Math.floor(cy / count);
 
     // Find closest position with distance from walls around there.
-    const roomCenter = _.minBy(potentialCorePositions, (p) =>
-      p.getRangeTo(cx, cy),
-    );
+    const roomCenter = minBy(potentialCorePositions, (p) => p.getRangeTo(cx, cy));
     if (!roomCenter || typeof roomCenter === "number") {
       hivemind
         .log("rooms", this.roomName)

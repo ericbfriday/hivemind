@@ -1,6 +1,5 @@
-import _ from "lodash";
-import settings from "settings-manager";
-import StructureDestination from "dispatcher/resource-destination/structure";
+import settings  from "@/settings-manager";
+import StructureDestination from "@/dispatcher/resource-destination/structure";
 
 interface NukerDestinationTask extends StructureDestinationTask {
   type: "nuker";

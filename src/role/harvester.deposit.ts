@@ -1,16 +1,10 @@
-import _ from "lodash";
-/* global RoomPosition STRUCTURE_POWER_BANK OK
-POWER_BANK_DECAY FIND_MY_CREEPS HEAL_POWER RANGED_HEAL_POWER HEAL
-FIND_DROPPED_RESOURCES RESOURCE_POWER FIND_HOSTILE_CREEPS RANGED_ATTACK
-POWER_BANK_HIT_BACK */
-
-import cache from "utils/cache";
-import hivemind from "hivemind";
-import NavMesh from "utils/nav-mesh";
-import Role from "role/role";
-import { deserializePosition } from "utils/serialization";
-import { getCostMatrix } from "utils/cost-matrix";
-import { getResourcesIn } from "utils/store";
+import cache from "@/utils/cache";
+import hivemind from "@/hivemind";
+import NavMesh from "@/utils/nav-mesh";
+import Role from "@/role/role";
+import { deserializePosition } from "@/utils/serialization";
+import { getCostMatrix } from "@/utils/cost-matrix";
+import { getResourcesIn } from "@/utils/store";
 
 declare global {
   interface DepositHarvesterCreep extends Creep {

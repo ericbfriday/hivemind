@@ -1,10 +1,13 @@
-import _ from "lodash";
-import container from "utils/container";
-import Process from "process/process";
-import settings from "settings-manager";
+import filter from "lodash/filter";
+import sum from "lodash/sum";
+import reduce from "lodash/reduce";
+import sortBy from "lodash/sortBy";
+import container from "@/utils/container";
+import Process from "@/process/process";
+import settings  from "@/settings-manager";
 import SpawnManager from "spawn-manager";
 
-import { drawTable } from "utils/room-visuals";
+import { drawTable } from "@/utils/room-visuals";
 
 declare global {
   interface StructureSpawn {
@@ -51,7 +54,7 @@ export default class ManageSpawnsProcess extends Process {
    * Manages a room's spawns.
    */
   run() {
-    const roomSpawns = _.filter(
+    const roomSpawns = filter(
       this.room.myStructuresByType[STRUCTURE_SPAWN],
       (spawn) => spawn.isOperational(),
     );
@@ -148,13 +151,13 @@ export default class ManageSpawnsProcess extends Process {
         waiting: 0,
         history: [],
       };
-      const totalTicks = memory.ticks + _.sumBy(memory.history, (h) => h.ticks);
-      const spawningTicks = _.reduce(
+      const totalTicks = memory.ticks + sum(memory.history, (h) => h.ticks);
+      const spawningTicks = reduce(
         memory.history,
         (total, h: any) => total + h.spawning,
         memory.spawning,
       );
-      const waitingTicks = _.reduce(
+      const waitingTicks = reduce(
         memory.history,
         (total, h: any) => total + h.waiting,
         memory.waiting,
@@ -206,7 +209,7 @@ export default class ManageSpawnsProcess extends Process {
     if (!this.room.visual || settings.get("disableRoomVisuals")) return;
 
     const tableData: string[][] = [["Spawn Queue", "Priority"]];
-    const queue = _.sortBy(
+    const queue = sortBy(
       this.spawnManager.getAllSpawnOptions(this.room),
       (option) => -(option.priority + 0.01 * option.weight),
     );

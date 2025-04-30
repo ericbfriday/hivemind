@@ -1,15 +1,16 @@
-import _ from "lodash";
+import BodyBuilder from "@/creep/body-builder";
+import hivemind from "@/hivemind";
+import { minBy } from "lodash";
+import each from "lodash/each";
+import filter from "lodash/filter";
+import find from "lodash/find";
+import { getRoomIntel } from "room-intel";
+import SpawnRole from "@/spawn-role/spawn-role";
+import NavMesh from "@/utils/nav-mesh";
+import { decodePosition, encodePosition } from "@/utils/serialization";
+
 /* global RoomPosition CREEP_LIFE_TIME CREEP_SPAWN_TIME MAX_CREEP_SIZE
 ATTACK POWER_BANK_HIT_BACK ATTACK_POWER HEAL_POWER MOVE HEAL */
-
-import BodyBuilder from "creep/body-builder";
-import cache from "utils/cache";
-import hivemind from "hivemind";
-import NavMesh from "utils/nav-mesh";
-import SpawnRole from "spawn-role/spawn-role";
-import { getRoomIntel } from "room-intel";
-import { encodePosition, decodePosition } from "utils/serialization";
-
 interface DepositHarvesterSpawnOption extends SpawnOption {
   targetPos: string;
   origin: string;
@@ -39,10 +40,10 @@ export default class DepositHarvesterSpawnRole extends SpawnRole {
         return [];
 
       const options: DepositHarvesterSpawnOption[] = [];
-      _.each(Memory.strategy.deposits.rooms, (info, roomName) => {
+      each(Memory.strategy.deposits.rooms, (info, roomName) => {
         if (!info.isActive) return;
 
-        const spawnRoomInfo = _.find(
+        const spawnRoomInfo = find(
           info.spawnRooms,
           (spawnRoom) => spawnRoom.room === room.name,
         );
@@ -78,7 +79,7 @@ export default class DepositHarvesterSpawnRole extends SpawnRole {
     const targetPos = encodePosition(
       new RoomPosition(depositInfo.x, depositInfo.y, depositRoomName),
     );
-    const activeDepositHarvesters = _.filter(
+    const activeDepositHarvesters = filter(
       Game.creepsByRole["harvester.deposit"] || [],
       (creep: DepositHarvesterCreep) => {
         if (creep.memory.targetPos !== targetPos) return false;
@@ -99,7 +100,7 @@ export default class DepositHarvesterSpawnRole extends SpawnRole {
         targetPos,
         // We use the closest spawn room as supposed origin, because that will
         // make delivery faster.
-        origin: _.minBy(strategyInfo.spawnRooms, (r) => r.distance).room,
+        origin: minBy(strategyInfo.spawnRooms, (r) => r.distance).room,
       });
     }
   }

@@ -1,10 +1,11 @@
-import _ from "lodash";
-import cache from "utils/cache";
-import hivemind from "hivemind";
-import { encodePosition } from "utils/serialization";
+import each from "lodash/each";
+import size from "lodash/size";
+import cache from "@/utils/cache";
+import hivemind from "@/hivemind";
+import { encodePosition } from "@/utils/serialization";
 import { ENEMY_STRENGTH_NONE } from "room-defense";
 import { getRoomIntel } from "room-intel";
-import { handleMapArea } from "utils/map";
+import { handleMapArea } from "@/utils/map";
 
 interface CostMatrixOptions {
   singleRoom?: boolean;
@@ -375,24 +376,24 @@ function markBuildings(
   blockerCallback: (structure: Structure | ConstructionSite) => void,
   sourceKeeperCallback: (x: number, y: number) => void,
 ) {
-  _.each(OBSTACLE_OBJECT_TYPES, (structureType) => {
-    _.each(structures[structureType], (structure) => {
+  each(OBSTACLE_OBJECT_TYPES, (structureType) => {
+    each(structures[structureType], (structure) => {
       // Can't walk through non-walkable buildings.
       blockerCallback(structure);
     });
 
-    _.each(constructionSites[structureType], (site) => {
+    each(constructionSites[structureType], (site) => {
       // Can't walk through non-walkable construction sites.
       blockerCallback(site);
     });
   });
 
-  _.each(structures[STRUCTURE_PORTAL], (structure) => {
+  each(structures[STRUCTURE_PORTAL], (structure) => {
     // Treat portals as blocking. They will be targetted intentionally.
     blockerCallback(structure);
   });
 
-  _.each(structures[STRUCTURE_RAMPART], (structure: StructureRampart) => {
+  each(structures[STRUCTURE_RAMPART], (structure: StructureRampart) => {
     if (!structure.my) {
       // Enemy ramparts are blocking.
       blockerCallback(structure);
@@ -403,22 +404,34 @@ function markBuildings(
     // If we're running a (successful) exploit in this room, tiles
     // should not be marked inaccessible.
     const roomIntel = getRoomIntel(roomName);
-    if (_.size(structures[STRUCTURE_KEEPER_LAIR]) > 0) {
-      if (!(Memory.strategy?.remoteHarvesting?.rooms || []).includes(roomName)) {
+    if (size(structures[STRUCTURE_KEEPER_LAIR]) > 0) {
+      if (
+        !(Memory.strategy?.remoteHarvesting?.rooms || []).includes(roomName)
+      ) {
         // Add area around keeper lairs as obstacles.
         // @todo For SK rooms that we harvest, still consider the
         // mineral SK lair as dangerous.
-        _.each(structures[STRUCTURE_KEEPER_LAIR], structure => {
-          handleMapArea(structure.pos.x, structure.pos.y, (x, y) => {
-            sourceKeeperCallback(x, y);
-          }, 3);
+        each(structures[STRUCTURE_KEEPER_LAIR], (structure) => {
+          handleMapArea(
+            structure.pos.x,
+            structure.pos.y,
+            (x, y) => {
+              sourceKeeperCallback(x, y);
+            },
+            3,
+          );
         });
 
         // Add area around sources as obstacles.
-        _.each(roomIntel.getSourcePositions(), sourceInfo => {
-          handleMapArea(sourceInfo.x, sourceInfo.y, (x, y) => {
-            sourceKeeperCallback(x, y);
-          }, 4);
+        each(roomIntel.getSourcePositions(), (sourceInfo) => {
+          handleMapArea(
+            sourceInfo.x,
+            sourceInfo.y,
+            (x, y) => {
+              sourceKeeperCallback(x, y);
+            },
+            4,
+          );
         });
       }
 
@@ -441,7 +454,7 @@ function markBuildings(
     }
   }
 
-  _.each(structures[STRUCTURE_ROAD], (structure) => {
+  each(structures[STRUCTURE_ROAD], (structure) => {
     // Favor roads over plain tiles.
     roadCallback(structure);
   });
@@ -457,7 +470,7 @@ function markSourceKeeperExits(
 
   const otherRoomIntel = getRoomIntel(roomName);
   if (!otherRoomIntel || !otherRoomIntel.hasCostMatrixData()) return;
-  if (_.size(otherRoomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) === 0) return;
+  if (size(otherRoomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) === 0) return;
 
   // @todo Instead of reading cost matrix values, check distance to
   // keeper lairs and sources.

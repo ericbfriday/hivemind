@@ -1,12 +1,15 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import size from "lodash/size";
+import each from "lodash/each";
+import includes from "lodash/includes";
 /* global STRUCTURE_RAMPART ATTACK RANGED_ATTACK HEAL CLAIM MOVE TOUGH CARRY
 LOOK_STRUCTURES */
 
-import cache from 'utils/cache';
-import hivemind from 'hivemind';
-import Operation from 'operation/operation';
-import { getDangerMatrix } from 'utils/cost-matrix';
-import { getResourcesIn } from 'utils/store';
+import cache from '@/utils/cache';
+import hivemind from '@/hivemind';
+import Operation from '@/operation/operation';
+import { getDangerMatrix } from '@/utils/cost-matrix';
+import { getResourcesIn } from '@/utils/store';
 
 declare global {
   interface RoomMemory {
@@ -126,7 +129,7 @@ export default class RoomDefense {
           continue;
 
         // Check if there's a rampart here already.
-        const ramps = _.filter(
+        const ramps = filter(
           this.room.myStructuresByType[STRUCTURE_RAMPART],
           (structure) => structure.pos.isEqualTo(pos),
         );
@@ -224,11 +227,14 @@ export default class RoomDefense {
   }
 
   openRampartsToFriendlies() {
-    if (_.size(this.room.enemyCreeps) === 0) {
-      if (this.memory.lastActivity && Game.time - this.memory.lastActivity > 10) {
+    if (size(this.room.enemyCreeps) === 0) {
+      if (
+        this.memory.lastActivity &&
+        Game.time - this.memory.lastActivity > 10
+      ) {
         // Close ramparts after last friendly leaves the room for a while.
         const ramparts = this.room.myStructuresByType[STRUCTURE_RAMPART];
-        _.each(ramparts, rampart => {
+        each(ramparts, (rampart) => {
           if (rampart.isPublic) rampart.setPublic(false);
         });
         delete this.memory.lastActivity;
@@ -243,9 +249,9 @@ export default class RoomDefense {
 
     const allowed = [];
     const forbidden = [];
-    _.each(this.room.enemyCreeps, (creeps, username) => {
-      const numberInRoom = _.size(
-        _.filter(creeps, (creep) => this.isInRoom(creep)),
+    each(this.room.enemyCreeps, (creeps, username) => {
+      const numberInRoom = size(
+        filter(creeps, (creep) => this.isInRoom(creep)),
       );
 
       for (const creep of creeps) {
@@ -274,7 +280,7 @@ export default class RoomDefense {
     });
 
     const ramparts = this.room.myStructuresByType[STRUCTURE_RAMPART];
-    _.each(ramparts, (rampart) => {
+    each(ramparts, (rampart) => {
       const newState = this.shouldRampartBePublic(rampart, allowed, forbidden);
       if (rampart.isPublic !== newState) rampart.setPublic(newState);
     });
@@ -285,7 +291,7 @@ export default class RoomDefense {
 
     if (!this.memory.creepStatus[creep.id]) {
       const store = {};
-      _.each(creep.store, (amount, resourceType) => {
+      each(creep.store, (amount, resourceType) => {
         store[resourceType] = amount;
       });
 
@@ -391,7 +397,7 @@ export default class RoomDefense {
   isWhitelisted(username: string): boolean {
     return (
       hivemind.relations.isAlly(username) ||
-      _.includes(hivemind.settings.get("rampartWhitelistedUsers"), username)
+      includes(hivemind.settings.get("rampartWhitelistedUsers"), username)
     );
   }
 }

@@ -1,8 +1,4 @@
-import _ from "lodash";
-/* global Creep ATTACK RANGED_ATTACK HEAL MOVE TOUGH BOOSTS
-ATTACK_POWER HEAL_POWER RANGED_ATTACK_POWER RANGED_HEAL_POWER */
-
-import hivemind from "hivemind";
+import hivemind from "@/hivemind";
 
 declare global {
   interface Creep {

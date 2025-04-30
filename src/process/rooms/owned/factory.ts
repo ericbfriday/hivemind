@@ -1,7 +1,6 @@
-import _ from "lodash";
-import Process from "process/process";
-import settings from "settings-manager";
-import { drawTable } from "utils/room-visuals";
+import Process from "@/process/process";
+import settings  from "@/settings-manager";
+import { drawTable } from "@/utils/room-visuals";
 
 export default class ManageFactoryProcess extends Process {
   room: Room;

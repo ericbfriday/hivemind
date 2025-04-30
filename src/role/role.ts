@@ -1,8 +1,5 @@
-import _ from "lodash";
-/* global RoomPosition RIGHT LEFT TOP BOTTOM */
-
 import { ENEMY_STRENGTH_NONE } from "room-defense";
-import { getDangerMatrix } from "utils/cost-matrix";
+import { getDangerMatrix } from "@/utils/cost-matrix";
 
 declare global {
   interface CreepMemory {

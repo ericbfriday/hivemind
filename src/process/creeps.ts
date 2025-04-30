@@ -1,34 +1,35 @@
-import _ from "lodash";
-import container from "utils/container";
-import CreepManager from "creep-manager";
-import hivemind from "hivemind";
-import Process from "process/process";
-import TrafficManager from "creep/traffic-manager";
-import utilities from "utilities";
+import each from "lodash/each";
+import filter from "lodash/filter";
+import container from "@/utils/container";
+import CreepManager from "@/creep-manager";
+import hivemind from "@/hivemind";
+import Process from "@/process/process";
+import TrafficManager from "@/creep/traffic-manager";
+import utilities from "@/utilities";
 
-import brawlerRole from "role/brawler";
-import builderRole from "role/builder";
-import claimerRole from "role/claimer";
-import depositHarvesterRole from "role/harvester.deposit";
-import dismantlerRole from "role/dismantler";
-import guardianRole from "role/guardian";
-import harvesterRole from "role/harvester";
-import helperRole from "role/helper";
-import mineBuilderRole from "role/builder.mines";
-import muleRole from "role/mule";
-import poweHarvesterRole from "role/power/harvester";
-import powerHaulerRole from "role/power/hauler";
-import relayHaulerRole from "role/hauler.relay";
-import remoteBuilderRole from "role/builder.remote";
-import remoteHarvesterRole from "role/harvester.remote";
-import scoutRole from "role/scout";
-import skKillerRole from "role/sk-killer";
-import transporterRole from "role/transporter";
-import unassignedRole from "role/unassigned";
-import upgraderRole from "role/upgrader";
+import brawlerRole from "@/role/brawler";
+import builderRole from "@/role/builder";
+import claimerRole from "@/role/claimer";
+import depositHarvesterRole from "@/role/harvester.deposit";
+import dismantlerRole from "@/role/dismantler";
+import guardianRole from "@/role/guardian";
+import harvesterRole from "@/role/harvester";
+import helperRole from "@/role/helper";
+import mineBuilderRole from "@/role/builder.mines";
+import muleRole from "@/role/mule";
+import poweHarvesterRole from "@/role/power/harvester";
+import powerHaulerRole from "@/role/power/hauler";
+import relayHaulerRole from "@/role/hauler.relay";
+import remoteBuilderRole from "@/role/builder.remote";
+import remoteHarvesterRole from "@/role/harvester.remote";
+import scoutRole from "@/role/scout";
+import skKillerRole from "@/role/sk-killer";
+import transporterRole from "@/role/transporter";
+import unassignedRole from "@/role/unassigned";
+import upgraderRole from "@/role/upgrader";
 
 // Power creep roles.
-import OperatorRole from "role/power-creep/operator";
+import OperatorRole from "@/role/power-creep/operator";
 
 // Normal creep roles.
 const creepRoles = {
@@ -87,7 +88,7 @@ export default class CreepsProcess extends Process {
   run() {
     // Run normal creeps.
     this.creepManager.onTickStart();
-    _.each(Game.creepsByRole, (creeps, role) => {
+    each(Game.creepsByRole, (creeps, role) => {
       if (!this.creepManager.hasRole(role)) return;
 
       hivemind.runSubProcess("creeps_" + role, () => {
@@ -99,7 +100,7 @@ export default class CreepsProcess extends Process {
     this.creepManager.report();
 
     // Run power creeps.
-    const powerCreeps = _.filter(
+    const powerCreeps = filter(
       Game.powerCreeps,
       (creep) => (creep.ticksToLive || 0) > 0,
     );

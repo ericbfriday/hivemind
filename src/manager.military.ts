@@ -1,11 +1,11 @@
-import _ from "lodash";
+import each from "lodash/each";
 /* global Creep Room FIND_CREEPS BOOSTS ATTACK
 RANGED_ATTACK HEAL STRUCTURE_TOWER TOWER_POWER_HEAL TOWER_POWER_ATTACK
 ATTACK_POWER RANGED_ATTACK_POWER HEAL_POWER RANGED_HEAL_POWER
 CARRY CLAIM MOVE TOUGH WORK TOWER_ENERGY_COST */
 
-import hivemind from "hivemind";
-import cache from "utils/cache";
+import hivemind from "@/hivemind";
+import cache from "@/utils/cache";
 
 declare global {
   interface Room {
@@ -409,8 +409,8 @@ Room.prototype.getTowerTarget = function (this: Room) {
  */
 Room.prototype.drawMilitarySituation = function (this: Room) {
   const visual = this.visual;
-  _.each(this.sitRep.damage, (colData, x: string) => {
-    _.each(colData, (data, y: string) => {
+  each(this.sitRep.damage, (colData, x: string) => {
+    each(colData, (data, y: string) => {
       visual.text(data.toString(), Number(x), Number(y) - 0.1, {
         color: "red",
         font: 0.5,
@@ -418,8 +418,8 @@ Room.prototype.drawMilitarySituation = function (this: Room) {
     });
   });
 
-  _.each(this.sitRep.healing, (colData, x: string) => {
-    _.each(colData, (data, y: string) => {
+  each(this.sitRep.healing, (colData, x: string) => {
+    each(colData, (data, y: string) => {
       visual.text(data.toString(), Number(x), Number(y) + 0.4, {
         color: "green",
         font: 0.5,
@@ -427,8 +427,8 @@ Room.prototype.drawMilitarySituation = function (this: Room) {
     });
   });
 
-  _.each(this.sitRep.myDamage, (colData, x: string) => {
-    _.each(colData, (data, y: string) => {
+  each(this.sitRep.myDamage, (colData, x: string) => {
+    each(colData, (data, y: string) => {
       visual.text(data.toString(), Number(x), Number(y) - 0.1, {
         color: "red",
         font: 0.5,
@@ -436,8 +436,8 @@ Room.prototype.drawMilitarySituation = function (this: Room) {
     });
   });
 
-  _.each(this.sitRep.myHealing, (colData, x: string) => {
-    _.each(colData, (data, y: string) => {
+  each(this.sitRep.myHealing, (colData, x: string) => {
+    each(colData, (data, y: string) => {
       visual.text(data.toString(), Number(x), Number(y) + 0.4, {
         color: "green",
         font: 0.5,

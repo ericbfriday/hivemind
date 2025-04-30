@@ -1,5 +1,4 @@
-import _ from "lodash";
-import cache from "utils/cache";
+import cache from "@/utils/cache";
 
 declare global {
   interface StrategyMemory {
@@ -101,7 +100,7 @@ export default class RoomStatus {
   }
 
   getOrigin(roomName: string): string | null {
-    return this.memory[roomName]?.origin ?? null;
+    return this.memory[roomName]?.origin || null;
   }
 
   setOrigin(roomName: string, origin: string): void {
@@ -109,7 +108,7 @@ export default class RoomStatus {
   }
 
   getDistanceToOrigin(roomName: string): number {
-    return this.memory[roomName]?.range ?? 100;
+    return this.memory[roomName]?.range || 100;
   }
 
   setDistanceToOrigin(roomName: string, range: number): void {
@@ -117,14 +116,14 @@ export default class RoomStatus {
   }
 
   getExpansionScore(roomName: string): number | null {
-    return this.memory[roomName]?.expansionScore ?? null;
+    return this.memory[roomName]?.expansionScore || null;
   }
 
   getHarvestPriority(roomName: string): number {
-    return this.memory[roomName]?.harvestPriority ?? 0;
+    return this.memory[roomName]?.harvestPriority || 0;
   }
 
   getScoutPriority(roomName: string): number {
-    return this.memory[roomName]?.scoutPriority ?? 0;
+    return this.memory[roomName]?.scoutPriority || 0;
   }
 }

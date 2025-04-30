@@ -1,12 +1,12 @@
-import _ from "lodash";
+import each from "lodash/each";
 /* global PWR_OPERATE_SPAWN POWER_INFO */
 
-import container from "utils/container";
-import hivemind from "hivemind";
-import Process from "process/process";
-import RemoteMiningOperation from "operation/remote-mining";
-import settings from "settings-manager";
-import stats from "utils/stats";
+import container from "@/utils/container";
+import hivemind from "@/hivemind";
+import Process from "@/process/process";
+import RemoteMiningOperation from "@/operation/remote-mining";
+import settings  from "@/settings-manager";
+import stats from "@/utils/stats";
 
 declare global {
   interface StrategyMemory {
@@ -135,7 +135,7 @@ export default class RemoteMiningProcess extends Process {
     }
 
     // Stop operations for rooms that are no longer selected.
-    _.each(Game.operationsByType.mining, (op) => {
+    each(Game.operationsByType.mining, (op) => {
       if (!memory.remoteHarvesting.rooms.includes(op.getRoom())) {
         op.terminate();
       }

@@ -1,9 +1,3 @@
-import _ from "lodash";
-/**
- * Exmple settings file for user settings.
- *
- * Copy to `src/settings.local.ts` to use this.
- */
 const settings: Partial<SettingsObject> = {
   // Visualize nav mesh.
   visualizeNavMesh: true,

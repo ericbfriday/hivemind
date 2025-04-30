@@ -1,4 +1,3 @@
-import _ from "lodash";
 import CombatManager from "./creep/combat-manager";
 import HelpReport from "./report/help";
 import FunnelManager from "./empire/funnel-manager";
@@ -9,7 +8,7 @@ import ProcessReport from "./report/process";
 import ReclaimManager from "./reclaim-manager";
 import RemoteMinePrioritizer from "./empire/remote-mine-prioritizer";
 import ReportManager from "./report/report-manager";
-import ResourceLevelManager from "room/resource-level-manager";
+import ResourceLevelManager from "@/room/resource-level-manager";
 import ResourcesReport from "./report/resources";
 import RolesReport from "./report/roles";
 import RoomsReport from "./report/rooms";
@@ -19,23 +18,23 @@ import TradeRouteManager from "./empire/trade-route-manager";
 import TrafficManager from "./creep/traffic-manager";
 import { Container } from "./utils/container";
 
-import brawlerSpawnRole from "spawn-role/brawler";
-import builderSpawnRole from "spawn-role/builder";
-import depositHarvesterSpawnRole from "spawn-role/harvester.deposit";
-import dismantlerSpawnRole from "spawn-role/dismantler";
-import harvesterSpawnRole from "spawn-role/harvester";
-import helperSpawnRole from "spawn-role/helper";
-import mineralHarvesterSpawnRole from "spawn-role/harvester.minerals";
-import muleSpawnRole from "spawn-role/mule";
-import powerHarvesterSpawnRole from "spawn-role/harvester.power";
-import powerHaulerSpawnRole from "spawn-role/hauler.power";
-import reclaimSpawnRole from "spawn-role/reclaim";
-import remoteMiningSpawnRole from "spawn-role/remote-mining";
-import roomDefenseSpawnRole from "spawn-role/room-defense";
-import scoutSpawnRole from "spawn-role/scout";
-import squadSpawnRole from "spawn-role/squad";
-import transporterSpawnRole from "spawn-role/transporter";
-import upgraderSpawnRole from "spawn-role/upgrader";
+import brawlerSpawnRole from "@/spawn-role/brawler";
+import builderSpawnRole from "@/spawn-role/builder";
+import depositHarvesterSpawnRole from "@/spawn-role/harvester.deposit";
+import dismantlerSpawnRole from "@/spawn-role/dismantler";
+import harvesterSpawnRole from "@/spawn-role/harvester";
+import helperSpawnRole from "@/spawn-role/helper";
+import mineralHarvesterSpawnRole from "@/spawn-role/harvester.minerals";
+import muleSpawnRole from "@/spawn-role/mule";
+import powerHarvesterSpawnRole from "@/spawn-role/harvester.power";
+import powerHaulerSpawnRole from "@/spawn-role/hauler.power";
+import reclaimSpawnRole from "@/spawn-role/reclaim";
+import remoteMiningSpawnRole from "@/spawn-role/remote-mining";
+import roomDefenseSpawnRole from "@/spawn-role/room-defense";
+import scoutSpawnRole from "@/spawn-role/scout";
+import squadSpawnRole from "@/spawn-role/squad";
+import transporterSpawnRole from "@/spawn-role/transporter";
+import upgraderSpawnRole from "@/spawn-role/upgrader";
 
 declare global {
   interface DependencyInjectionContainer {

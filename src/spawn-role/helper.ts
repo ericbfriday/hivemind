@@ -1,8 +1,8 @@
-import _ from "lodash";
+import size from "lodash/size";
 /* global MOVE CARRY */
 
-import BodyBuilder, { MOVEMENT_MODE_ROAD } from "creep/body-builder";
-import SpawnRole from "spawn-role/spawn-role";
+import BodyBuilder, { MOVEMENT_MODE_ROAD } from "@/creep/body-builder";
+import SpawnRole from "@/spawn-role/spawn-role";
 
 export default class HelperSpawnRole extends SpawnRole {
   /**
@@ -14,7 +14,7 @@ export default class HelperSpawnRole extends SpawnRole {
   getSpawnOptions(room: Room): SpawnOption[] {
     return this.cacheEmptySpawnOptionsFor(room, 10, () => {
       const maxHelpers = 1;
-      const helperCount = _.size(room.creepsByRole.helper);
+      const helperCount = size(room.creepsByRole.helper);
 
       // Make sure we actually need helpers.
       if (

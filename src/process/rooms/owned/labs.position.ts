@@ -1,7 +1,7 @@
-import _ from "lodash";
+import filter from "lodash/filter";
 /* global FIND_STRUCTURES STRUCTURE_LAB */
 
-import Process from "process/process";
+import Process from "@/process/process";
 
 declare global {
   interface RoomMemory {
@@ -32,7 +32,7 @@ export default class ReactionsProcess extends Process {
     // @todo Find labs not used for reactions, to do creep boosts.
     this.room.memory.canPerformReactions = false;
 
-    const labs = _.filter(
+    const labs = filter(
       this.room.myStructuresByType[STRUCTURE_LAB],
       (structure) => structure.isOperational(),
     );

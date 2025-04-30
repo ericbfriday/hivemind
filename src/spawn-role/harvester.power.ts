@@ -1,11 +1,13 @@
-import _ from "lodash";
+import each from "lodash/each";
+import filter from "lodash/filter";
+import reduce from "lodash/reduce";
 /* global RoomPosition CREEP_LIFE_TIME CREEP_SPAWN_TIME MAX_CREEP_SIZE
 ATTACK POWER_BANK_HIT_BACK ATTACK_POWER HEAL_POWER MOVE HEAL */
 
-import BodyBuilder from "creep/body-builder";
-import hivemind from "hivemind";
-import NavMesh from "utils/nav-mesh";
-import SpawnRole from "spawn-role/spawn-role";
+import BodyBuilder from "@/creep/body-builder";
+import hivemind from "@/hivemind";
+import NavMesh from "@/utils/nav-mesh";
+import SpawnRole from "@/spawn-role/spawn-role";
 
 interface PowerHarvesterSpawnOption extends SpawnOption {
   targetRoom: string;
@@ -31,7 +33,7 @@ export default class PowerHarvesterSpawnRole extends SpawnRole {
         return [];
 
       const options: PowerHarvesterSpawnOption[] = [];
-      _.each(Memory.strategy.power.rooms, (info, roomName) => {
+      each(Memory.strategy.power.rooms, (info, roomName) => {
         if (!info.isActive) return;
         if (!info.spawnRooms[room.name]) return;
 
@@ -49,7 +51,7 @@ export default class PowerHarvesterSpawnRole extends SpawnRole {
     options: PowerHarvesterSpawnOption[],
   ) {
     // We're assigned to spawn creeps for this power gathering operation!
-    const activePowerHarvesters = _.filter(
+    const activePowerHarvesters = filter(
       Game.creepsByRole["harvester.power"] || [],
       (creep: Creep) => {
         if (creep.memory.isHealer) return false;
@@ -70,7 +72,7 @@ export default class PowerHarvesterSpawnRole extends SpawnRole {
         return true;
       },
     );
-    const activePowerHealers = _.filter(
+    const activePowerHealers = filter(
       Game.creepsByRole["harvester.power"] || [],
       (creep: Creep) => {
         if (!creep.memory.isHealer) return false;
@@ -93,12 +95,12 @@ export default class PowerHarvesterSpawnRole extends SpawnRole {
     );
 
     // Spawn attackers before healers.
-    const currentDps = _.reduce(
+    const currentDps = reduce(
       activePowerHarvesters,
       (total, creep) => total + creep.getActiveBodyparts(ATTACK) * ATTACK_POWER,
       0,
     );
-    const currentHps = _.reduce(
+    const currentHps = reduce(
       activePowerHealers,
       (total, creep) => total + creep.getActiveBodyparts(HEAL) * HEAL_POWER,
       0,

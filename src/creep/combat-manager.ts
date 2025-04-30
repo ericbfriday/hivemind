@@ -1,9 +1,13 @@
-import _ from "lodash";
-import cache from "utils/cache";
-import hivemind from "hivemind";
-import utilities from "utilities";
-import { getResourcesIn } from "utils/store";
-import { handleMapArea } from "utils/map";
+import max from "lodash/max";
+import some from "lodash/some";
+import filter from "lodash/filter";
+import map from "lodash/map";
+import cache from "@/utils/cache";
+import hivemind from "@/hivemind";
+import utilities from "@/utilities";
+import { getResourcesIn } from "@/utils/store";
+import { handleMapArea } from "@/utils/map";
+import { maxBy } from "lodash";
 
 type AttackTarget = Creep | Structure;
 
@@ -63,7 +67,7 @@ export default class CombatManager {
       creep.whenInRange(targetRange, targetPosition, () => { });
     }
 
-    const newPosition = _.maxBy(scoredPositions, "score");
+    const newPosition = maxBy(scoredPositions, "score");
     if (!creep.pos.isEqualTo(newPosition))
       creep.move(creep.pos.getDirectionTo(newPosition.pos));
 
@@ -74,7 +78,12 @@ export default class CombatManager {
     const enemyCreeps = this.getEnemyMilitaryCreeps(creep.room);
     if (!this.hasEnemyCreepsInFightingRange(creep, enemyCreeps)) return false;
 
-    return _.some(enemyCreeps, c => c.owner.username !== 'Source Keeper' && !this.couldWinFightAgainst(creep, c));
+    return some(
+      enemyCreeps,
+      (c) =>
+        c.owner.username !== "Source Keeper" &&
+        !this.couldWinFightAgainst(creep, c),
+    );
   }
 
   public performKitingMovement(creep: Creep, target: AttackTarget) {
@@ -98,7 +107,7 @@ export default class CombatManager {
         creep.whenInRange(targetRange, target, () => { });
       }
 
-      const newPosition = _.maxBy(scoredPositions, "score");
+      const newPosition = maxBy(scoredPositions, "score");
       if (!creep.pos.isEqualTo(newPosition))
         creep.move(creep.pos.getDirectionTo(newPosition.pos));
 
@@ -109,8 +118,14 @@ export default class CombatManager {
     creep.whenInRange(targetRange, target, () => { });
   }
 
-  public hasEnemyCreepsInFightingRange(creep: Creep, enemyCreeps?: Creep[]): boolean {
-    return _.any(enemyCreeps ?? this.getEnemyMilitaryCreeps(creep.room), c => c.pos.getRangeTo(creep) <= 5);
+  public hasEnemyCreepsInFightingRange(
+    creep: Creep,
+    enemyCreeps?: Creep[],
+  ): boolean {
+    return some(
+      enemyCreeps || this.getEnemyMilitaryCreeps(creep.room),
+      (c) => c.pos.getRangeTo(creep) <= 5,
+    );
   }
 
   public getEnemyMilitaryCreeps(room: Room): Creep[] {
@@ -188,7 +203,7 @@ export default class CombatManager {
         (c.my || hivemind.relations.isAlly(c.owner.username)),
     });
 
-    const target = _.maxBy(targets, (c) =>
+    const target = maxBy(targets, (c) =>
       Math.min(
         c.hitsMax - c.hits,
         // @todo Factor in boosts.
@@ -209,10 +224,10 @@ export default class CombatManager {
     const availableTargets = this.getNearbyTargets(creep);
     if (availableTargets.length === 0) return;
 
-    const availableOwnedTargets = _.filter(
+    const availableOwnedTargets = filter(
       availableTargets,
       (target) => "owner" in target && target?.owner?.username,
-    );
+    ) as AttackTarget[];
 
     if (creep.getActiveBodyparts(RANGED_ATTACK) > 0) {
       if (
@@ -301,8 +316,12 @@ export default class CombatManager {
     return positions;
   }
 
-  private scoreKitingPositions(creep: Creep, enemyCreeps: Creep[], positions: RoomPosition[]): ScoredPosition[] {
-    const scored = _.map(positions, pos => ({
+  private scoreKitingPositions(
+    creep: Creep,
+    enemyCreeps: Creep[],
+    positions: RoomPosition[],
+  ): ScoredPosition[] {
+    const scored = map(positions, (pos) => ({
       pos,
       score: 0,
     }));
@@ -328,7 +347,7 @@ export default class CombatManager {
     enemyCreeps: Creep[],
     positions: ScoredPosition[],
   ) {
-    const isFleeing = _.some(
+    const isFleeing = some(
       enemyCreeps,
       (c) => !this.couldWinFightAgainst(creep, c),
     );
@@ -393,20 +412,20 @@ export default class CombatManager {
     const structures = pos.lookFor(LOOK_STRUCTURES);
     if (
       terrain.get(pos.x, pos.y) & TERRAIN_MASK_WALL &&
-      !_.some(structures, (s) => s.structureType === STRUCTURE_ROAD)
+      !some(structures, (s) => s.structureType === STRUCTURE_ROAD)
     ) {
       this.tileCache[encodedPos] = TILE_WALL;
       return;
     }
 
-    if (_.any(structures, (s) => !s.isWalkable())) {
+    if (some(structures, (s) => !s.isWalkable())) {
       this.tileCache[encodedPos] = TILE_WALL;
       return;
     }
 
     if (
       terrain.get(pos.x, pos.y) & TERRAIN_MASK_SWAMP &&
-      !_.some(structures, (s) => s.structureType === STRUCTURE_ROAD)
+      !some(structures, (s) => s.structureType === STRUCTURE_ROAD)
     ) {
       this.tileCache[encodedPos] = TILE_SWAMP;
       return;
@@ -519,7 +538,7 @@ export default class CombatManager {
     priority: number;
     object: AttackTarget;
   }> {
-    return _.map(targets, (target) => {
+    return map(targets, (target) => {
       let priority = 0;
       let weight = 0;
       // @todo Containers and roads are only relevant targets if the room is

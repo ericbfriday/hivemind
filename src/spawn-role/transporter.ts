@@ -1,10 +1,15 @@
-import _ from "lodash";
+import size from "lodash/size";
+import filter from "lodash/filter";
+import min from "lodash/min";
+import map from "lodash/map";
+import sum from "lodash/sum";
 /* global MOVE CARRY */
 
-import BodyBuilder, { MOVEMENT_MODE_ROAD } from "creep/body-builder";
-import cache from "utils/cache";
-import SpawnRole from "spawn-role/spawn-role";
-import utilities from "utilities";
+import BodyBuilder, { MOVEMENT_MODE_ROAD } from "@/creep/body-builder";
+import cache from "@/utils/cache";
+import SpawnRole from "@/spawn-role/spawn-role";
+import utilities from "@/utilities";
+import { minBy, sumBy } from "lodash";
 
 interface TransporterSpawnOption extends SpawnOption {
   force: boolean;
@@ -25,7 +30,7 @@ export default class TransporterSpawnRole extends SpawnRole {
       const transporterSize = this.getTransporterSize(room);
       const maxTransporters = this.getTransporterAmount(room, transporterSize);
 
-      const transporterCount = _.size(room.creepsByRole.transporter);
+      const transporterCount = size(room.creepsByRole.transporter);
       if (transporterCount < maxTransporters) {
         const option: TransporterSpawnOption = {
           priority: room.storage || room.terminal ? 6 : 5,
@@ -34,10 +39,18 @@ export default class TransporterSpawnRole extends SpawnRole {
           size: transporterSize,
         };
 
-        const hasHaulers
-          = _.filter(Game.creepsByRole.hauler, creep => creep.memory.sourceRoom === room.name).length
-          + _.filter(Game.creepsByRole['hauler.relay'], creep => creep.memory.sourceRoom === room.name).length > 0;
-        const hasExtensions = (room.myStructuresByType[STRUCTURE_EXTENSION] || []).length > 0;
+        const hasHaulers =
+          filter(
+            Game.creepsByRole.hauler,
+            (creep) => creep.memory.sourceRoom === room.name,
+          ).length +
+          filter(
+            Game.creepsByRole["hauler.relay"],
+            (creep) => creep.memory.sourceRoom === room.name,
+          ).length >
+          0;
+        const hasExtensions =
+          (room.myStructuresByType[STRUCTURE_EXTENSION] || []).length > 0;
         if (transporterCount >= maxTransporters / 2) {
           option.priority--;
           option.priority--;
@@ -49,11 +62,17 @@ export default class TransporterSpawnRole extends SpawnRole {
         else if (room.storage || room.terminal || (!hasHaulers && hasExtensions)) {
           option.force = true;
           option.weight = 1;
-        }
-        else if (!room.storage && !room.terminal) {
-          const spawns = _.filter(Game.spawns, spawn => spawn.room.name === room.name);
+        } else if (!room.storage && !room.terminal) {
+          const spawns = filter(
+            Game.spawns,
+            (spawn) => spawn.room.name === room.name,
+          );
           const sources = room.sources;
-          const minSpawnDistance = _.minBy(_.map(spawns, spawn => _.minBy(_.map(sources, source => spawn.pos.getRangeTo(source.pos)))));
+          const minSpawnDistance = minBy(
+            map(spawns, (spawn) =>
+              minBy(map(sources, (source) => spawn.pos.getRangeTo(source.pos))),
+            ),
+          );
           if (minSpawnDistance < 5) {
             option.priority--;
             option.weight = 0;
@@ -142,16 +161,14 @@ export default class TransporterSpawnRole extends SpawnRole {
     if (!room.storage && !room.terminal)
       return room.getEffectiveAvailableEnergy() > 1000 ? 2 : 1;
 
-    const sourceCount = _.size(room.sources);
+    const sourceCount = size(room.sources);
     let maxTransporters = 2 + 2 * sourceCount; // @todo Find a good way to gauge needed number of transporters by measuring distances.
 
     // If we have links to beam energy around, we'll need less transporters.
     if (room.memory.controllerLink) {
       maxTransporters -=
         1 +
-        _.sumBy(room.sources, (source: Source) =>
-          source.getNearbyLink() ? 1 : 0,
-        );
+        sumBy(room.sources, (source: Source) => (source.getNearbyLink() ? 1 : 0));
     }
 
     // RCL 5 and 6 are that annoying level at which refilling extensions is
@@ -160,7 +177,7 @@ export default class TransporterSpawnRole extends SpawnRole {
     if (room.controller.level === 6) maxTransporters++;
 
     // Need less transporters in rooms where remote builders are working.
-    maxTransporters -= _.size(room.creepsByRole["builder.remote"]);
+    maxTransporters -= size(room.creepsByRole["builder.remote"]);
 
     return maxTransporters;
   }
@@ -168,7 +185,7 @@ export default class TransporterSpawnRole extends SpawnRole {
   getExtraUpgraderTransporters(room: Room): number {
     // Add extra transporters if there's a lot of upgrading happening.
     // @todo Take into account boosts.
-    const upgraderWorkParts = _.sumBy(room.creepsByRole.upgrader, (creep) =>
+    const upgraderWorkParts = sumBy(Object.values(room.creepsByRole.upgrader), (creep) =>
       creep.getActiveBodyparts(WORK),
     );
     const refillPathLength = cache.inHeap(
@@ -251,7 +268,7 @@ export default class TransporterSpawnRole extends SpawnRole {
   getCreepBody(room: Room, option: TransporterSpawnOption): BodyPartConstant[] {
     return new BodyBuilder()
       .setWeights({ [CARRY]: 1 })
-      .setPartLimit(CARRY, option.size ?? 8)
+      .setPartLimit(CARRY, option.size || 8)
       .setMovementMode(MOVEMENT_MODE_ROAD)
       .setEnergyLimit(
         Math.min(

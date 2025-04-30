@@ -1,6 +1,5 @@
-import _ from "lodash";
-import { getResourcesIn } from "utils/store";
-import StructureDestination from "dispatcher/resource-destination/structure";
+import { getResourcesIn } from "@/utils/store";
+import StructureDestination from "@/dispatcher/resource-destination/structure";
 
 interface StorageDestinationTask extends StructureDestinationTask {
   type: "storage";

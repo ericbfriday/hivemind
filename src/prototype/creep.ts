@@ -1,11 +1,8 @@
-import _ from "lodash";
-/* global Creep ERR_NOT_ENOUGH_RESOURCES RESOURCE_ENERGY STRUCTURE_LINK */
-
-import { getSquad } from "manager.squad";
+import { getSquad } from "@/manager.squad";
 import "prototype/creep.military";
 import "prototype/creep.movement";
 import "prototype/creep.train";
-import { getResourcesIn } from "utils/store";
+import { getResourcesIn } from "@/utils/store";
 
 declare global {
   interface Creep {

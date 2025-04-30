@@ -1,12 +1,14 @@
-import _ from "lodash";
+import sortByAll from "lodash/sortBy";
+import filter from "lodash/filter";
+import map from "lodash/map";
 /* global RoomPosition OK */
 
-import cache from "utils/cache";
-import container from "utils/container";
-import hivemind from "hivemind";
-import Role from "role/role";
-import RoomStatus from "room/room-status";
-import { encodePosition, decodePosition } from "utils/serialization";
+import cache from "@/utils/cache";
+import container from "@/utils/container";
+import hivemind from "@/hivemind";
+import Role from "@/role/role";
+import RoomStatus from "@/room/room-status";
+import { encodePosition, decodePosition } from "@/utils/serialization";
 import { getRoomIntel } from "room-intel";
 
 declare global {
@@ -173,7 +175,7 @@ export default class ScoutRole extends Role {
 
   getBestScoutOption(creep: ScoutCreep) {
     const startTime = Game.cpu.getUsed();
-    const candidates = _.sortBy(
+    const candidates = sortByAll(
       this.getScoutableRoomsForCreep(creep),
       (info: ScoutTarget) => -info.scoutPriority,
       (info: ScoutTarget) => {
@@ -219,7 +221,7 @@ export default class ScoutRole extends Role {
   }
 
   filterScoutableRooms(creep: ScoutCreep, rooms: ScoutTarget[]): ScoutTarget[] {
-    return _.filter(rooms, (info: ScoutTarget) => {
+    return filter(rooms, (info: ScoutTarget) => {
       if (info.roomName === creep.pos.roomName) return false;
       if (creep.memory.invalidScoutTargets && creep.memory.invalidScoutTargets.includes(info.roomName)) return false;
       if (Game.map.getRoomLinearDistance(creep.pos.roomName, info.roomName) > 5) return false;
@@ -231,7 +233,7 @@ export default class ScoutRole extends Role {
 
   getScoutableRoomsByOrigin(origin: string): ScoutTarget[] {
     return cache.inHeap("scoutableRooms:" + origin, 200, () =>
-      _.filter(this.getScoutableRooms(), (info: ScoutTarget) => {
+      filter(this.getScoutableRooms(), (info: ScoutTarget) => {
         if (info.origin !== origin) return false;
 
         return true;
@@ -240,18 +242,20 @@ export default class ScoutRole extends Role {
   }
 
   getScoutableRoomsInRange(roomName: string, range: number): ScoutTarget[] {
-    return cache.inHeap('scoutableRooms:' + roomName + ':' + range, 200, () => _.filter(this.getScoutableRooms(), (info: ScoutTarget) => {
-      if (Game.map.getRoomLinearDistance(roomName, info.roomName) > range) return false;
+    return cache.inHeap("scoutableRooms:" + roomName + ":" + range, 200, () =>
+      filter(this.getScoutableRooms(), (info: ScoutTarget) => {
+        if (Game.map.getRoomLinearDistance(roomName, info.roomName) > range)
+          return false;
 
-      return true;
-    }),
+        return true;
+      }),
     );
   }
 
   getScoutableRooms() {
     return cache.inHeap("scoutableRooms", 200, () =>
-      _.filter(
-        _.map(
+      filter(
+        map(
           this.roomStatus.getPotentialScoutTargets(),
           (roomName: string): ScoutTarget => ({
             roomName,
@@ -322,7 +326,7 @@ export default class ScoutRole extends Role {
     if (history.length === 0 || history[history.length - 1] !== pos)
       history.push(pos);
     if (history.length > 30) creep.heapMemory.posHistory = history.slice(-20);
-    if (_.filter(history, (v) => v === pos).length >= 5) {
+    if (filter(history, (v) => v === pos).length >= 5) {
       delete creep.heapMemory.posHistory;
       return true;
     }

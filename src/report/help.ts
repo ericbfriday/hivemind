@@ -1,6 +1,5 @@
-import _ from "lodash";
-import container from "utils/container";
-import { drawTable } from "utils/room-visuals";
+import container from "@/utils/container";
+import { drawTable } from "@/utils/room-visuals";
 
 declare global {
   interface ReportClasses {

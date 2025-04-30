@@ -1,13 +1,17 @@
-import _ from "lodash";
+import hivemind from '@/hivemind';
+import { minBy } from "lodash";
+import filter from "lodash/filter";
+import map from "lodash/map";
+import min from "lodash/min";
+import RemoteMiningOperation from '@/operation/remote-mining';
+import Role from 'role/role';
+import container from '@/utils/container';
+import { decodePosition, serializePositionPath } from '@/utils/serialization';
+
+
 /* global STRUCTURE_ROAD OK RESOURCE_ENERGY LOOK_CREEPS
 STRUCTURE_CONTAINER FIND_SOURCES LOOK_CONSTRUCTION_SITES
 FIND_MY_CONSTRUCTION_SITES */
-
-import container from 'utils/container';
-import hivemind from 'hivemind';
-import RemoteMiningOperation from 'operation/remote-mining';
-import Role from 'role/role';
-import { decodePosition, serializePositionPath } from 'utils/serialization';
 
 declare global {
   interface SkKillerCreep extends Creep {
@@ -67,9 +71,9 @@ export default class RemoteHarvesterRole extends Role {
 
     if (!creep.hasCachedPath()) {
       const paths = creep.operation.getPaths();
-      const path = _.minBy(
-        _.filter(paths, (path) => path.accessible),
-        (path) => path.travelTime ?? 500,
+      const path = minBy(
+        filter(paths, (path) => path.accessible),
+        (path) => path.travelTime || 500,
       );
 
       if (path) creep.setCachedPath(serializePositionPath(path.path), true, 1);
@@ -111,11 +115,22 @@ export default class RemoteHarvesterRole extends Role {
         if (!creep.isDangerous()) continue;
 
         if (
-          creep.owner.username === 'Source Keeper'
-          && _.minBy(_.map(room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos))) as number <= 5
+          creep.owner.username === "Source Keeper" &&
+          minBy(
+            map(
+              room.structuresByType[STRUCTURE_KEEPER_LAIR],
+              (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos),
+            ),
+          ) as number <= 5
         ) {
-          const closestLair = _.minBy(room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos));
-          const closestResource = _.minBy([...room.sources, ...room.minerals], (s: Source | Mineral) => s.pos.getRangeTo(closestLair.pos));
+          const closestLair = minBy(
+            room.structuresByType[STRUCTURE_KEEPER_LAIR],
+            (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos),
+          );
+          const closestResource = minBy(
+            [...room.sources, ...room.minerals],
+            (s: Source | Mineral) => s.pos.getRangeTo(closestLair.pos),
+          );
           // @todo Only ignore mineral source keepers if we're not
           // mining that mineral.
           if (closestResource instanceof Mineral) continue;
@@ -157,7 +172,10 @@ export default class RemoteHarvesterRole extends Role {
     }
 
     // If there's no current target, move to SK lair with soonest respawn.
-    const nextLair = _.minBy(room.structuresByType[STRUCTURE_KEEPER_LAIR], (s: StructureKeeperLair) => s.ticksToSpawn);
+    const nextLair = minBy(
+      room.structuresByType[STRUCTURE_KEEPER_LAIR],
+      (s: StructureKeeperLair) => s.ticksToSpawn,
+    );
     creep.whenInRange(1, nextLair, () => {
       // Stand around menacingly.
     });
@@ -170,7 +188,7 @@ export default class RemoteHarvesterRole extends Role {
       if (target) return target;
     }
 
-    const target = _.minBy(sourceKeepers, (c) => c.pos.getRangeTo(creep.pos));
+    const target = minBy(sourceKeepers, (c) => c.pos.getRangeTo(creep.pos));
     creep.heapMemory.targetCreep = target.id;
 
     return target;

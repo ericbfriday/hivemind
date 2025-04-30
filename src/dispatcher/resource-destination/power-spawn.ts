@@ -1,7 +1,6 @@
-import _ from "lodash";
 import balancer from "excess-energy-balancer";
-import settings from "settings-manager";
-import StructureDestination from "dispatcher/resource-destination/structure";
+import settings  from "@/settings-manager";
+import StructureDestination from "@/dispatcher/resource-destination/structure";
 
 interface PowerSpawnDestinationTask extends StructureDestinationTask {
   type: "powerSpawn";

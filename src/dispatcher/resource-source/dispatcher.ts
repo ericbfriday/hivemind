@@ -1,15 +1,14 @@
-import _ from "lodash";
-import Dispatcher from "dispatcher/dispatcher";
+import Dispatcher from "@/dispatcher/dispatcher";
 
-import ContainerSource from 'dispatcher/resource-source/container';
-import DropSource from 'dispatcher/resource-source/drop';
-import FactorySource from 'dispatcher/resource-source/factory';
-import GraveSource from 'dispatcher/resource-source/grave';
-import LabSource from 'dispatcher/resource-source/lab';
-import LinkSource from 'dispatcher/resource-source/link';
-import OverfullExtensionSource from 'dispatcher/resource-source/overfull-extension';
+import ContainerSource from '@/dispatcher/resource-source/container';
+import DropSource from '@/dispatcher/resource-source/drop';
+import FactorySource from '@/dispatcher/resource-source/factory';
+import GraveSource from '@/dispatcher/resource-source/grave';
+import LabSource from '@/dispatcher/resource-source/lab';
+import LinkSource from '@/dispatcher/resource-source/link';
+import OverfullExtensionSource from '@/dispatcher/resource-source/overfull-extension';
 import ScoreContainerSource from './score-container';
-import StorageSource from 'dispatcher/resource-source/storage';
+import StorageSource from '@/dispatcher/resource-source/storage';
 
 declare global {
   interface ResourceSourceTask extends Task {

@@ -1,10 +1,14 @@
-import _ from "lodash";
+import each from "lodash/each";
+import min from "lodash/min";
+import map from "lodash/map";
+import size from "lodash/size";
 /* global FIND_HOSTILE_STRUCTURES STRUCTURE_INVADER_CORE */
 
-import cache from "utils/cache";
-import Process from "process/process";
-import hivemind from "hivemind";
+import cache from "@/utils/cache";
+import Process from "@/process/process";
+import hivemind from "@/hivemind";
 import { getRoomIntel } from "room-intel";
+import { minBy } from "lodash";
 
 declare global {
   interface RoomMemory {
@@ -65,7 +69,7 @@ export default class RoomIntelProcess extends Process {
         let damageCapacity = 0;
         let hasInvaderCore = false;
 
-        _.each(this.room.enemyCreeps, (hostiles, owner) => {
+        each(this.room.enemyCreeps, (hostiles, owner) => {
           if (hivemind.relations.isAlly(owner)) return;
 
           // Count body parts for strength estimation.
@@ -73,12 +77,12 @@ export default class RoomIntelProcess extends Process {
             if (creep.isDangerous()) {
               if (
                 creep.owner.username === "Source Keeper" &&
-                _.minBy(
-                  _.map(
+                minBy(
+                  map(
                     this.room.structuresByType[STRUCTURE_KEEPER_LAIR],
                     (s: StructureKeeperLair) => s.pos.getRangeTo(creep.pos),
                   ),
-                ) <= 5
+                ) as number <= 5
               ) {
                 // We ignore source keepers for total enemy strength.
                 continue;
@@ -105,7 +109,7 @@ export default class RoomIntelProcess extends Process {
           hasInvaderCore = true;
           safe =
             safe &&
-            (structure.level === 0 || (structure.ticksToDeploy ?? 0) > 1000);
+            (structure.level === 0 || (structure.ticksToDeploy || 0) > 1000);
           lastSeen = Game.time;
 
           for (const effect of structure.effects || []) {
@@ -137,7 +141,7 @@ export default class RoomIntelProcess extends Process {
     if (
       this.room.memory.enemies.safe &&
       !this.room.memory.enemies.hasInvaderCore &&
-      _.size(this.room.memory.enemies.parts) === 0
+      size(this.room.memory.enemies.parts) === 0
     )
       delete this.room.memory.enemies;
   }

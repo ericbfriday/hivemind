@@ -1,4 +1,3 @@
-import _ from "lodash";
 module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-screeps");
 

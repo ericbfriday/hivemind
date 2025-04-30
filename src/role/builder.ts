@@ -1,18 +1,19 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import map from "lodash/map";
+import balancer from "excess-energy-balancer";
+import cache from "@/utils/cache";
+import container from "@/utils/container";
+import hivemind from "@/hivemind";
+import Role from "@/role/role";
+import TransporterRole from "@/role/transporter";
+import utilities from "@/utilities";
+import { throttle } from "@/utils/throttle";
+import { ENEMY_STRENGTH_NONE, ENEMY_STRENGTH_NORMAL } from "room-defense";
+import { getResourcesIn } from "@/utils/store";
+
 /* global FIND_STRUCTURES FIND_MY_CONSTRUCTION_SITES STRUCTURE_SPAWN OK
 STRUCTURE_RAMPART STRUCTURE_WALL STRUCTURE_ROAD STRUCTURE_CONTAINER WORK
 UPGRADE_CONTROLLER_POWER RESOURCE_ENERGY */
-
-import balancer from "excess-energy-balancer";
-import cache from "utils/cache";
-import container from "utils/container";
-import hivemind from "hivemind";
-import Role from "role/role";
-import TransporterRole from "role/transporter";
-import utilities from "utilities";
-import { throttle } from "utils/throttle";
-import { ENEMY_STRENGTH_NONE, ENEMY_STRENGTH_NORMAL } from "room-defense";
-import { getResourcesIn } from "utils/store";
 
 interface RepairOrder {
   type: "repair";
@@ -55,7 +56,7 @@ declare global {
 // @todo Calculate from constants.
 const wallHealth: Record<number, number> =
   hivemind.settings.get("maxWallHealth");
-
+const buildableStructureTypes = ["extension", "extractor", "factory", "lab", "link", "nuker", "observer", "powerSpawn", "rampart", "spawn", "storage", "terminal", "tower", "container", "road", "constructedWall"] as const;
 export default class BuilderRole extends Role {
   transporterRole: TransporterRole;
 
@@ -372,7 +373,7 @@ export default class BuilderRole extends Role {
    *   An array of repair or build option objects to add to.
    */
   addRepairOptions(creep: BuilderCreep, options: OrderOption[]) {
-    const targets = _.filter(
+    const targets = filter(
       this.getAvailableRepairTargets(creep),
       (structure) =>
         structure.hits < structure.hitsMax &&
@@ -442,62 +443,66 @@ export default class BuilderRole extends Role {
     }
   }
 
-  getAvailableRepairTargets(creep: BuilderCreep): Array<Structure<BuildableStructureConstant>> {
-    const repairableStructureIds = cache.inHeap('repairStructures:' + creep.room.name, 50, () => {
-      const repairableStructures = _.filter(creep.room.structures, (structure: Structure<BuildableStructureConstant>) => {
-        if (structure.hits >= this.getStructureMaxHits(structure)) return false;
-        if (structure.needsDismantling()) return false;
+  getAvailableRepairTargets(
+    creep: BuilderCreep,
+  ): Array<Structure<BuildableStructureConstant>> {
+    const repairableStructureIds = cache.inHeap(
+      "repairStructures:" + creep.room.name,
+      50,
+      () => {
+        const repairableStructures = (creep.room.structures.filter(({ structureType }) => buildableStructureTypes.includes(structureType as any)) as Structure<BuildableStructureConstant>[])
+          .filter(
+            (structure) => {
+              if (structure.hits >= this.getStructureMaxHits(structure))
+                return false;
+              if (structure.needsDismantling()) return false;
 
-        if (structure.structureType === STRUCTURE_ROAD) {
-          const isPlannedRoad =
-            creep.room.roomPlanner &&
-            creep.room.roomPlanner.isPlannedLocation(
-              structure.pos,
-              STRUCTURE_ROAD,
-            );
-          const isOperationRoad =
-            creep.room.roomManager &&
-            creep.room.roomManager.isOperationRoadPosition(structure.pos);
+              if (structure.structureType === STRUCTURE_ROAD) {
+                const isPlannedRoad =
+                  creep.room.roomPlanner &&
+                  creep.room.roomPlanner.isPlannedLocation(
+                    structure.pos,
+                    STRUCTURE_ROAD,
+                  );
+                const isOperationRoad =
+                  creep.room.roomManager &&
+                  creep.room.roomManager.isOperationRoadPosition(structure.pos);
 
-          // Let old roads decay naturally.
-          if (!isPlannedRoad && !isOperationRoad) return false;
-        }
+                // Let old roads decay naturally.
+                if (!isPlannedRoad && !isOperationRoad) return false;
+              }
 
-        if (
-          structure.structureType === STRUCTURE_RAMPART &&
-          creep.room.roomPlanner &&
-          !creep.room.roomPlanner.isPlannedLocation(
-            structure.pos,
-            "rampart",
-          )
-        ) {
-          // Let old ramparts decay naturally.
-          return false;
-        }
+              if (
+                structure.structureType === STRUCTURE_RAMPART &&
+                creep.room.roomPlanner &&
+                !creep.room.roomPlanner.isPlannedLocation(
+                  structure.pos,
+                  "rampart",
+                )
+              ) {
+                // Let old ramparts decay naturally.
+                return false;
+              }
 
-        if (
-          structure.structureType === STRUCTURE_WALL &&
-          creep.room.roomPlanner &&
-          !creep.room.roomPlanner.isPlannedLocation(structure.pos, "wall")
-        ) {
-          // Ignore old walls.
-          return false;
-        }
+              if (
+                structure.structureType === STRUCTURE_WALL &&
+                creep.room.roomPlanner &&
+                !creep.room.roomPlanner.isPlannedLocation(structure.pos, "wall")
+              ) {
+                // Ignore old walls.
+                return false;
+              }
 
-        return true;
-      },
-      );
+              return true;
+            }
+          );
 
-      return _.map(
-        repairableStructures,
-        (structure) => structure.id,
-      ) as Array<Id<Structure<BuildableStructureConstant>>>;
-    },
-    );
+        return repairableStructures.filter(structure => Object.hasOwn(structure, 'id')).map((structure => structure.id as Id<Structure<BuildableStructureConstant>>));
+      });
 
     return cache.inObject(creep.room, "repairStructures", 1, () =>
-      _.filter(
-        _.map(
+      filter(
+        map(
           repairableStructureIds,
           (id: Id<Structure<BuildableStructureConstant>>) =>
             Game.getObjectById(id),
@@ -738,7 +743,7 @@ export default class BuilderRole extends Role {
     const workParts = creep.getActiveBodyparts(WORK);
     if (!workParts) return;
 
-    const needsRepair = _.filter(
+    const needsRepair = filter(
       this.getAvailableRepairTargets(creep),
       (structure) => {
         if (creep.pos.getRangeTo(structure.pos) > 3) return false;

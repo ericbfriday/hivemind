@@ -1,12 +1,15 @@
-import _ from "lodash";
+import filter from "lodash/filter";
+import sortBy from "lodash/sortBy";
+import size from "lodash/size";
+import each from "lodash/each";
 /* global PathFinder STRUCTURE_KEEPER_LAIR */
 
-import cache from "utils/cache";
-import hivemind from "hivemind";
-import { encodePosition } from "utils/serialization";
+import cache from "@/utils/cache";
+import hivemind from "@/hivemind";
+import { encodePosition } from "@/utils/serialization";
 import { getRoomIntel } from "room-intel";
-import { handleMapArea } from "utils/map";
-import { packPosList, unpackPosList } from "utils/packrat";
+import { handleMapArea } from "@/utils/map";
+import { packPosList, unpackPosList } from "@/utils/packrat";
 
 declare global {
   type RemotePathMemory = {
@@ -34,13 +37,13 @@ export default class RemotePathManager {
       return unpackPosList(memory.path);
     }
 
-    const availableSourceRooms = _.filter(
+    const availableSourceRooms = filter(
       Game.myRooms,
       (r) =>
         Game.map.getRoomLinearDistance(sourcePosition.roomName, r.name) <=
         hivemind.settings.get("maxRemoteMineRoomDistance"),
     );
-    const sortedByDist = _.sortBy(availableSourceRooms, (r) =>
+    const sortedByDist = sortBy(availableSourceRooms, (r) =>
       Game.map.getRoomLinearDistance(sourcePosition.roomName, r.name),
     );
 
@@ -105,10 +108,10 @@ export default class RemotePathManager {
 
       if (
         !isTargetRoom &&
-        _.size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0
+        size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0
       ) {
         // Disallow areas around source keeper sources.
-        _.each(roomIntel.getSourcePositions(), (sourceInfo) => {
+        each(roomIntel.getSourcePositions(), (sourceInfo) => {
           handleMapArea(
             sourceInfo.x,
             sourceInfo.y,
@@ -132,17 +135,47 @@ export default class RemotePathManager {
           );
         }
 
-        // Disallow areas around source keeper minerals.
-        const mineralPositions = roomIntel.getMineralPositions();
-        for (const mineralInfo of mineralPositions) {
-          handleMapArea(
-            mineralInfo.x,
-            mineralInfo.y,
-            (x, y) => {
-              matrix.set(x, y, 255);
-            },
-            4,
-          );
+        if (
+          !isTargetRoom &&
+          size(roomIntel.getStructures(STRUCTURE_KEEPER_LAIR)) > 0
+        ) {
+          // Disallow areas around source keeper sources.
+          each(roomIntel.getSourcePositions(), (sourceInfo) => {
+            handleMapArea(
+              sourceInfo.x,
+              sourceInfo.y,
+              (x, y) => {
+                matrix.set(x, y, 255);
+              },
+              4,
+            );
+          });
+
+          // Disallow areas around source keeper sources.
+          const sourcePositions = roomIntel.getSourcePositions();
+          for (const sourceInfo of sourcePositions) {
+            handleMapArea(
+              sourceInfo.x,
+              sourceInfo.y,
+              (x, y) => {
+                matrix.set(x, y, 255);
+              },
+              4,
+            );
+          }
+
+          // Disallow areas around source keeper minerals.
+          const mineralPositions = roomIntel.getMineralPositions();
+          for (const mineralInfo of mineralPositions) {
+            handleMapArea(
+              mineralInfo.x,
+              mineralInfo.y,
+              (x, y) => {
+                matrix.set(x, y, 255);
+              },
+              4,
+            );
+          }
         }
       }
 

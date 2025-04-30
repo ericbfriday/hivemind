@@ -1,4 +1,7 @@
-import _ from "lodash";
+import sum from "lodash/sum";
+import filter from "lodash/filter";
+import keys from "lodash/keys";
+import { sumBy } from "lodash";
 const MOVEMENT_MODE_ROAD = 0;
 const MOVEMENT_MODE_PLAINS = 1;
 const MOVEMENT_MODE_SWAMP = 2;
@@ -59,7 +62,7 @@ export default class BodyBuilder {
   }
 
   public setMaxSize(size?: number): this {
-    this.maxSize = size ?? MAX_CREEP_SIZE;
+    this.maxSize = size || MAX_CREEP_SIZE;
     return this;
   }
 
@@ -89,8 +92,8 @@ export default class BodyBuilder {
   }
 
   private normalizeWeights(weights: BodyWeights): BodyWeights {
-    const total = _.sumBy(
-      _.filter(weights, (weight, partType) => weight > 0 && partType !== MOVE),
+    const total = sum(
+      filter(weights, (weight, partType) => weight > 0 && partType !== MOVE),
     );
 
     if (total <= 0) return {};
@@ -149,7 +152,7 @@ export default class BodyBuilder {
       if (this.energyLimit && currentCost + partCost > this.energyLimit) break;
       if (currentSize + neededMoves + 1 > this.maxSize) break;
 
-      partCounts[nextPart] = (partCounts[nextPart] ?? 0) + 1;
+      partCounts[nextPart] = (partCounts[nextPart] || 0) + 1;
       partCounts[MOVE] += neededMoves;
       currentSize += 1 + neededMoves;
       currentCost += partCost;
@@ -162,7 +165,7 @@ export default class BodyBuilder {
     const currentWeights = this.normalizeWeights(partCounts);
 
     let fallbackPart: BodyPartConstant = null;
-    for (const part of _.keys(this.weights) as BodyPartConstant[]) {
+    for (const part of keys(this.weights) as BodyPartConstant[]) {
       if ((currentWeights[part] || 0) < this.weights[part]) return part;
       if (!fallbackPart) fallbackPart = part;
     }
@@ -177,7 +180,7 @@ export default class BodyBuilder {
     const fatigue = this.getTotalGeneratedFatigue(partCounts, nextPart);
     const neededMoves = Math.ceil(fatigue / this.getMovePartStrength());
 
-    return neededMoves - (partCounts[MOVE] ?? 0);
+    return neededMoves - (partCounts[MOVE] || 0);
   }
 
   private getTotalGeneratedFatigue(
@@ -185,7 +188,7 @@ export default class BodyBuilder {
     nextPart: BodyPartConstant,
   ): number {
     let total = this.getGeneratedFatigue(nextPart);
-    for (const part of _.keys(partCounts) as BodyPartConstant[]) {
+    for (const part of keys(partCounts) as BodyPartConstant[]) {
       total += partCounts[part] * this.getGeneratedFatigue(part);
     }
 
@@ -227,7 +230,7 @@ export default class BodyBuilder {
   private getMovePartStrength(): number {
     if (!this.movePartBoost) return 2;
 
-    return 2 * (BOOSTS[MOVE][this.movePartBoost]?.fatigue ?? 1);
+    return 2 * (BOOSTS[MOVE][this.movePartBoost]?.fatigue || 1);
   }
 
   private generateSortedParts(
@@ -247,7 +250,7 @@ export default class BodyBuilder {
     let done = false;
     while (!done) {
       done = true;
-      for (const part of _.keys(partCounts) as BodyPartConstant[]) {
+      for (const part of keys(partCounts) as BodyPartConstant[]) {
         if (
           part === ATTACK ||
           part === RANGED_ATTACK ||
@@ -279,7 +282,7 @@ export default class BodyBuilder {
     moveParts: number,
   ): BodyPartConstant[] {
     const moveStrength = this.getMovePartStrength();
-    let totalFatigue = _.sumBy(body, (part) => this.getGeneratedFatigue(part));
+    let totalFatigue = sumBy(body, (part) => this.getGeneratedFatigue(part));
     let totalMovePower = moveParts * moveStrength;
 
     const newBody: BodyPartConstant[] = [];

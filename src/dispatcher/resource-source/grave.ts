@@ -1,8 +1,7 @@
-import _ from "lodash";
-import TaskProvider from "dispatcher/task-provider";
+import TaskProvider from "@/dispatcher/task-provider";
 import { ENEMY_STRENGTH_NONE } from "room-defense";
-import { getDangerMatrix } from "utils/cost-matrix";
-import { getResourcesIn } from "utils/store";
+import { getDangerMatrix } from "@/utils/cost-matrix";
+import { getResourcesIn } from "@/utils/store";
 
 interface GraveSourceTask extends ResourceSourceTask {
   type: "grave";

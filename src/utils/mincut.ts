@@ -1,13 +1,3 @@
-import _ from "lodash";
-/* global TERRAIN_MASK_WALL */
-
-/**
- * Code for calculating the minCut in a room.
- * Based on code written by Saruss and adapted by Chobobobo.
- *
- * Refactored and cleaned up by Mirroar.
- */
-
 declare global {
   interface MinCutRect {
     x1: number;

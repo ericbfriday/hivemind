@@ -1,8 +1,9 @@
-import _ from "lodash";
-import hivemind from "hivemind";
-import Role from "role/role";
-import { getThrottleOffset, throttle } from "utils/throttle";
-import { timeCall } from "utils/cpu";
+import each from "lodash/each";
+import keys from "lodash/keys";
+import hivemind from "@/hivemind";
+import Role from "@/role/role";
+import { getThrottleOffset, throttle } from "@/utils/throttle";
+import { timeCall } from "@/utils/cpu";
 
 declare global {
   interface CreepMemory {
@@ -82,7 +83,7 @@ export default class CreepManager {
   onTickStart() {
     this.performance = {};
     this.prepareStatMemory("total");
-    _.each(_.keys(this.roles), (roleId) => {
+    each(keys(this.roles), (roleId) => {
       this.prepareStatMemory(roleId);
     });
   }
@@ -201,7 +202,7 @@ export default class CreepManager {
    *   Total CPU time spent running this creep's logic.
    */
   recordCreepCpuStats(roleId: string, totalTime: number) {
-    _.each([this.performance.total, this.performance[roleId]], (memory) => {
+    each([this.performance.total, this.performance[roleId]], (memory) => {
       memory.total += totalTime;
 
       if (!memory.min || totalTime < memory.min) {
@@ -223,7 +224,7 @@ export default class CreepManager {
   manageCreeps(
     creeps: Array<Creep | PowerCreep> | Record<any, Creep | PowerCreep>,
   ) {
-    _.each(creeps, (creep: Creep) => {
+    each(creeps, (creep: Creep) => {
       this.runCreepLogic(creep);
     });
   }

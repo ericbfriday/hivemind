@@ -1,10 +1,10 @@
-import _ from "lodash";
-import RoomPlan from "room/planner/room-plan";
-import RoomPlanMatrixGenerator from "room/planner/matrix-generator";
-import RoomPlanScorer from "room/planner/room-plan-scorer";
-import RoomVariationBuilder from "room/planner/variation-builder";
-import StripmineRoomVariationBuilder from "room/planner/stripmine-variation-builder";
-import VariationGenerator from "room/planner/variation-generator";
+import max from "lodash/max";
+import RoomPlan from "@/room";planner/room-plan";
+import RoomPlanMatrixGenerator from "@/room";planner/matrix-generator";
+import RoomPlanScorer from "@/room";planner/room-plan-scorer";
+import RoomVariationBuilder from "@/room";planner/variation-builder";
+import StripmineRoomVariationBuilder from "@/room";planner/stripmine-variation-builder";
+import VariationGenerator from "@/room";planner/variation-generator";
 
 type HeapMemory = {
   plan: RoomPlan;
@@ -119,7 +119,7 @@ export default class RoomPlanGenerator {
 
   getRoomPlan(): RoomPlan {
     // @todo Get room plan with highest score.
-    const best = _.maxBy(this.results, "score.total");
+    const best = max(this.results, "score.total");
 
     if (best) return best.plan;
 

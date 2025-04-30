@@ -1,7 +1,9 @@
-import _ from "lodash";
-import RoomPlan from "room/planner/room-plan";
-import { encodePosition, decodePosition } from "utils/serialization";
-import { handleMapArea } from "utils/map";
+import size from "lodash/size";
+import each from "lodash/each";
+import keys from "lodash/keys";
+import RoomPlan from "@/room";planner/room-plan";
+import { encodePosition, decodePosition } from "@/utils/serialization";
+import { handleMapArea } from "@/utils/map";
 
 export default class PlacementManager {
   public get ROAD_POSITION() {
@@ -212,11 +214,11 @@ export default class PlacementManager {
    *   A buildable spot.
    */
   getNextAvailableBuildSpot(): RoomPosition {
-    while (_.size(this.openList) > 0) {
+    while (size(this.openList) > 0) {
       let minDist = null;
       let nextPos = null;
       let nextInfo = null;
-      _.each(this.openList, (info, posName) => {
+      each(this.openList, (info, posName) => {
         const pos = decodePosition(posName);
         if (!minDist || info.range < minDist) {
           minDist = info.range;
@@ -240,7 +242,7 @@ export default class PlacementManager {
         if (this.openList[location] || this.closedList[location]) return;
 
         const newPath = {};
-        for (const oldPos of _.keys(nextInfo.path)) {
+        for (const oldPos of keys(nextInfo.path)) {
           newPath[oldPos] = true;
         }
 

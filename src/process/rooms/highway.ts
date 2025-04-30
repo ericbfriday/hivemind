@@ -1,8 +1,12 @@
-import _ from "lodash";
-import cache from "utils/cache";
-import Process from "process/process";
+import sortBy from "lodash/sortBy";
+import filter from "lodash/filter";
+import map from "lodash/map";
+import min from "lodash/min";
+import max from "lodash/max";
+import cache from "@/utils/cache";
+import Process from "@/process/process";
 import { getRoomIntel } from "room-intel";
-import { isCrossroads } from "utils/room-name";
+import { isCrossroads } from "@/utils/room-name";
 
 declare global {
   interface StrategyMemory {
@@ -65,8 +69,8 @@ export default class HighwayRoomProcess extends Process {
     if (!Memory.strategy) Memory.strategy = {};
     if (!Memory.strategy.caravans) Memory.strategy.caravans = {};
 
-    const creeps = _.sortBy(
-      _.filter(this.room.enemyCreeps[SYSTEM_USERNAME], (c) =>
+    const creeps = sortBy(
+      filter(this.room.enemyCreeps[SYSTEM_USERNAME], (c) =>
         c.name.startsWith(id),
       ),
       (c) => c.name,
@@ -88,7 +92,7 @@ export default class HighwayRoomProcess extends Process {
 
     Memory.strategy.caravans[id] = {
       firstSeen,
-      creeps: _.map<Creep, Id<Creep>>(creeps, "id"),
+      creeps: map(creeps, "id"),
       dir: direction,
       expires: rooms[rooms.length - 1].time + 50,
       rooms,
@@ -97,10 +101,10 @@ export default class HighwayRoomProcess extends Process {
   }
 
   detectDirection(creeps: Creep[]): TOP | BOTTOM | LEFT | RIGHT {
-    const minX = _.minBy(creeps, (c) => c.pos.x);
-    const maxX = _.maxBy(creeps, (c) => c.pos.x);
-    const minY = _.minBy(creeps, (c) => c.pos.y);
-    const maxY = _.maxBy(creeps, (c) => c.pos.y);
+    const minX = minBy(creeps, (c) => c.pos.x);
+    const maxX = max(creeps, (c) => c.pos.x);
+    const minY = minBy(creeps, (c) => c.pos.y);
+    const maxY = max(creeps, (c) => c.pos.y);
 
     const first = creeps[0].id;
     const last = creeps[creeps.length - 1].id;

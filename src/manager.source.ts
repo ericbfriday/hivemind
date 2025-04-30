@@ -1,8 +1,10 @@
-import _ from "lodash";
+import values from "lodash/values";
+import any from "lodash/some";
+import filter from "lodash/filter";
 /* global Source Mineral StructureKeeperLair LOOK_TERRAIN
 FIND_STRUCTURES STRUCTURE_CONTAINER STRUCTURE_LINK STRUCTURE_KEEPER_LAIR */
 
-import cache from "utils/cache";
+import cache from "@/utils/cache";
 
 declare global {
   interface Source {
@@ -32,9 +34,7 @@ Object.defineProperty(Source.prototype, "harvesters", {
   get(this: Source) {
     return cache.inObject(this, "harvesters", 1, () => {
       const harvesters = [];
-      for (const harvester of _.values<HarvesterCreep>(
-        this.room.creepsByRole.harvester,
-      ) || []) {
+      for (const harvester of values(this.room.creepsByRole.harvester) || []) {
         if (harvester.memory.fixedSource === this.id) {
           harvesters.push(harvester);
         }
@@ -58,9 +58,7 @@ Object.defineProperty(Mineral.prototype, "harvesters", {
   get(this: Mineral) {
     return cache.inObject(this, "harvesters", 1, () => {
       const harvesters = [];
-      for (const harvester of _.values<HarvesterCreep>(
-        this.room.creepsByRole.harvester,
-      ) || []) {
+      for (const harvester of values(this.room.creepsByRole.harvester) || []) {
         if (harvester.memory.fixedMineralSource === this.id) {
           harvesters.push(harvester);
         }
@@ -96,7 +94,7 @@ const getHarvestSpotCount = function (this: Source | Mineral) {
 
       // Make sure no structures are blocking this tile.
       const structures = this.room.lookForAt(LOOK_STRUCTURES, tile.x, tile.y);
-      if (_.any(structures, (s: Structure) => !s.isWalkable())) continue;
+      if (any(structures, (s: Structure) => !s.isWalkable())) continue;
 
       adjacentTerrain.push(tile);
     }
@@ -135,7 +133,7 @@ const getNearbyContainer = function (this: Source | Mineral) {
   const containerId = cache.inHeap("container:" + this.id, 150, () => {
     // Check if there is a container nearby.
     // @todo Could use old data and just check if object still exits.
-    const structures: StructureContainer[] = _.filter(
+    const structures: StructureContainer[] = filter(
       this.room.structuresByType[STRUCTURE_CONTAINER],
       (s) => {
         if (s.pos.getRangeTo(this) > 5) return false;

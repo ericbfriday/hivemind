@@ -1,8 +1,8 @@
-import _ from "lodash";
-import hivemind from "hivemind";
-import PlacementManager from "room/planner/placement-manager";
-import RoomPlan from "room/planner/room-plan";
-import { handleMapArea } from "utils/map";
+import slice from "lodash/slice";
+import hivemind from "@/hivemind";
+import PlacementManager from "@/room";planner/placement-manager";
+import RoomPlan from "@/room";planner/room-plan";
+import { handleMapArea } from "@/utils/map";
 
 declare global {
   type StepResult = "ok" | "failed" | "done";
@@ -179,7 +179,7 @@ export default class RoomVariationBuilderBase {
    */
   findLinkPosition(sourceRoads: RoomPosition[]): RoomPosition {
     let targetPosition: RoomPosition;
-    for (const pos of _.slice(sourceRoads, 0, 3)) {
+    for (const pos of slice(sourceRoads, 0, 3)) {
       handleMapArea(pos.x, pos.y, (x, y) => {
         if (this.placementManager.isBuildableTile(x, y, false, true)) {
           targetPosition = new RoomPosition(x, y, pos.roomName);

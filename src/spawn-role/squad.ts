@@ -1,9 +1,12 @@
-import _ from "lodash";
+import each from "lodash/each";
+import size from "lodash/size";
+import sample from "lodash/sample";
+import capitalize from "lodash/capitalize";
 /* global MOVE ATTACK RANGED_ATTACK HEAL TOUGH CLAIM CARRY WORK */
 
-import BodyBuilder, { MOVEMENT_MODE_SWAMP } from "creep/body-builder";
-import SpawnRole from "spawn-role/spawn-role";
-import Squad, { getAllSquads } from "manager.squad";
+import BodyBuilder, { MOVEMENT_MODE_SWAMP } from "@/creep/body-builder";
+import SpawnRole from "@/spawn-role/spawn-role";
+import Squad, { getAllSquads } from "@/manager.squad";
 
 const availableUnitTypes = [
   'ranger',
@@ -37,7 +40,7 @@ export default class SquadSpawnRole extends SpawnRole {
     return this.cacheEmptySpawnOptionsFor(room, 10, () => {
       const options: SquadSpawnOption[] = [];
 
-      _.each(getAllSquads(), (squad) => {
+      each(getAllSquads(), (squad) => {
         if (squad.getSpawn() !== room.name) return;
 
         const availableEnergy = room.getEffectiveAvailableEnergy();
@@ -75,17 +78,17 @@ export default class SquadSpawnRole extends SpawnRole {
 
       if (
         squad.getUnitCount(unitType as SquadUnitType) >
-        _.size(squad.units[unitType])
+        size(squad.units[unitType])
       ) {
         neededUnits.push(unitType as SquadUnitType);
       }
     }
 
-    if (_.size(neededUnits) === 0) squad.memory.fullySpawned = true;
+    if (size(neededUnits) === 0) squad.memory.fullySpawned = true;
 
     // @todo Some squad units might need to be spawned at higher priorities
     // than others.
-    return _.sample(neededUnits);
+    return sample(neededUnits);
   }
 
   /**
@@ -101,7 +104,7 @@ export default class SquadSpawnRole extends SpawnRole {
    */
   getCreepBody(room: Room, option: SquadSpawnOption): BodyPartConstant[] {
     // Automatically call spawning function for selected unit type.
-    const methodName = "get" + _.capitalize(option.unitType) + "CreepBody";
+    const methodName = "get" + capitalize(option.unitType) + "CreepBody";
     const bodyCallback: (
       room: Room,
       option: SquadSpawnOption,

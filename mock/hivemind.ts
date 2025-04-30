@@ -1,4 +1,3 @@
-import _ from "lodash";
 const MockHivemind = function () {};
 
 MockHivemind.prototype.log = function () {

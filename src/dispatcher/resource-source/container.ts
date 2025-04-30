@@ -1,6 +1,6 @@
-import _ from "lodash";
-import StructureSource from "dispatcher/resource-source/structure";
-import { getResourcesIn } from "utils/store";
+import filter from "lodash/filter";
+import StructureSource from "@/dispatcher/resource-source/structure";
+import { getResourcesIn } from "@/utils/store";
 
 interface ContainerSourceTask extends StructureSourceTask {
   type: "container";
@@ -38,7 +38,7 @@ export default class ContainerSource extends StructureSource<ContainerSourceTask
       return;
 
     // Look for energy in Containers.
-    const containers = _.filter(
+    const containers = filter(
       this.room.structuresByType[STRUCTURE_CONTAINER],
       (structure) =>
         structure.store[RESOURCE_ENERGY] > creep.store.getCapacity() * 0.1,
@@ -117,7 +117,7 @@ export default class ContainerSource extends StructureSource<ContainerSourceTask
     if (!room.terminal && !room.storage) return;
 
     // Take non-energy out of containers.
-    const containers = _.filter(
+    const containers = filter(
       room.structuresByType[STRUCTURE_CONTAINER],
       (structure) => structure.store.getUsedCapacity() > 0,
     );

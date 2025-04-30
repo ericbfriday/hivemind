@@ -1,6 +1,5 @@
-import _ from "lodash";
-import hivemind from 'hivemind';
-import cache from "utils/cache";
+import size from "lodash/size";
+import cache from "@/utils/cache";
 
 declare global {
   type FactoryProductConstant = keyof typeof COMMODITIES;
@@ -85,7 +84,7 @@ export default class FactoryManager {
     const neededResources = {};
 
     const jobs = this.getJobs();
-    const numberJobs = _.size(jobs);
+    const numberJobs = size(jobs);
 
     let productName: FactoryProductConstant;
     for (productName in jobs) {

@@ -1,12 +1,12 @@
-import _ from "lodash";
+import each from "lodash/each";
 /* global PathFinder Room RoomPosition RoomVisual CONTROLLER_STRUCTURES
 FIND_SOURCES */
 
-import cache from 'utils/cache';
-import hivemind from 'hivemind';
+import cache from '@/utils/cache';
+import hivemind from '@/hivemind';
 import RoomPlan from 'room/planner/room-plan';
 import RoomPlanGenerator from 'room/planner/room-plan-generator';
-import stats from 'utils/stats';
+import stats from '@/utils/stats';
 import utilities from 'utilities';
 import { getRoomPlanFor, setRoomPlanFor } from 'room/planner/room-plan-management';
 import { getRoomIntel } from 'room-intel';
@@ -182,7 +182,7 @@ export default class RoomPlanner {
     // Reset harvest position info for harvesters in case they are not correctly
     // assigned any more.
     if (Game.rooms[this.roomName]) {
-      _.each(
+      each(
         Game.rooms[this.roomName].creepsByRole.harvester,
         (creep: HarvesterCreep) => {
           delete creep.memory.harvestPos;

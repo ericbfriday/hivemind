@@ -1,20 +1,20 @@
-import _ from "lodash";
-import container from "utils/container";
-import HighwayRoomProcess from "process/rooms/highway";
+import each from "lodash/each";
+import container from "@/utils/container";
+import HighwayRoomProcess from "@/process/rooms/highway";
 import hivemind, {
   PROCESS_PRIORITY_DEFAULT,
   PROCESS_PRIORITY_ALWAYS,
-} from "hivemind";
+} from "@/hivemind";
 import interShard from "intershard";
-import OwnedRoomProcess from "process/rooms/owned";
-import Process from "process/process";
-import RoomIntelProcess from "process/rooms/intel";
-import RoomManager from "room/room-manager";
-import RoomManagerProcess from "process/rooms/owned/manager";
-import RoomPlanner from "room/planner/room-planner";
-import settings from "settings-manager";
-import { isHighway } from "utils/room-name";
-import { encodePosition } from "utils/serialization";
+import OwnedRoomProcess from "@/process/rooms/owned";
+import Process from "@/process/process";
+import RoomIntelProcess from "@/process/rooms/intel";
+import RoomManager from "@/room/room-manager";
+import RoomManagerProcess from "@/process/rooms/owned/manager";
+import RoomPlanner from "@/room";planner/room-planner";
+import settings  from "@/settings-manager";
+import { isHighway } from "@/utils/room-name";
+import { encodePosition } from "@/utils/serialization";
 
 declare global {
   interface Memory {
@@ -32,7 +32,7 @@ export default class RoomsProcess extends Process {
    * Runs logic in all rooms.
    */
   run() {
-    _.each(Game.rooms, (room, roomName) => {
+    each(Game.rooms, (room, roomName) => {
       hivemind.runProcess("rooms_intel", RoomIntelProcess, {
         room,
         priority: PROCESS_PRIORITY_ALWAYS,
@@ -77,7 +77,7 @@ export default class RoomsProcess extends Process {
 
   terminateRoomOperations() {
     // Stop operations for rooms that are no longer active.
-    _.each(Game.operationsByType.room, (op) => {
+    each(Game.operationsByType.room, (op) => {
       if (Game.time - op.getLastActiveTick() > 10_000) op.terminate();
     });
   }

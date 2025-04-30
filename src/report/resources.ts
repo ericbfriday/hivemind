@@ -1,5 +1,7 @@
-import _ from "lodash";
-import cache from "utils/cache";
+import max from "lodash/max";
+import map from "lodash/map";
+import sum from "lodash/sum";
+import cache from "@/utils/cache";
 
 declare global {
   interface ReportClasses {
@@ -292,9 +294,9 @@ export default class ResourcesReport {
       for (const resourceInfo of resourceRow.resources) {
         const width =
           (this.getResourceAmount(resourceInfo.resourceType) /
-            (resourceInfo.scale ?? 1)) *
+            (resourceInfo.scale || 1)) *
           scale;
-        const height = resourceInfo.height ?? 1;
+        const height = resourceInfo.height || 1;
 
         if (!resourceInfo.hidden) {
           visual.rect(currentX - 0.5, y - 0.5, width, height, {
@@ -304,7 +306,7 @@ export default class ResourcesReport {
             strokeWidth: 0.1,
           });
 
-          const label = resourceInfo.label ?? resourceInfo.resourceType;
+          const label = resourceInfo.label || resourceInfo.resourceType;
           if (width > label.length / 2) {
             visual.text(
               label,
@@ -320,13 +322,13 @@ export default class ResourcesReport {
   }
 
   getHighestResourceAmountOfRow(): number {
-    return _.maxBy(
-      _.map(resourcesToReport, (resourceRow) =>
-        _.sumBy(
+    return max(
+      map(resourcesToReport, (resourceRow) =>
+        sum(
           resourceRow.resources,
           (resourceInfo) =>
             this.getResourceAmount(resourceInfo.resourceType) /
-            (resourceInfo.scale ?? 1),
+            (resourceInfo.scale || 1),
         ),
       ),
     );

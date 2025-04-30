@@ -1,5 +1,4 @@
-import _ from "lodash";
-import ProcessInterface from "process/process-interface";
+import ProcessInterface from "@/process/process-interface";
 
 declare global {
   interface ProcessParameters {

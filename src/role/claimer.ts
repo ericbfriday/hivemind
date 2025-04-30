@@ -1,9 +1,9 @@
-import container from 'utils/container';
-import CombatManager from 'creep/combat-manager';
-import RemoteMiningOperation from 'operation/remote-mining';
-import Role from 'role/role';
-import { decodePosition } from 'utils/serialization';
-import { getUsername } from 'utils/account';
+import container from "@/utils/container";
+import CombatManager from "@/creep/combat-manager";
+import RemoteMiningOperation from "@/operation/remote-mining";
+import Role from "@/role/role";
+import { decodePosition } from "@/utils/serialization";
+import { getUsername } from "@/utils/account";
 
 declare global {
   interface RoomMemory {

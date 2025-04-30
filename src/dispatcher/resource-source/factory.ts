@@ -1,6 +1,5 @@
-import _ from "lodash";
-import StructureSource from "dispatcher/resource-source/structure";
-import { getResourcesIn } from "utils/store";
+import StructureSource from "@/dispatcher/resource-source/structure";
+import { getResourcesIn } from "@/utils/store";
 
 interface FactorySourceTask extends StructureSourceTask {
   type: "factory";

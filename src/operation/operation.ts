@@ -1,6 +1,5 @@
-import _ from "lodash";
-import RemoteMiningOperation from "operation/remote-mining";
-import RoomOperation from "operation/room";
+import RemoteMiningOperation from "@/operation/remote-mining";
+import RoomOperation from "@/operation/room";
 
 declare global {
   interface Creep {

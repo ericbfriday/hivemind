@@ -1,5 +1,4 @@
-import _ from "lodash";
-import TaskProvider from "dispatcher/task-provider";
+import TaskProvider from "@/dispatcher/task-provider";
 
 declare global {
   interface StructureDestinationTask extends ResourceDestinationTask {

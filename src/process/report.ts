@@ -1,7 +1,8 @@
-import _ from "lodash";
+import size from "lodash/size";
+import sortBy from "lodash/sortBy";
 /* global RESOURCE_POWER */
 
-import Process from "process/process";
+import Process from "@/process/process";
 
 declare global {
   interface StrategyMemory {
@@ -275,7 +276,7 @@ export default class ReportProcess extends Process {
    * Generates report email for operations.
    */
   generateMiningOperationsReport() {
-    if (_.size(Game.operationsByType.mining) === 0) return;
+    if (size(Game.operationsByType.mining) === 0) return;
 
     let reportText = this.generateHeading("Mining Energy Efficiency");
     const operationScores = this.getMiningOperationScores();
@@ -316,11 +317,11 @@ export default class ReportProcess extends Process {
       });
     }
 
-    return _.sortBy(operationScores, "score");
+    return sortBy(operationScores, "score");
   }
 
   generateRoomOperationsReport() {
-    if (_.size(Game.operationsByType.room) === 0) return;
+    if (size(Game.operationsByType.room) === 0) return;
 
     let reportText = this.generateHeading("Room CPU usage / tick");
     const operationScores = this.getRoomOperationScores();
@@ -353,7 +354,7 @@ export default class ReportProcess extends Process {
       });
     }
 
-    return _.sortBy(operationScores, "score");
+    return sortBy(operationScores, "score");
   }
 
   formatSignificantEntries<T>(

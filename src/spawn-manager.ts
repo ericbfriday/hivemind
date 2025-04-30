@@ -1,11 +1,18 @@
-import _ from "lodash";
-/* global BODYPART_COST OK */
+import each from "lodash/each";
+import filter from "lodash/filter";
+import min from "lodash/min";
+import sample from "lodash/sample";
+import sum from "lodash/sum";
+import size from "lodash/size";
+import some from "lodash/some";
 
-import cache from "utils/cache";
-import hivemind from "hivemind";
-import SpawnRole from "spawn-role/spawn-role";
-import utilities from "utilities";
-import { handleMapArea } from "utils/map";
+import cache from "@/utils/cache";
+import hivemind from "@/hivemind";
+import SpawnRole from "@/spawn-role/spawn-role";
+import utilities from "@/utilities";
+import { handleMapArea } from "@/utils/map";
+
+/* global BODYPART_COST OK */
 
 declare global {
   interface StructureSpawn {
@@ -101,10 +108,10 @@ export default class SpawnManager {
     return cache.inObject(room, "spawnQueue", 1, () => {
       const options: SpawnOption[] = [];
 
-      _.each(this.roles, (role, roleId) => {
+      each(this.roles, (role, roleId) => {
         const roleOptions = role.getSpawnOptions(room);
 
-        _.each(roleOptions, (option) => {
+        each(roleOptions, (option) => {
           // Set default values for options.
           if (typeof option.role === "undefined") option.role = roleId;
 
@@ -134,12 +141,12 @@ export default class SpawnManager {
     const availableSpawns = this.filterAvailableSpawns(spawns);
     if (availableSpawns.length === 0) return;
 
-    const options: SpawnOption[] = _.filter(
+    const options: SpawnOption[] = filter(
       this.getAllSpawnOptions(room),
       (option: SpawnOption) => {
         if (!option.preferClosestSpawn) return true;
 
-        const closestSpawn = _.minBy(spawns, (spawn) =>
+        const closestSpawn = minBy(spawns, (spawn) =>
           spawn.pos.getRangeTo(option.preferClosestSpawn),
         );
         // Only spawn once preferred spawn is ready.
@@ -156,9 +163,9 @@ export default class SpawnManager {
     const option = utilities.getBestOption(options);
     if (!option) return;
 
-    let spawn = _.sample(availableSpawns);
+    let spawn = sample(availableSpawns);
     if (option.preferClosestSpawn) {
-      const closestSpawn = _.minBy(spawns, (spawn) =>
+      const closestSpawn = minBy(spawns, (spawn) =>
         spawn.pos.getRangeTo(option.preferClosestSpawn),
       );
       // Only spawn once preferred spawn is ready.
@@ -171,13 +178,13 @@ export default class SpawnManager {
     }
 
     if (!this.trySpawnCreep(room, spawn, option)) {
-      _.each(availableSpawns, (s) => {
+      each(availableSpawns, (s) => {
         s.waiting = true;
 
         const role = this.roles[option.role];
         const body = role.getCreepBody(room, option);
 
-        const creepCost = _.sumBy(body, (part) => BODYPART_COST[part]);
+        const creepCost = sum(body, (part) => BODYPART_COST[part]);
         room.visual.text(
           room.energyAvailable + "/" + creepCost,
           spawn.pos.x + 0.05,
@@ -216,8 +223,8 @@ export default class SpawnManager {
       });
     }
 
-    _.each(spawns, (spawn) => {
-      spawn.numSpawnOptions = _.size(options);
+    each(spawns, (spawn) => {
+      spawn.numSpawnOptions = size(options);
     });
   }
 
@@ -277,7 +284,7 @@ export default class SpawnManager {
           result,
         );
 
-      const bodyCost = _.sumBy(body, (part) => BODYPART_COST[part]);
+      const bodyCost = sum(body, (part) => BODYPART_COST[part]);
       hivemind
         .log("creeps", room.name)
         .error(
@@ -293,7 +300,7 @@ export default class SpawnManager {
         result === ERR_NOT_ENOUGH_RESOURCES &&
         bodyCost <= room.energyCapacityAvailable &&
         bodyCost <= room.energyAvailable &&
-        _.size(room.creepsByRole.transporter) === 0
+        size(room.creepsByRole.transporter) === 0
       ) {
         // Sometimes rooms have problems recovering due to downgrades.
         // We get ERR_NOT_ENOUGH_RESOURCES even though we should have enough.
@@ -396,7 +403,7 @@ export default class SpawnManager {
    *   An array containing all spawns where spawning is possible.
    */
   filterAvailableSpawns(spawns: StructureSpawn[]): StructureSpawn[] {
-    return _.filter(spawns, (spawn) => {
+    return filter(spawns, (spawn) => {
       if (spawn.spawning) return false;
 
       return true;
@@ -425,14 +432,14 @@ export default class SpawnManager {
         const position = new RoomPosition(x, y, spawn.room.name);
         const dir = spawn.pos.getDirectionTo(position);
         if (!spawnDirections.includes(dir)) return;
-        if (_.some(closeCreeps, (c) => position.isEqualTo(c.pos))) return;
+        if (some(closeCreeps, (c) => position.isEqualTo(c.pos))) return;
 
         // Direction might be blocked by something else, like terrain,
         // structures or power creeps.
         if (terrain.get(x, y) === TERRAIN_MASK_WALL) return;
         if (position.lookFor(LOOK_POWER_CREEPS).length > 0) return;
         if (
-          _.some(position.lookFor(LOOK_STRUCTURES), (s) =>
+          some(position.lookFor(LOOK_STRUCTURES), (s) =>
             (OBSTACLE_OBJECT_TYPES as string[]).includes(s.structureType),
           )
         )
@@ -446,7 +453,7 @@ export default class SpawnManager {
       for (const creep of closeCreeps) {
         if (!creep.my) continue;
 
-        creep.move(_.sample(allDirections));
+        creep.move(sample(allDirections));
       }
     }
   }

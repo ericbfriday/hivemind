@@ -1,5 +1,4 @@
-import _ from "lodash";
-import hivemind from "hivemind";
+import hivemind from "@/hivemind";
 
 declare global {
   type CacheEntry<T> = {

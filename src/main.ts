@@ -1,8 +1,11 @@
-import _ from "lodash";
+import size from "lodash/size";
+import each from "lodash/each";
+import filter from "lodash/filter";
+import some from "lodash/some";
 /* global RawMemory */
 
 // Make sure game object prototypes are enhanced.
-import { ErrorMapper } from "utils/ErrorMapper";
+import { ErrorMapper } from "@/utils/ErrorMapper";
 
 import "./prototype/construction-site";
 import "./prototype/cost-matrix";
@@ -15,52 +18,52 @@ import hivemind, {
 	PROCESS_PRIORITY_ALWAYS,
 	PROCESS_PRIORITY_LOW,
 	PROCESS_PRIORITY_HIGH,
-} from "hivemind";
-import SegmentedMemory from "utils/segmented-memory";
+} from "@/hivemind";
+import SegmentedMemory from "@/utils/segmented-memory";
 
-import container from "utils/container";
-import containerSetup from "container-factory";
+import container from "@/utils/container";
+import containerSetup from "@/container-factory";
 
-import balancer from "excess-energy-balancer";
+import balancer from "@/excess-energy-balancer";
 
-import { getRoomIntel, RoomIntelMemory } from "room-intel";
-import { PlayerIntelMemory } from "player-intel";
-import { RoomPlannerMemory } from "room/planner/room-planner";
+import { getRoomIntel, RoomIntelMemory } from "@/room-intel";
+import { PlayerIntelMemory } from "@/player-intel";
+import { RoomPlannerMemory } from "@/room/planner/room-planner";
 
-import RoomStatus from "room/room-status";
+import RoomStatus from "@/room/room-status";
 
 // Load top-level processes.
-import AlliesProcess from "process/allies";
-import CleanupProcess from "process/cleanup";
-import CreepsProcess from "process/creeps";
-import DepositMiningProcess from "process/strategy/deposits";
-import ExpandProcess from "process/strategy/expand";
-import InitProcess from "process/init";
-import interShard from "intershard";
-import InterShardProcess from "process/strategy/intershard";
-import ManagePowerCreepsProcess from "process/power-creeps/manage";
-import MapVisualsProcess from "process/map-visuals";
-import PlayerIntelProcess from "process/player-intel";
-import PowerMiningProcess from "process/strategy/power";
-import ReclaimProcess from "process/strategy/reclaim";
-import RemoteMiningProcess from "process/strategy/mining";
-import ReportProcess from "process/report";
-import ResourcesProcess from "process/resources";
-import RoomsProcess from "process/rooms";
-import ScoutProcess from "process/strategy/scout";
-import SpawnPowerCreepsProcess from "process/power-creeps/spawn";
-import TradeProcess from "process/trade";
+import AlliesProcess from "@/process/allies";
+import CleanupProcess from "@/process/cleanup";
+import CreepsProcess from "@/process/creeps";
+import DepositMiningProcess from "@/process/strategy/deposits";
+import ExpandProcess from "@/process/strategy/expand";
+import InitProcess from "@/process/init";
+import interShard from "@/intershard";
+import InterShardProcess from "@/process/strategy/intershard";
+import ManagePowerCreepsProcess from "@/process/power-creeps/manage";
+import MapVisualsProcess from "@/process/map-visuals";
+import PlayerIntelProcess from "@/process/player-intel";
+import PowerMiningProcess from "@/process/strategy/power";
+import ReclaimProcess from "@/process/strategy/reclaim";
+import RemoteMiningProcess from "@/process/strategy/mining";
+import ReportProcess from "@/process/report";
+import ResourcesProcess from "@/process/resources";
+import RoomsProcess from "@/process/rooms";
+import ScoutProcess from "@/process/strategy/scout";
+import SpawnPowerCreepsProcess from "@/process/power-creeps/spawn";
+import TradeProcess from "@/process/trade";
 
 /* eslint-disable import/no-unassigned-import */
 import "./manager.military";
 import "./manager.source";
 /* eslint-enable import/no-unassigned-import */
 
-import cache from "utils/cache";
+import cache from "@/utils/cache";
 
 // Allow profiling of code.
-import stats from "utils/stats";
-import * as Profiler from "utils/Profiler";
+import stats from "@/utils/stats";
+import * as Profiler from "@/utils/Profiler";
 
 declare global {
 	interface RawMemory {
@@ -96,14 +99,14 @@ hivemind.logGlobalReset();
 
 containerSetup(container);
 
-const globalResetCallback = hivemind.settings.get('onGlobalReset');
+const globalResetCallback: unknown = hivemind.settings.get('onGlobalReset' as keyof SettingsObject);
 if (globalResetCallback) {
-	globalResetCallback();
+	(globalResetCallback as unknown as () => void)();
 }
 
 balancer.init();
 
-class BotKernel {
+export class BotKernel {
 	lastTime: number = 0;
 	lastMemory: Memory = null;
 
@@ -165,7 +168,7 @@ class BotKernel {
 
 		if (shardHasRooms) {
 			hivemind.runProcess("strategy.remote_mining", RemoteMiningProcess, {
-				interval: _.size(Game.myRooms) === 1 ? 20 : 100,
+				interval: size(Game.myRooms) === 1 ? 20 : 100,
 			});
 
 			hivemind.runProcess("player-intel", PlayerIntelProcess, {
@@ -236,6 +239,7 @@ class BotKernel {
 
 	useMemoryFromHeap() {
 		if (this.lastTime && this.lastMemory && Game.time === this.lastTime + 1) {
+			// @ts-expect-error node fun
 			delete global.Memory;
 			global.Memory = this.lastMemory;
 			RawMemory._parsed = this.lastMemory;
@@ -267,7 +271,7 @@ class BotKernel {
 
 		stats.recordStat("cpu_total", time);
 		stats.recordStat("bucket", Game.cpu.bucket);
-		stats.recordStat("creeps", _.size(Game.creeps));
+		stats.recordStat("creeps", size(Game.creeps));
 	}
 
 	/**
@@ -340,7 +344,7 @@ class BotKernel {
 
 		// Periodically clean memory that is no longer needed.
 		if (Game.time % 1234 === 56) {
-			_.each(Memory.rooms, (roomMemory: DeprecatedRoomMemory) => {
+			each(Memory.rooms, (roomMemory: DeprecatedRoomMemory) => {
 				delete roomMemory.bays;
 				delete roomMemory.minerals;
 				delete roomMemory.remoteHarvesting;
@@ -359,7 +363,7 @@ class BotKernel {
 
 	cleanupRoomMemory() {
 		let count = 0;
-		_.each(Memory.rooms, (memory, roomName) => {
+		each(Memory.rooms, (memory, roomName) => {
 			if (getRoomIntel(roomName).getAge() > 100_000) {
 				delete Memory.rooms[roomName];
 				count++;
@@ -376,7 +380,7 @@ class BotKernel {
 	}
 
 	cleanupSquadMemory() {
-		_.each(Memory.squads, (memory, squadName) => {
+		each(Memory.squads, (memory, squadName) => {
 			// Only delete if squad can't be spawned.
 			if (memory.spawnRoom && Game.rooms[memory.spawnRoom]) return;
 
@@ -385,8 +389,8 @@ class BotKernel {
 
 			// Only delete if there are no creeps belonging to this squad.
 			if (
-				_.size(
-					_.filter(
+				size(
+					filter(
 						Game.creeps,
 						(creep) => creep.memory.squadName === squadName,
 					),
@@ -404,7 +408,7 @@ class BotKernel {
 			if (route.active) continue;
 
 			if (
-				_.some(
+				some(
 					Game.creepsByRole?.mule || [],
 					(creep: MuleCreep) => creep.memory.route === routeName,
 				)

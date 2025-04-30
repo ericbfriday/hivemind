@@ -1,4 +1,3 @@
-import _ from "lodash";
 interface Memory {
   profiler: ProfilerMemory;
 }

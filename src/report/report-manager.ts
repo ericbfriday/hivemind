@@ -1,5 +1,4 @@
-import _ from "lodash";
-import container from "utils/container";
+import container from "@/utils/container";
 
 declare global {
   interface ReportClasses {}

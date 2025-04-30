@@ -1,5 +1,4 @@
-import _ from "lodash";
-import hivemind from "hivemind";
+import hivemind from "@/hivemind";
 
 declare global {
   interface RoomMemory {
@@ -47,7 +46,7 @@ export default class ReclaimManager {
 
     // Reset reclaim timer if we have no defense in the room.
     if ((room.myStructuresByType[STRUCTURE_TOWER] || []).length > 0) return;
-    if ((room.controller.safeMode ?? 0) > 3000) return;
+    if ((room.controller.safeMode || 0) > 3000) return;
 
     for (const username in room.enemyCreeps) {
       if (!hivemind.relations.isAlly(username)) {
@@ -107,7 +106,7 @@ export default class ReclaimManager {
 
     return (
       Game.time - room.memory.isReclaimableSince > 2000 ||
-      (room.controller?.safeMode ?? 0) > 2000
+      (room.controller?.safeMode || 0) > 2000
     );
   }
 }

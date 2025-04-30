@@ -1,10 +1,14 @@
-import _ from "lodash";
+import each from "lodash/each";
+import size from "lodash/size";
+import filter from "lodash/filter";
+import min from "lodash/min";
 /* global FIND_MY_CONSTRUCTION_SITES MOVE WORK CARRY */
 
-import BodyBuilder, { MOVEMENT_MODE_ROAD } from "creep/body-builder";
-import cache from "utils/cache";
-import SpawnRole from "spawn-role/spawn-role";
+import BodyBuilder, { MOVEMENT_MODE_ROAD } from "@/creep/body-builder";
+import cache from "@/utils/cache";
+import SpawnRole from "@/spawn-role/spawn-role";
 import { ENEMY_STRENGTH_NORMAL } from "room-defense";
+import minBy from "lodash/minBy";
 
 interface BuilderSpawnOption extends SpawnOption {
   size: number;
@@ -22,7 +26,7 @@ export default class BuilderSpawnRole extends SpawnRole {
       const maxWorkParts = this.getNeededWorkParts(room);
 
       let numberWorkParts = 0;
-      _.each(room.creepsByRole.builder, (creep) => {
+      each(room.creepsByRole.builder, (creep) => {
         numberWorkParts += creep.getActiveBodyparts(WORK) || 0;
       });
 
@@ -93,17 +97,17 @@ export default class BuilderSpawnRole extends SpawnRole {
       return 1;
     }
 
-    if (availableEnergy < 10_000 && _.size(room.creepsByRole.harvester) <= 1) {
+    if (availableEnergy < 10_000 && size(room.creepsByRole.harvester) <= 1) {
       const activeHarvesters =
-        _.size(room.creepsByRole.harvester) +
-        _.filter(
+        size(room.creepsByRole.harvester) +
+        filter(
           Game.creepsByRole["harvester.remote"],
           (creep: RemoteHarvesterCreep) =>
             creep.memory.sourceRoom === room.name,
         ).length;
 
       // Don't overspawn builders if there's hardly any energy income.
-      if (activeHarvesters < _.size(room.sources)) return 1;
+      if (activeHarvesters < size(room.sources)) return 1;
     }
 
     let maxWorkParts = 5;
@@ -114,7 +118,7 @@ export default class BuilderSpawnRole extends SpawnRole {
     // There are a lot of ramparts in planned rooms, spawn builders appropriately.
     // @todo Only if they are not fully built, of course.
     if (room.roomPlanner && room.controller.level >= 4) {
-      maxWorkParts += _.size(room.roomPlanner.getLocations("rampart")) / 10;
+      maxWorkParts += size(room.roomPlanner.getLocations("rampart")) / 10;
     }
 
     // Add more builders if we have a lot of energy to spare.
@@ -160,14 +164,14 @@ export default class BuilderSpawnRole extends SpawnRole {
    */
   getLowestRampartValue(room: Room): number {
     return cache.inHeap("lowestRampart:" + room.name, 100, () => {
-      const ramparts = _.filter(
+      const ramparts = filter(
         room.myStructuresByType[STRUCTURE_RAMPART],
         (s) =>
           room.roomPlanner?.isPlannedLocation(s.pos, "rampart") &&
           !room.roomPlanner?.isPlannedLocation(s.pos, "rampart.ramp"),
       );
 
-      return _.minBy(ramparts, "hits").hits;
+      return minBy(ramparts, "hits").hits;
     });
   }
 

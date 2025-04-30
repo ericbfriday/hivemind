@@ -1,6 +1,7 @@
-import _ from "lodash";
-import hivemind from "hivemind";
-import { getRoomIntel } from "room-intel";
+import keys from "lodash/keys";
+import countBy from "lodash/countBy";
+import hivemind from "@/hivemind";
+import { getRoomIntel } from "@/room-intel";
 
 type CreepIntel = {
   body: Partial<Record<BodyPartConstant, number>>;
@@ -93,7 +94,7 @@ export default class PlayerIntel {
   }
 
   getAllOwnedRooms(): string[] {
-    return _.keys(this.memory.rooms);
+    return keys(this.memory.rooms);
   }
 
   updateOwnedRoom(roomName: string) {
@@ -101,7 +102,7 @@ export default class PlayerIntel {
   }
 
   getAllRemotes(): string[] {
-    return _.keys(this.memory.remotes);
+    return keys(this.memory.remotes);
   }
 
   updateRemote(roomName: string) {
@@ -118,11 +119,11 @@ export default class PlayerIntel {
       if (!this.memory.creeps[creep.id]) {
         // Record some info about this creep.
         this.memory.creeps[creep.id] = {
-          body: _.countBy(creep.body, "type"),
-          boosts: _.countBy(creep.body, "boost"),
+          body: countBy(creep.body, "type"),
+          boosts: countBy(creep.body, "boost"),
           pos: null,
           lastSeen: Game.time,
-          expires: Game.time + (creep.ticksToLive ?? CREEP_LIFE_TIME),
+          expires: Game.time + (creep.ticksToLive || CREEP_LIFE_TIME),
         };
       }
 
@@ -130,7 +131,7 @@ export default class PlayerIntel {
       const creepIntel = this.memory.creeps[creep.id];
 
       creepIntel.lastSeen = Game.time;
-      creepIntel.expires = Game.time + (creep.ticksToLive ?? CREEP_LIFE_TIME);
+      creepIntel.expires = Game.time + (creep.ticksToLive || CREEP_LIFE_TIME);
 
       const { x, y, roomName } = creep.pos;
       creepIntel.pos = { x, y, roomName };

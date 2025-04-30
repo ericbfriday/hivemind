@@ -1,6 +1,5 @@
-import _ from "lodash";
-import TaskProvider from "dispatcher/task-provider";
-import { getDangerMatrix } from "utils/cost-matrix";
+import TaskProvider from "@/dispatcher/task-provider";
+import { getDangerMatrix } from "@/utils/cost-matrix";
 
 declare global {
   interface StructureSourceTask extends ResourceSourceTask {

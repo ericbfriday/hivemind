@@ -1,8 +1,9 @@
-import _ from "lodash";
+import sortBy from "lodash/sortBy";
+import filter from "lodash/filter";
 /* global LINK_CAPACITY */
 
-import Process from "process/process";
-import hivemind from "hivemind";
+import Process from "@/process/process";
+import hivemind from "@/hivemind";
 
 export default class ManageLinksProcess extends Process {
   readonly MIN_ENERGY_TRANSFER = LINK_CAPACITY / 4;
@@ -68,8 +69,8 @@ export default class ManageLinksProcess extends Process {
   }
 
   getBestSourceLink(highLinks: Array<{ link: StructureLink; delta: number }>) {
-    const sorted = _.sortBy(
-      _.filter(highLinks, (link) => link.link.cooldown <= 0),
+    const sorted = sortBy(
+      filter(highLinks, (link) => link.link.cooldown <= 0),
       (link) => -link.delta,
     );
 
@@ -82,7 +83,7 @@ export default class ManageLinksProcess extends Process {
   getBestDesinationLink(
     lowLinks: Array<{ link: StructureLink; delta: number }>,
   ) {
-    const sorted = _.sortBy(lowLinks, (link) => -link.delta);
+    const sorted = sortBy(lowLinks, (link) => -link.delta);
 
     if (sorted[0] && sorted[0].delta >= this.MIN_ENERGY_TRANSFER)
       return sorted[0];
@@ -91,8 +92,8 @@ export default class ManageLinksProcess extends Process {
   }
 
   getNeutralHighEnergyLink(): { link: StructureLink; delta: number } {
-    const sorted = _.sortBy(
-      _.filter(
+    const sorted = sortBy(
+      filter(
         this.room.linkNetwork.neutralLinks,
         (link: StructureLink) => link.cooldown <= 0,
       ),
@@ -109,7 +110,7 @@ export default class ManageLinksProcess extends Process {
   }
 
   getNeutralLowEnergyLink(): { link: StructureLink; delta: number } {
-    const sorted = _.sortBy(
+    const sorted = sortBy(
       this.room.linkNetwork.neutralLinks,
       (link: StructureLink) => link.energy,
     );

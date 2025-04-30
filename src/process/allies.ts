@@ -1,7 +1,6 @@
-import _ from "lodash";
-import hivemind from "hivemind";
-import Process from "process/process";
-import { FunnelGoal, simpleAllies } from "utils/communication";
+import hivemind from "@/hivemind";
+import Process from "@/process/process";
+import { FunnelGoal, simpleAllies } from "@/utils/communication";
 
 declare global {
   interface Memory {
@@ -65,7 +64,7 @@ export default class AlliesProcess extends Process {
               : request.goalType === FunnelGoal.GCL
                 ? 1
                 : -1,
-        timeout: request.timeout ?? Game.time + 100,
+        timeout: request.timeout || Game.time + 100,
       };
     }
 
@@ -83,7 +82,7 @@ export default class AlliesProcess extends Process {
         lastSeen: Game.time,
         priority: Number(request.priority),
         // @todo handle timeout
-        timeout: request.timeout ?? Game.time + 100,
+        timeout: request.timeout || Game.time + 100,
       };
     }
   }

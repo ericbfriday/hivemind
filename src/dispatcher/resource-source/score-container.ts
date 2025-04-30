@@ -1,5 +1,5 @@
 import TaskProvider from 'dispatcher/task-provider';
-import { getDangerMatrix } from 'utils/cost-matrix';
+import { getDangerMatrix } from '@/utils/cost-matrix';
 
 interface ScoreContainerSourceTask extends ResourceSourceTask {
     type: 'score-container';

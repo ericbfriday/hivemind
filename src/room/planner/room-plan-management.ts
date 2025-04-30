@@ -1,6 +1,5 @@
-import _ from "lodash";
-import hivemind from "hivemind";
-import RoomPlan from "room/planner/room-plan";
+import hivemind from "@/hivemind";
+import RoomPlan from "@/room";planner/room-plan";
 
 declare global {
   type RoomPlanWithVersion = {

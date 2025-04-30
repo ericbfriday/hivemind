@@ -1,7 +1,7 @@
-import _ from "lodash";
-import cache from "utils/cache";
-import StructureDestination from "dispatcher/resource-destination/structure";
-import utilities from "utilities";
+import sum from "lodash/sum";
+import cache from "@/utils/cache";
+import StructureDestination from "@/dispatcher/resource-destination/structure";
+import utilities from "@/utilities";
 
 interface ContainerDestinationTask extends StructureDestinationTask {
   type: "container";
@@ -47,7 +47,7 @@ export default class ContainerDestination extends StructureDestination<Container
     if (!container) return;
 
     // @todo Take into account boosts.
-    const upgraderWorkParts = _.sumBy(this.room.creepsByRole.upgrader, (creep) =>
+    const upgraderWorkParts = sum(this.room.creepsByRole.upgrader, (creep) =>
       creep.getActiveBodyparts(WORK),
     );
     const refillPathLength = cache.inHeap(
@@ -74,7 +74,7 @@ export default class ContainerDestination extends StructureDestination<Container
     const totalNeededEnergy =
       container.store.getFreeCapacity() +
       usedEnergyUntilArrival -
-      _.sumBy(otherDeliveringCreeps, (c) =>
+      sum(otherDeliveringCreeps, (c) =>
         c.store.getUsedCapacity(RESOURCE_ENERGY),
       );
 
@@ -123,7 +123,7 @@ export default class ContainerDestination extends StructureDestination<Container
       return false;
 
     // @todo Take into account boosts.
-    const upgraderWorkParts = _.sumBy(this.room.creepsByRole.upgrader, (creep) =>
+    const upgraderWorkParts = sum(this.room.creepsByRole.upgrader, (creep) =>
       creep.getActiveBodyparts(WORK),
     );
     const refillPathLength = context.creep.pos.getRangeTo(structure.pos);
@@ -136,7 +136,7 @@ export default class ContainerDestination extends StructureDestination<Container
     const totalNeededEnergy =
       structure.store.getFreeCapacity() +
       usedEnergyUntilArrival -
-      _.sumBy(otherDeliveringCreeps, (c) => {
+      sum(otherDeliveringCreeps, (c) => {
         if (c.id === context.creep.id) return 0;
         if (c.pos.getRangeTo(structure.pos) > refillPathLength) return 0;
 

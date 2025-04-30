@@ -1,13 +1,13 @@
-import _ from "lodash";
+import filter from "lodash/filter";
 /* global STRUCTURE_ROAD OK RESOURCE_ENERGY LOOK_CREEPS
 STRUCTURE_CONTAINER FIND_SOURCES LOOK_CONSTRUCTION_SITES
 FIND_MY_CONSTRUCTION_SITES */
 
-import CombatManager from "creep/combat-manager";
-import container from "utils/container";
-import RemoteMiningOperation from "operation/remote-mining";
-import Role from "role/role";
-import { decodePosition, serializePositionPath } from "utils/serialization";
+import CombatManager from "@/creep/combat-manager";
+import container from "@/utils/container";
+import RemoteMiningOperation from "@/operation/remote-mining";
+import Role from "@/role/role";
+import { decodePosition, serializePositionPath } from "@/utils/serialization";
 
 declare global {
   interface RemoteHarvesterCreep extends Creep {
@@ -200,7 +200,7 @@ export default class RemoteHarvesterRole extends Role {
           creep.memory.source,
         );
         if (!containerPosition) return;
-        const sites = _.filter(
+        const sites = filter(
           containerPosition.lookFor(LOOK_CONSTRUCTION_SITES),
           (site: ConstructionSite) =>
             site.structureType === STRUCTURE_CONTAINER,
@@ -260,7 +260,7 @@ export default class RemoteHarvesterRole extends Role {
     if (creep.store.energy < workParts) return false;
     if (!creep.operation.hasContainer(creep.memory.source)) return false;
 
-    const needsRepair = _.filter(
+    const needsRepair = filter(
       creep.room.structuresByType[STRUCTURE_CONTAINER],
       // Repair if possible so we can save on dedicated builders.
       (structure) =>

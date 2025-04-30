@@ -1,4 +1,3 @@
-import _ from "lodash";
 interface Coord {
   x: number;
   y: number;

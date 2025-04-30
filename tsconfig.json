@@ -5,8 +5,7 @@
     "target": "es2017",
     "moduleResolution": "Node",
     "outDir": "dist",
-    "baseUrl": "./src",
-    "rootDir": "./src",
+    "rootDir": "./",
     "sourceMap": true,
     "strict": false,
     "experimentalDecorators": true,
@@ -17,12 +16,56 @@
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules/typed-screeps"
-    ]
+    ],
+    "paths": {
+      "@/creep/*": [
+        "./src/creep/*"
+      ],
+      "@/dispatcher/*": [
+        "./src/dispatcher/*"
+      ],
+      "@/empire/*": [
+        "./src/empire/*"
+      ],
+      "@/operation/*": [
+        "./src/operation/*"
+      ],
+      "@/process/*": [
+        "./src/process/*"
+      ],
+      "@/prototype/*": [
+        "./src/prototype/*"
+      ],
+      "@/report/*": [
+        "./src/report/*"
+      ],
+      "@/role/*": [
+        "./src/role/*"
+      ],
+      "@/room/*": [
+        "./src/room/*"
+      ],
+      "@/spawn-role/*": [
+        "./src/spawn-role/*"
+      ],
+      "@/utils/*": [
+        "./src/utils/*"
+      ],
+      "@/*": [
+        "./src/*"
+      ],
+    }
   },
   "exclude": [
     "node_modules",
     "test",
     "mock",
-    "*.example.ts"
+    "*.example.ts",
+    "*.config.ts",
+    "*.config.js",
+    "*.example.js",
+    "dist/",
+    ".yarn",
+    ".vscode"
   ]
 }

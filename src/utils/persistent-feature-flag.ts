@@ -1,5 +1,4 @@
-import _ from "lodash";
-import hivemind from "hivemind";
+import hivemind from "@/hivemind";
 
 class PersistentFeatureFlag<FlagOption extends string> {
   memory: Partial<Record<FlagOption, boolean | number>>;
@@ -29,7 +28,7 @@ class PersistentFeatureFlag<FlagOption extends string> {
   }
 
   getNumeric(flag: FlagOption) {
-    return (this.memory[flag] ?? 0) as number;
+    return (this.memory[flag] || 0) as number;
   }
 
   unset(flag: FlagOption) {

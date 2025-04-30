@@ -1,5 +1,4 @@
-import _ from "lodash";
-import hivemind from "hivemind";
+import hivemind from "@/hivemind";
 
 export const allies = hivemind.relations.allies;
 // This is the conventional segment used for team communication

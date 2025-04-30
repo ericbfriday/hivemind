@@ -1,6 +1,6 @@
-import _ from "lodash";
-import container from "utils/container";
-import { ENEMY_STRENGTH_NORMAL } from "room-defense";
+import filter from "lodash/filter";
+import container from "@/utils/container";
+import { ENEMY_STRENGTH_NORMAL } from "@/room-defense";
 
 export type ResourceLevel = "low" | "medium" | "high" | "excessive";
 export type ResourceLevelCuttoffs = [number, number, number];
@@ -110,8 +110,8 @@ export default class ResourceLevelManager {
 
   private getOpsCutoffs(room: Room): ResourceLevelCuttoffs {
     if (
-      _.filter(Game.powerCreeps, (c) => c.pos?.roomName === room.name)
-        .length === 0
+      filter(Game.powerCreeps, (c) => c.pos?.roomName === room.name).length ===
+      0
     ) {
       return [1, 0, 0];
     }

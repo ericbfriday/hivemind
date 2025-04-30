@@ -15,7 +15,7 @@
 		"url": "https://github.com/Mirroar/hivemind/issues"
 	},
 	"engines": {
-		"node": "^16.0"
+		"node": "20"
 	},
 	"scripts": {
 		"build": "rollup -c",
@@ -26,16 +26,16 @@
 		"@rollup/plugin-commonjs": "^20.0.0",
 		"@rollup/plugin-node-resolve": "^13.0.4",
 		"@types/lodash": "^4.17.16",
-		"@types/node": "^13.13.52",
-		"eslint-import-resolver-typescript": "^2.7.1",
+		"@types/node": "^20.17.32",
+		"eslint-import-resolver-typescript": "4",
 		"grunt": "^1.4.1",
 		"grunt-screeps": "^1.5.0",
-		"grunt-ts": "^6.0.0-beta.22",
+		"grunt-ts": "^5.5.1",
 		"lodash": "^4.17.21",
 		"prettier": "^2.3.2",
 		"rollup": "^2.56.2",
 		"rollup-plugin-clear": "^2.0.7",
-		"rollup-plugin-screeps": "^1.0.1",
+		"rollup-plugin-screeps": "^0.1.2",
 		"rollup-plugin-typescript2": "^0.30.0",
 		"source-map": "~0.6.1",
 		"ts-node": "^10.2.1",
@@ -107,5 +107,8 @@
 				"typescript": {}
 			}
 		}
+	},
+	"volta": {
+		"node": "20.19.1"
 	}
 }

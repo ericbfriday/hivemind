@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import Process from "process/process";
 import hivemind from "hivemind";
 

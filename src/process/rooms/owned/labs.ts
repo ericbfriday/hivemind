@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import Process from "process/process";
 import ReactionsProcess from "process/rooms/owned/labs.reactions";
 import PositionsProcess from "process/rooms/owned/labs.position";

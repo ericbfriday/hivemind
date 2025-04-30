@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global FIND_HOSTILE_CREEPS STRUCTURE_RAMPART */
 
 import container from "utils/container";

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global PathFinder Room RoomPosition RoomVisual CONTROLLER_STRUCTURES
 FIND_SOURCES */
 

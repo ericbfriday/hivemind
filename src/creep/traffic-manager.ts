@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import { getCostMatrix, getDangerMatrix } from "utils/cost-matrix";
 import { handleMapArea } from "utils/map";
 

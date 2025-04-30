@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global BODYPART_COST MAX_CREEP_SIZE TOUGH ATTACK RANGED_ATTACK HEAL */
 
 export default class SpawnRole {

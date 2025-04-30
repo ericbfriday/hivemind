@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global PathFinder STRUCTURE_KEEPER_LAIR */
 
 import cache from "utils/cache";

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import { SourceMapConsumer } from "source-map";
 
 export class ErrorMapper {

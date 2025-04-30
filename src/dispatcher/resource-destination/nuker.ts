@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import settings from "settings-manager";
 import StructureDestination from "dispatcher/resource-destination/structure";
 

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import CombatManager from "./creep/combat-manager";
 import HelpReport from "./report/help";
 import FunnelManager from "./empire/funnel-manager";

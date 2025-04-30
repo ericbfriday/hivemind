@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import defaultSettings from "settings.default";
 import localSettings from "settings.local";
 

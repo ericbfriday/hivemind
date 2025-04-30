@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 function getResourcesIn(
   store: StoreDefinition | Partial<Record<ResourceConstant, any>>,
 ): ResourceConstant[] {

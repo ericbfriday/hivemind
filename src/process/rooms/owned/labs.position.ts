@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global FIND_STRUCTURES STRUCTURE_LAB */
 
 import Process from "process/process";

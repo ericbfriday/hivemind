@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import hivemind from "hivemind";
 import { getExitCenters } from "utils/room-info";
 import { getRoomIntel } from "room-intel";

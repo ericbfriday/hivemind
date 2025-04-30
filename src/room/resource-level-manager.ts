@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import container from "utils/container";
 import { ENEMY_STRENGTH_NORMAL } from "room-defense";
 

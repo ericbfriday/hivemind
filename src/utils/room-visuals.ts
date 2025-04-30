@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 interface TableDefinition {
   data: string[][];
   top: number;

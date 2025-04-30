@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 const MOVEMENT_MODE_ROAD = 0;
 const MOVEMENT_MODE_PLAINS = 1;
 const MOVEMENT_MODE_SWAMP = 2;

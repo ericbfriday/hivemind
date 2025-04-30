@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global REACTIONS */
 
 import container from "utils/container";

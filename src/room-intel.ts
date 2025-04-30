@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global PathFinder Room RoomPosition
 STRUCTURE_KEEPER_LAIR STRUCTURE_CONTROLLER FIND_SOURCES
 TERRAIN_MASK_WALL TERRAIN_MASK_SWAMP POWER_BANK_DECAY STRUCTURE_PORTAL

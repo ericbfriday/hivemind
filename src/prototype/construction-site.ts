@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global ConstructionSite OBSTACLE_OBJECT_TYPES */
 
 declare global {

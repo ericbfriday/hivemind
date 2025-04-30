@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import RoomPlan from "room/planner/room-plan";
 import RoomPlanMatrixGenerator from "room/planner/matrix-generator";
 import RoomPlanScorer from "room/planner/room-plan-scorer";

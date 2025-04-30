@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global InterShardMemory */
 
 import { encodePosition } from "utils/serialization";

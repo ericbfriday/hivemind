@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import RoomPlan from "room/planner/room-plan";
 import { encodePosition, decodePosition } from "utils/serialization";
 import { handleMapArea } from "utils/map";

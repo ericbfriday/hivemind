@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global RoomPosition OK */
 
 import cache from "utils/cache";

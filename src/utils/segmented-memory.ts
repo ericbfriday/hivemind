@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global RawMemory */
 
 import hivemind from "hivemind";

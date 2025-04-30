@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import cache from "utils/cache";
 import container from "utils/container";
 import TradeRoute from "trade-route";

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import Dispatcher from "dispatcher/dispatcher";
 
 import ContainerSource from "dispatcher/resource-source/container";

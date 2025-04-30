@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import cache from "utils/cache";
 
 export type ExitCoords = {

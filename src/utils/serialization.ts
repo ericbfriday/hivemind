@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 const xOffsets = {
   [TOP]: 0,
   [TOP_RIGHT]: 1,

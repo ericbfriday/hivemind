@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global CLAIM WORK */
 
 import interShard from "intershard";

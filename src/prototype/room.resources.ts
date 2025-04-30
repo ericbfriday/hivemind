@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global Room RoomPosition RESOURCE_ENERGY LOOK_RESOURCES
 RESOURCE_POWER STRUCTURE_LAB RESOURCES_ALL */
 

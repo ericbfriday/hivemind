@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import hivemind from "hivemind";
 
 export const allies = hivemind.relations.allies;

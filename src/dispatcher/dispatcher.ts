@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import TaskProvider from "dispatcher/task-provider";
 import utilities from "utilities";
 

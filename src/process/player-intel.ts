@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import container from "utils/container";
 import hivemind from "hivemind";
 import PlayerIntelManager from "player-intel-manager";

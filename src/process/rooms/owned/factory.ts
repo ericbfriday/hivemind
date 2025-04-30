@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import Process from "process/process";
 import settings from "settings-manager";
 import { drawTable } from "utils/room-visuals";

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /**
  * Runs a function for every tile in range around a given center coordinate.
  *

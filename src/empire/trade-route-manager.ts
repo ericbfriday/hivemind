@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import { ENEMY_STRENGTH_NONE } from "room-defense";
 import ResourceLevelManager from "room/resource-level-manager";
 import cache from "utils/cache";

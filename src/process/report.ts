@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global RESOURCE_POWER */
 
 import Process from "process/process";

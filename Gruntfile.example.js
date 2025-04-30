@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 module.exports = function (grunt) {
   grunt.loadNpmTasks("grunt-screeps");
 

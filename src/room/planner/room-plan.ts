@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import { packCoordList, unpackCoordListAsPosList } from "utils/packrat";
 import { serializeCoords } from "utils/serialization";
 

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import cache from "utils/cache";
 import StructureDestination from "dispatcher/resource-destination/structure";
 import utilities from "utilities";

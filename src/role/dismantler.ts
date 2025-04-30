@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global RoomPosition LOOK_STRUCTURES STRUCTURE_RAMPART */
 
 import RemoteMiningOperation from "operation/remote-mining";

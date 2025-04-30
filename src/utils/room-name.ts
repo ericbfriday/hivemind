@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 function isHighway(roomName: string): boolean {
   return roomName.includes("0");
 }

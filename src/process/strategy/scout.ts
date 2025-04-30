@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global RoomPosition OBSERVER_RANGE SOURCE_ENERGY_CAPACITY */
 
 import container from "utils/container";

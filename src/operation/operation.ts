@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import RemoteMiningOperation from "operation/remote-mining";
 import RoomOperation from "operation/room";
 

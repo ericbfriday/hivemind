@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* tslint:disable:ban-types */
 export function init(): Profiler {
   const defaults = {

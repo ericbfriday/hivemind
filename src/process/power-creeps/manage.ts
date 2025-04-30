@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global PowerCreep POWER_CREEP_MAX_LEVEL POWER_CLASS POWER_INFO
 PWR_OPERATE_FACTORY */
 

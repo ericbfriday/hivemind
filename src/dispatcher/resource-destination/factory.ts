@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import StructureDestination from "dispatcher/resource-destination/structure";
 
 interface FactoryDestinationTask extends StructureDestinationTask {

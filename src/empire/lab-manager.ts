@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 export default class LabManager {
   public getReactionFor(
     room: Room,

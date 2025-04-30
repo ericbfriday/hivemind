@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /**
  * Contains room prototype enhancements concerned with managing creeps.
  */

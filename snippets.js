@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /**
  * Contains small code snippets for use in the console. Do not require this file.
  */

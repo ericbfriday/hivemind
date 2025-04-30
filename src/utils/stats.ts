@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 declare global {
   type HistoryStatMemory = Record<
     number,

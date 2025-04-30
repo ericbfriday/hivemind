@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global CONTROLLER_DOWNGRADE MOVE WORK CARRY
 CONTROLLER_MAX_UPGRADE_PER_TICK */
 

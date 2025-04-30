@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global hivemind MOVE CARRY */
 
 import BodyBuilder from "creep/body-builder";

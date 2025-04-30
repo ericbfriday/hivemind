@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /**
  * Exmple relations file for user relations.
  *

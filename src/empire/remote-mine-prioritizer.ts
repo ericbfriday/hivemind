@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import container from "utils/container";
 import RoomStatus from "room/room-status";
 import settings from "settings-manager";

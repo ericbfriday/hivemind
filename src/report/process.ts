@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import { drawTable } from "utils/room-visuals";
 import { getCallStats, getElapsedTicks } from "utils/cpu";
 

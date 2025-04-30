@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import TaskProvider from "dispatcher/task-provider";
 import { ENEMY_STRENGTH_NONE } from "room-defense";
 import { getDangerMatrix } from "utils/cost-matrix";

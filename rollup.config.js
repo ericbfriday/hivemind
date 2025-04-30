@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import clear from "rollup-plugin-clear";
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global PWR_OPERATE_SPAWN POWER_INFO */
 
 import container from "utils/container";

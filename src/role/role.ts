@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global RoomPosition RIGHT LEFT TOP BOTTOM */
 
 import { ENEMY_STRENGTH_NONE } from "room-defense";

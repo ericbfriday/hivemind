@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global MOVE CARRY */
 
 import BodyBuilder, { MOVEMENT_MODE_ROAD } from "creep/body-builder";

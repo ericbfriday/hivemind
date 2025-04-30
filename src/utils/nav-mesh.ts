@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global PathFinder Room RoomPosition LEFT RIGHT TOP BOTTOM
 TERRAIN_MASK_WALL STRUCTURE_KEEPER_LAIR */
 

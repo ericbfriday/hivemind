@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import container from "utils/container";
 import CreepManager from "creep-manager";
 import hivemind from "hivemind";

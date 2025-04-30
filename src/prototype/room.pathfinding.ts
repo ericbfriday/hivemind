@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global Room FIND_MY_CONSTRUCTION_SITES STRUCTURE_KEEPER_LAIR */
 
 import hivemind from "hivemind";

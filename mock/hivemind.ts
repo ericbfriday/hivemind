@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 const MockHivemind = function () {};
 
 MockHivemind.prototype.log = function () {

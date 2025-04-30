@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global FIND_HOSTILE_STRUCTURES STRUCTURE_INVADER_CORE */
 
 import cache from "utils/cache";

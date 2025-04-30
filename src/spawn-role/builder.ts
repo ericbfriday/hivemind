@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global FIND_MY_CONSTRUCTION_SITES MOVE WORK CARRY */
 
 import BodyBuilder, { MOVEMENT_MODE_ROAD } from "creep/body-builder";

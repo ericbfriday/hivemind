@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 import PlacementManager from "room/planner/placement-manager";
 import RoomPlan from "room/planner/room-plan";
 import { encodePosition } from "utils/serialization";

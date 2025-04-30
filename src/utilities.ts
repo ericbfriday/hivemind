@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global PathFinder RoomPosition REACTIONS BODYPART_COST */
 
 import cache from "utils/cache";

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global POWER_SPAWN_ENERGY_RATIO STRUCTURE_TOWER */
 
 import balancer from "excess-energy-balancer";

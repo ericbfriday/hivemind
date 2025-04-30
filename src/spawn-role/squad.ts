@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global MOVE ATTACK RANGED_ATTACK HEAL TOUGH CLAIM CARRY WORK */
 
 import BodyBuilder, { MOVEMENT_MODE_SWAMP } from "creep/body-builder";

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global RESOURCE_ENERGY OK STRUCTURE_CONTAINER WORK
 UPGRADE_CONTROLLER_POWER */
 

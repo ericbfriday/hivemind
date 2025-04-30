@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global RoomPosition MOVE ATTACK HEAL RANGED_ATTACK ATTACK_POWER
 RANGED_ATTACK_POWER HEAL_POWER RESOURCE_ENERGY */
 

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global RoomPosition RESOURCE_POWER ATTACK_POWER FIND_TOMBSTONES
 STRUCTURE_POWER_BANK FIND_DROPPED_RESOURCES FIND_RUINS MAX_CREEP_SIZE */
 

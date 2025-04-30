@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _ from "es-toolkit";
 /* global STRUCTURE_TOWER HEAL */
 
 import hivemind from "hivemind";
